@@ -73,4 +73,16 @@ describe('Wobe Response', () => {
 			'tata=tata;, titi=titi;, tata=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;, titi=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;',
 		)
 	})
+
+	it('should get a cookie', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				headers: { Cookie: 'tata=tata; titi=titi;' },
+			}),
+		)
+
+		expect(wobeResponse.getCookie('tata')).toBe('tata')
+		expect(wobeResponse.getCookie('titi')).toBe('titi')
+		expect(wobeResponse.getCookie('toto')).toBeUndefined()
+	})
 })

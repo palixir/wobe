@@ -42,7 +42,7 @@ export class Wobe {
 				if (route) {
 					const wobeResponse = new WobeResponse(req)
 
-					const res = await route?.handler(req, wobeResponse)
+					await route?.handler(req, wobeResponse)
 
 					return wobeResponse.response
 				}

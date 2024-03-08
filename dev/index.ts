@@ -19,9 +19,7 @@ const wobe = new Wobe({
 					value: 'tata',
 				})
 
-				response.deleteCookie('titi')
-
-				console.log(response.response.headers)
+				console.log(response.getCookie('titi').value)
 			},
 			method: 'GET',
 		},

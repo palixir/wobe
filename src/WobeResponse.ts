@@ -44,7 +44,19 @@ export class WobeResponse {
 		this.response.headers.append('Set-Cookie', cookie)
 	}
 
+	getCookie(cookieName: string) {
+		const cookies = this.request.headers.get('Cookie')
+
+		if (!cookies) return
+
+		const cookie = cookies.split(';').find((c) => c.includes(cookieName))
+
+		if (!cookie) return
+
+		return cookie.split('=')[1]
+	}
+
 	deleteCookie(name: string) {
-		this.setCookie({ name, value: '', maxAge: 0 })
+		this.setCookie({ name, value: '', expires: new Date(0) })
 	}
 }
