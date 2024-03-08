@@ -6,21 +6,7 @@ const wobe = new Wobe({
 	routes: [
 		{
 			path: '/test',
-			handler: (request: Request, response: WobeResponse) => {
-				response.setCookie({
-					name: 'titi',
-					value: 'test',
-					httpOnly: true,
-					secure: true,
-				})
-
-				response.setCookie({
-					name: 'tata',
-					value: 'tata',
-				})
-
-				console.log(response.getCookie('titi').value)
-			},
+			handler: (request: Request, response: WobeResponse) => {},
 			method: 'GET',
 		},
 	],
