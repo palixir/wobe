@@ -62,7 +62,7 @@ describe('Wobe router', () => {
 		)
 	})
 
-	it.skip('should find a simple route', () => {
+	it('should find a simple route', () => {
 		const route = '/a/simple/route'
 
 		const router = new Router()

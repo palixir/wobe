@@ -10,6 +10,30 @@ export class Router {
 		return { path, children: [] }
 	}
 
+	find(path: string): Node | undefined {
+		let currentNode = this.root
+
+		for (let i = 0; i < path.length; i++) {
+			const char = path[i]
+
+			if (char === '/' && i !== 0) {
+				console.log('HERE', path.slice(i - 1, path.indexOf('/', i)))
+				// TODO : Maybe used a for loop
+				const nextNode = currentNode.children.find(
+					(node) =>
+						node.path ===
+						path.slice(i - 1, path.indexOf('/', i - 1)),
+				)
+
+				if (!nextNode) return undefined
+
+				currentNode = nextNode
+			}
+		}
+
+		return currentNode
+	}
+
 	compile(routes: Array<string>) {
 		for (let i = 0; i < routes.length; i++) {
 			let route = routes[i]
