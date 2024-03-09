@@ -24,7 +24,9 @@ export class Router {
 			if ((char === '/' && i !== 0) || i === path.length - 1) {
 				// TODO : Maybe used a for loop
 				const nextNode = currentNode.children.find(
-					(node) => node.name === currentPath || node.name[0] === ':',
+					(node) =>
+						node.name === currentPath ||
+						(node.name[0] === ':' && currentPath !== ''),
 				)
 
 				if (!nextNode) return undefined

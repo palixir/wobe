@@ -280,4 +280,39 @@ describe('Wobe router', () => {
 
 		expect(foundedRoute2?.name).toBe('info2')
 	})
+
+	it('should find a route with difference name in the route', () => {
+		const router = new Router()
+
+		router.compile([
+			'/user/:id/profile/:section/section/:subsection/info',
+			'/user/:id/profile/:section/section2/:subsection/info2',
+		])
+
+		const foundedRoute = router.find(
+			'/user/123/profile/456/section/789/info',
+		)
+
+		expect(foundedRoute?.name).toBe('info')
+
+		const foundedRoute2 = router.find(
+			'/user/123/profile/456/section2/789/info2',
+		)
+
+		expect(foundedRoute2?.name).toBe('info2')
+	})
+
+	// Here we supose that a dynamic parameter is mandory when specified in the route
+	it('should not find a route with missing dynamic parameter', () => {
+		const router = new Router()
+
+		router.compile([
+			'/user/:id/profile/:section/section/:subsection/info',
+			'/user/:id/profile/:section/section/:subsection/info2',
+		])
+
+		const foundedRoute = router.find('/user/123/profile/456/section//info')
+
+		expect(foundedRoute).toBeUndefined()
+	})
 })
