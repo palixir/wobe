@@ -142,6 +142,18 @@ describe('Wobe router', () => {
 		).toBe('info2')
 	})
 
+	it('should not compile route with same element in dynamic and static parameters', () => {
+		const router = new Router()
+
+		expect(() =>
+			router.compile([
+				'/user/:id/profile/:section/section/:subsection/info',
+				'/user/:id/profile/:section/section/:subsection/info2',
+				'/user/id/information',
+			]),
+		).toThrow('Route already exist with the ":id" parameter')
+	})
+
 	it('should find a simple route', () => {
 		const router = new Router()
 

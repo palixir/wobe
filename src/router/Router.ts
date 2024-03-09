@@ -52,26 +52,19 @@ export class Router {
 				const char = route[j]
 
 				if ((char === '/' && j !== 0) || j === route.length - 1) {
+					const currentPath = route.slice(
+						// + 1 to remove the / at the begining
+						previousWildcardIndex + 1,
+						// + 1 to remove the ending / if no wildcard at the end
+						char === '/' ? j : j + 1,
+					)
+
 					const routeAlreadyExist = currentNode.children.find(
-						(node) =>
-							node.name ===
-							route.slice(
-								// + 1 to remove the / at the begining
-								previousWildcardIndex + 1,
-								// + 1 to remove the ending / if no wildcard at the end
-								char === '/' ? j : j + 1,
-							),
+						(node) => node.name === currentPath,
 					)
 
 					// We remove the wildcard to optimize the research
-					const node = this.createNode(
-						route.slice(
-							// + 1 to remove the / at the begining
-							previousWildcardIndex + 1,
-							// + 1 to remove the ending / if no wildcard at the end
-							char === '/' ? j : j + 1,
-						),
-					)
+					const node = this.createNode(currentPath)
 
 					previousWildcardIndex = j
 
@@ -79,6 +72,20 @@ export class Router {
 						currentNode = routeAlreadyExist
 
 						continue
+					}
+
+					// The following use case is not authorized because the id can be interpreted as a parameter
+					// /user/:id/info and /user/id/anyway are not authorized
+					if (currentPath[0] !== ':') {
+						const sameRouteWithDynamicParameter =
+							currentNode.children.find(
+								(node) => node.name[0] === ':',
+							)
+
+						if (sameRouteWithDynamicParameter)
+							throw new Error(
+								`Route already exist with the "${sameRouteWithDynamicParameter.name}" parameter`,
+							)
 					}
 
 					currentNode.children.push(node)
