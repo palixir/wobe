@@ -6,7 +6,9 @@ const wobe = new Wobe({
 	routes: [
 		{
 			path: '/test',
-			handler: (request: Request, response: WobeResponse) => {},
+			handler: (request: Request, response: WobeResponse) => {
+				response.send('Hello World!')
+			},
 			method: 'GET',
 		},
 	],

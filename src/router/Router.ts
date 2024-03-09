@@ -17,7 +17,7 @@ export class Router {
 			const char = path[i]
 
 			if (char === '/' && i !== 0) {
-				console.log('HERE', path.slice(i - 1, path.indexOf('/', i)))
+				console.log('HERE', path.slice(i - 1))
 				// TODO : Maybe used a for loop
 				const nextNode = currentNode.children.find(
 					(node) =>

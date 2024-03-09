@@ -34,6 +34,7 @@ export class Wobe {
 		return Bun.serve({
 			port: this.options.port,
 			hostname: this.options.hostname,
+			development: false,
 			async fetch(req) {
 				const urlRoute = `/${req.url.split('/')[3]}`
 
@@ -44,7 +45,7 @@ export class Wobe {
 
 					await route?.handler(req, wobeResponse)
 
-					return wobeResponse.response
+					return wobeResponse.getResponse()
 				}
 
 				return new Response('Not found', { status: 404 })

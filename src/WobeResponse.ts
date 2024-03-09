@@ -12,12 +12,23 @@ export interface SetCookieOptions {
 
 export class WobeResponse {
 	public request: Request
-	public response: Response
+	private headers = new Headers({
+		'Content-Type': 'text/plain',
+	})
+	private body: string | null = null
+	private status = 200
+	private statusText = 'OK'
 
 	constructor(request: Request) {
 		this.request = request
+	}
 
-		this.response = new Response()
+	getResponse() {
+		return new Response(this.body, {
+			headers: this.headers,
+			status: this.status,
+			statusText: this.statusText,
+		})
 	}
 
 	setCookie({
@@ -41,7 +52,7 @@ export class WobeResponse {
 		if (secure) cookie = `${cookie} Secure;`
 		if (maxAge) cookie = `${cookie} Max-Age=${maxAge};`
 
-		this.response.headers.append('Set-Cookie', cookie)
+		this.headers.append('Set-Cookie', cookie)
 	}
 
 	getCookie(cookieName: string) {
@@ -58,5 +69,25 @@ export class WobeResponse {
 
 	deleteCookie(name: string) {
 		this.setCookie({ name, value: '', expires: new Date(0) })
+	}
+
+	send(content: string | object) {
+		if (typeof content === 'object') {
+			this.headers.set('Content-Type', 'application/json')
+			this.body = JSON.stringify(content)
+
+			return
+		}
+
+		this.headers.set('charset', 'utf-8')
+		this.body = content
+	}
+
+	sendStatus(status: number) {
+		this.status = status
+	}
+
+	sendStatusText(statusText: string) {
+		this.statusText = statusText
 	}
 }

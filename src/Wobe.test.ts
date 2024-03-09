@@ -10,12 +10,16 @@ describe('Wobe', () => {
 			routes: [
 				{
 					path: '/testGet',
-					handler: () => new Response('Test'),
+					handler: (req, res) => {
+						res.send('Test')
+					},
 					method: 'GET',
 				},
 				{
 					path: '/testPost',
-					handler: () => new Response('Test'),
+					handler: (req, res) => {
+						res.send('Tata')
+					},
 					method: 'POST',
 				},
 			],
