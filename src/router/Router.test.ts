@@ -15,7 +15,7 @@ describe('Wobe router', () => {
 		)
 	})
 
-	it('should compile a simple route without wildcard at the end', () => {
+	it('should compile a simple route without slash at the end', () => {
 		const router = new Router()
 
 		router.compile(['/a/simple/route'])
@@ -28,7 +28,7 @@ describe('Wobe router', () => {
 		)
 	})
 
-	it('should compile a simple route without the wildward at the begining', () => {
+	it('should compile a simple route without the slash at the begining', () => {
 		const router = new Router()
 
 		router.compile(['a/simple/route'])
@@ -77,7 +77,7 @@ describe('Wobe router', () => {
 		)
 	})
 
-	it('should compile a route with a parameter and children (ending with wildcard)', () => {
+	it('should compile a route with a parameter and children (ending with slash)', () => {
 		const router = new Router()
 
 		router.compile(['user/:id/profile/'])
@@ -164,7 +164,7 @@ describe('Wobe router', () => {
 		expect(foundedRoute?.name).toBe('route')
 	})
 
-	it('should find a simple route ending by wildcard', () => {
+	it('should find a simple route ending by slash', () => {
 		const router = new Router()
 
 		router.compile(['/a/simple/route/'])
@@ -218,7 +218,7 @@ describe('Wobe router', () => {
 		expect(foundedRoute?.name).toBe('profile')
 	})
 
-	it('should find a route with a dynamic parameter and a route after the parameter (ending by wildcard)', () => {
+	it('should find a route with a dynamic parameter and a route after the parameter (ending by slash)', () => {
 		const router = new Router()
 
 		router.compile(['/user/:id/profile/'])

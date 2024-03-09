@@ -19,9 +19,11 @@ export class Router {
 		for (let i = 1; i < path.length; i++) {
 			const char = path[i]
 
-			if (char !== '/') currentPath += char
+			const isCharIsSlash = char === '/'
 
-			if ((char === '/' && i !== 0) || i === path.length - 1) {
+			if (!isCharIsSlash) currentPath += char
+
+			if ((isCharIsSlash && i !== 0) || i === path.length - 1) {
 				// TODO : Maybe used a for loop
 				const nextNode = currentNode.children.find(
 					(node) =>
@@ -43,7 +45,7 @@ export class Router {
 		for (let i = 0; i < routes.length; i++) {
 			let route = routes[i]
 
-			let previousWildcardIndex = 0
+			let previousSlashIndex = 0
 			let currentNode = this.root
 
 			if (route[0] !== '/') route = '/' + route
@@ -56,8 +58,8 @@ export class Router {
 				if ((char === '/' && j !== 0) || j === route.length - 1) {
 					const currentPath = route.slice(
 						// + 1 to remove the / at the begining
-						previousWildcardIndex + 1,
-						// + 1 to remove the ending / if no wildcard at the end
+						previousSlashIndex + 1,
+						// + 1 to remove the ending / if no slash at the end
 						char === '/' ? j : j + 1,
 					)
 
@@ -65,10 +67,10 @@ export class Router {
 						(node) => node.name === currentPath,
 					)
 
-					// We remove the wildcard to optimize the research
+					// We remove the slash to optimize the research
 					const node = this.createNode(currentPath)
 
-					previousWildcardIndex = j
+					previousSlashIndex = j
 
 					if (routeAlreadyExist) {
 						currentNode = routeAlreadyExist
