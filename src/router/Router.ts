@@ -52,6 +52,17 @@ export class Router {
 				const char = route[j]
 
 				if ((char === '/' && j !== 0) || j === route.length - 1) {
+					const routeAlreadyExist = currentNode.children.find(
+						(node) =>
+							node.name ===
+							route.slice(
+								// + 1 to remove the / at the begining
+								previousWildcardIndex + 1,
+								// + 1 to remove the ending / if no wildcard at the end
+								char === '/' ? j : j + 1,
+							),
+					)
+
 					// We remove the wildcard to optimize the research
 					const node = this.createNode(
 						route.slice(
@@ -62,12 +73,17 @@ export class Router {
 						),
 					)
 
+					previousWildcardIndex = j
+
+					if (routeAlreadyExist) {
+						currentNode = routeAlreadyExist
+
+						continue
+					}
+
 					currentNode.children.push(node)
 
 					currentNode = node
-					previousWildcardIndex = j
-
-					continue
 				}
 			}
 		}
