@@ -71,7 +71,7 @@ describe('Wobe router', () => {
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('user')
-		expect(router.root.children[0].children[0].name).toBe('id')
+		expect(router.root.children[0].children[0].name).toBe(':id')
 	})
 
 	it('should compile a route with a parameter and children', () => {
@@ -83,7 +83,7 @@ describe('Wobe router', () => {
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('user')
-		expect(router.root.children[0].children[0].name).toBe('id')
+		expect(router.root.children[0].children[0].name).toBe(':id')
 		expect(router.root.children[0].children[0].children[0].name).toBe(
 			'profile',
 		)
@@ -141,7 +141,7 @@ describe('Wobe router', () => {
 		expect(foundedRoute).toBeUndefined()
 	})
 
-	it.only('should find a route with a dynamic parameter', () => {
+	it('should find a route with a dynamic parameter', () => {
 		const route = '/user/:id'
 
 		const router = new Router()
@@ -150,6 +150,18 @@ describe('Wobe router', () => {
 
 		const foundedRoute = router.find('/user/123')
 
-		expect(foundedRoute?.name).toBe('user')
+		expect(foundedRoute?.name).toBe(':id')
+	})
+
+	it('should find a route with a dynamic parameter and a route after the parameter', () => {
+		const route = '/user/:id/profile'
+
+		const router = new Router()
+
+		router.compile([route])
+
+		const foundedRoute = router.find('/user/123/profile')
+
+		expect(foundedRoute?.name).toBe('profile')
 	})
 })

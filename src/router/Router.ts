@@ -24,7 +24,7 @@ export class Router {
 			if ((char === '/' && i !== 0) || i === path.length - 1) {
 				// TODO : Maybe used a for loop
 				const nextNode = currentNode.children.find(
-					(node) => node.name === currentPath,
+					(node) => node.name === currentPath || node.name[0] === ':',
 				)
 
 				if (!nextNode) return undefined
@@ -38,8 +38,6 @@ export class Router {
 	}
 
 	compile(routes: Array<string>) {
-		let isParameterEncountered = false
-
 		for (let i = 0; i < routes.length; i++) {
 			let route = routes[i]
 
@@ -53,19 +51,12 @@ export class Router {
 			for (let j = 0; j < route.length; j++) {
 				const char = route[j]
 
-				if (char === ':') isParameterEncountered = true
-
 				if ((char === '/' && j !== 0) || j === route.length - 1) {
-					const indexOfTheBeginOfTheName = isParameterEncountered
-						? // + 2 to remove the / and the : at the begining
-							previousWildcardIndex + 2
-						: // + 1 to remove the / at the begining
-							previousWildcardIndex + 1
-
 					// We remove the wildcard to optimize the research
 					const node = this.createNode(
 						route.slice(
-							indexOfTheBeginOfTheName,
+							// + 1 to remove the / at the begining
+							previousWildcardIndex + 1,
 							// + 1 to remove the ending / if no wildcard at the end
 							char === '/' ? j : j + 1,
 						),
@@ -75,8 +66,6 @@ export class Router {
 
 					currentNode = node
 					previousWildcardIndex = j
-
-					if (isParameterEncountered) isParameterEncountered = false
 
 					continue
 				}
