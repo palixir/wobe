@@ -5,6 +5,7 @@ export interface Node {
 	children: Array<Node>
 	handler?: Function
 	method?: HttpMethod
+	isParameterNode?: boolean
 }
 
 export class Router {
@@ -14,12 +15,14 @@ export class Router {
 		path,
 		handler,
 		method,
+		isParameterNode,
 	}: {
 		path: string
 		handler?: Function
 		method?: HttpMethod
+		isParameterNode?: boolean
 	}): Node {
-		return { name: path, children: [], handler, method }
+		return { name: path, children: [], handler, method, isParameterNode }
 	}
 
 	find({
@@ -30,29 +33,44 @@ export class Router {
 		method: HttpMethod
 	}): Node | undefined {
 		let currentNode = this.root
-		let currentPath = ''
+		let isFounded = false
+		let indexOfLastSlash = 0
 
 		if (path[path.length - 1] === '*') path = path.slice(0, -1)
+		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 
-		for (let i = 1; i < path.length; i++) {
-			const char = path[i]
+		const pathLength = path.length
 
-			const isCharIsSlash = char === '/'
+		for (let i = 1; i < pathLength; i++) {
+			const isLastCharacter = i === pathLength - 1
 
-			if (!isCharIsSlash) currentPath += char
-
-			if ((isCharIsSlash && i !== 0) || i === path.length - 1) {
-				const nextNode = currentNode.children.find(
-					(node) =>
-						(node.name === currentPath &&
-							(!node.method || node.method === method)) ||
-						(node.name[0] === ':' && currentPath !== ''),
+			if (path[i] === '/' || isLastCharacter) {
+				const currentPath = path.substring(
+					indexOfLastSlash + 1,
+					isLastCharacter ? i + 1 : i,
 				)
 
-				if (!nextNode) return undefined
+				// Use for loop instead of find because it's faster (around 15-20%)
+				for (let j = 0; j < currentNode.children.length; j++) {
+					const child = currentNode.children[j]
 
-				currentNode = nextNode
-				currentPath = ''
+					if (currentPath.length === 0) continue
+
+					if (
+						child.isParameterNode ||
+						(child.name === currentPath &&
+							(!child.method || child.method === method))
+					) {
+						currentNode = child
+						isFounded = true
+						break
+					}
+				}
+
+				if (!isFounded) return undefined
+
+				isFounded = false
+				indexOfLastSlash = i
 			}
 		}
 
@@ -91,6 +109,7 @@ export class Router {
 					// We remove the slash to optimize the research
 					const node = this.createNode({
 						path: currentPath,
+						isParameterNode: currentPath[0] === ':',
 					})
 
 					previousSlashIndex = j
