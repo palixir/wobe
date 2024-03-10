@@ -1,16 +1,34 @@
+import type { HttpMethod, Routes } from '../Wobe'
+
 export interface Node {
 	name: string
 	children: Array<Node>
+	handler?: Function
+	method?: HttpMethod
 }
 
 export class Router {
 	public root: Node = { name: '/', children: [] }
 
-	createNode(path: string): Node {
-		return { name: path, children: [] }
+	createNode({
+		path,
+		handler,
+		method,
+	}: {
+		path: string
+		handler: Function
+		method: HttpMethod
+	}): Node {
+		return { name: path, children: [], handler, method }
 	}
 
-	find(path: string): Node | undefined {
+	find({
+		path,
+		method,
+	}: {
+		path: string
+		method: HttpMethod
+	}): Node | undefined {
 		let currentNode = this.root
 		let currentPath = ''
 
@@ -24,7 +42,6 @@ export class Router {
 			if (!isCharIsSlash) currentPath += char
 
 			if ((isCharIsSlash && i !== 0) || i === path.length - 1) {
-				// TODO : Maybe used a for loop
 				const nextNode = currentNode.children.find(
 					(node) =>
 						node.name === currentPath ||
@@ -41,9 +58,9 @@ export class Router {
 		return currentNode
 	}
 
-	compile(routes: Array<string>) {
+	compile(routes: Routes) {
 		for (let i = 0; i < routes.length; i++) {
-			let route = routes[i]
+			let route = routes[i].path
 
 			let previousSlashIndex = 0
 			let currentNode = this.root
@@ -68,7 +85,11 @@ export class Router {
 					)
 
 					// We remove the slash to optimize the research
-					const node = this.createNode(currentPath)
+					const node = this.createNode({
+						path: currentPath,
+						handler: routes[i].handler,
+						method: routes[i].method,
+					})
 
 					previousSlashIndex = j
 
