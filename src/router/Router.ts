@@ -16,8 +16,8 @@ export class Router {
 		method,
 	}: {
 		path: string
-		handler: Function
-		method: HttpMethod
+		handler?: Function
+		method?: HttpMethod
 	}): Node {
 		return { name: path, children: [], handler, method }
 	}
@@ -44,7 +44,8 @@ export class Router {
 			if ((isCharIsSlash && i !== 0) || i === path.length - 1) {
 				const nextNode = currentNode.children.find(
 					(node) =>
-						node.name === currentPath ||
+						(node.name === currentPath &&
+							(!node.method || node.method === method)) ||
 						(node.name[0] === ':' && currentPath !== ''),
 				)
 
@@ -81,14 +82,15 @@ export class Router {
 					)
 
 					const routeAlreadyExist = currentNode.children.find(
-						(node) => node.name === currentPath,
+						(node) =>
+							node.name === currentPath &&
+							// Node method is undefined for note ending node
+							(!node.method || node.method === routes[i].method),
 					)
 
 					// We remove the slash to optimize the research
 					const node = this.createNode({
 						path: currentPath,
-						handler: routes[i].handler,
-						method: routes[i].method,
 					})
 
 					previousSlashIndex = j
@@ -118,6 +120,9 @@ export class Router {
 					currentNode = node
 				}
 			}
+
+			currentNode.handler = routes[i].handler
+			currentNode.method = routes[i].method
 		}
 	}
 }

@@ -169,6 +169,25 @@ describe('Wobe router', () => {
 		).toThrow('Route already exist with the ":id" parameter')
 	})
 
+	it('should compile a route with http method', () => {
+		const router = new Router()
+
+		router.compile([
+			{ path: '/same/route', method: 'GET' },
+			{ path: '/same/route', method: 'POST' },
+		])
+
+		expect(router.root.name).toBe('/')
+		expect(router.root.children[0].name).toBe('same')
+		expect(router.root.children[0].children[0].name).toBe('route')
+		expect(router.root.children[0].children[0].method).toBe('GET')
+
+		console.log(router.root)
+
+		expect(router.root.children[0].children[1].name).toBe('route')
+		expect(router.root.children[0].children[1].method).toBe('POST')
+	})
+
 	it('should find a simple route', () => {
 		const router = new Router()
 
@@ -397,5 +416,36 @@ describe('Wobe router', () => {
 		})
 
 		expect(foundedRoute).toBeUndefined()
+	})
+
+	it('should find a route by http method', () => {
+		const router = new Router()
+
+		router.compile([
+			{
+				path: '/same/route',
+				method: 'GET',
+			},
+			{
+				path: '/same/route',
+				method: 'POST',
+			},
+		])
+
+		const foundedRoute = router.find({
+			path: '/same/route',
+			method: 'GET',
+		})
+
+		expect(foundedRoute?.name).toBe('route')
+		expect(foundedRoute.method).toBe('GET')
+
+		const foundedRoute2 = router.find({
+			path: '/same/route',
+			method: 'POST',
+		})
+
+		expect(foundedRoute2?.name).toBe('route')
+		expect(foundedRoute2.method).toBe('POST')
 	})
 })
