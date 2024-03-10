@@ -36,6 +36,7 @@ export class Router {
 		let isFounded = false
 		let indexOfLastSlash = 0
 
+		if (path[0] !== '/') path = '/' + path
 		if (path[path.length - 1] === '*') path = path.slice(0, -1)
 		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 

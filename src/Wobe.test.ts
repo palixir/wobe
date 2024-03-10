@@ -34,24 +34,18 @@ describe('Wobe', () => {
 		const res = await fetch('http://127.0.0.1:3000/notfound')
 
 		expect(res.status).toBe(404)
-		expect(await res.text()).toBe('Not found')
-
-		wobe.close()
+		expect(await res.text()).toBe('')
 	})
 
 	it('should return 200 on successfull get request', async () => {
 		const res = await fetch('http://127.0.0.1:3000/testGet')
 
 		expect(res.status).toBe(200)
-
-		wobe.close()
 	})
 
 	it('should return 200 on successfull post request', async () => {
 		const res = await fetch('http://127.0.0.1:3000/testPost')
 
 		expect(res.status).toBe(200)
-
-		wobe.close()
 	})
 })

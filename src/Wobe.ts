@@ -1,6 +1,7 @@
 import type { Server } from 'bun'
 import { WobeResponse } from './WobeResponse'
 import { Router } from './router'
+import { extractPathnameAndSearchParams } from './utils'
 
 export type Routes = Array<{
 	path: string
@@ -41,10 +42,11 @@ export class Wobe {
 			hostname: this.options.hostname,
 			development: false,
 			async fetch(req) {
-				const url = new URL(req.url)
+				const { pathName, searchParams } =
+					extractPathnameAndSearchParams(req.url)
 
 				const route = router.find({
-					path: url.pathname,
+					path: pathName,
 					method: req.method,
 				})
 
@@ -56,7 +58,7 @@ export class Wobe {
 					return wobeResponse.getResponse()
 				}
 
-				return new Response('Not found', { status: 404 })
+				return new Response(null, { status: 404 })
 			},
 		})
 	}

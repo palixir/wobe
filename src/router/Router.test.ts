@@ -182,8 +182,6 @@ describe('Wobe router', () => {
 		expect(router.root.children[0].children[0].name).toBe('route')
 		expect(router.root.children[0].children[0].method).toBe('GET')
 
-		console.log(router.root)
-
 		expect(router.root.children[0].children[1].name).toBe('route')
 		expect(router.root.children[0].children[1].method).toBe('POST')
 	})
@@ -447,5 +445,24 @@ describe('Wobe router', () => {
 
 		expect(foundedRoute2?.name).toBe('route')
 		expect(foundedRoute2.method).toBe('POST')
+	})
+
+	it('should find a route if there is no slash at the begining', () => {
+		const router = new Router()
+
+		router.compile([
+			{
+				path: '/same/route',
+				method: 'GET',
+			},
+		])
+
+		const foundedRoute = router.find({
+			path: 'same/route',
+			method: 'GET',
+		})
+
+		expect(foundedRoute?.name).toBe('route')
+		expect(foundedRoute.method).toBe('GET')
 	})
 })
