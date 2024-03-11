@@ -3,13 +3,10 @@ import type { WobeResponse } from '../src/WobeResponse'
 
 const wobe = new Wobe({
 	port: 3000,
-	routes: [
-		{
-			path: '/test',
-			handler: (request: Request, response: WobeResponse) => {
-				response.send('Hello World!')
-			},
-			method: 'GET',
-		},
-	],
 })
+
+wobe.get('/test', (req, res) => {
+	res.send('Hi')
+})
+
+wobe.start()

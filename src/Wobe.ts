@@ -9,15 +9,9 @@ export type Routes = Array<{
 	method: HttpMethod
 }>
 
-export interface Middleware {
-	handler: (req: Request) => void
-}
-
 export interface WobeOptions {
 	port: number
 	hostname?: string
-	routes: Routes
-	middlewares?: Array<Middleware>
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
@@ -30,19 +24,44 @@ export type WobeHandler = (
 export class Wobe {
 	private options: WobeOptions
 	private server: Server
-	private router: Router
+	private routes: Routes
+	private middlewares: Array<{ pathname: string; handler: WobeHandler }>
 
 	constructor(options: WobeOptions) {
 		this.options = options
-		this.router = new Router()
-
-		this.router.compile(options.routes)
-
-		this.server = this.start(this.router, options.middlewares || [])
+		this.routes = []
+		this.middlewares = []
 	}
 
-	start(router: Router, middlewares: Array<Middleware>) {
-		return Bun.serve({
+	get(path: string, handler: WobeHandler) {
+		this.routes.push({ path, handler, method: 'GET' })
+	}
+
+	post(path: string, handler: WobeHandler) {
+		this.routes.push({ path, handler, method: 'POST' })
+	}
+
+	use(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+		let path = arg1
+
+		if (typeof arg1 !== 'string') {
+			path = '*'
+			handlers.unshift(arg1)
+		}
+
+		handlers.map((handler) => {
+			this.middlewares.push({ pathname: path, handler })
+		})
+	}
+
+	start() {
+		const router = new Router()
+
+		router.compile(this.routes)
+
+		const middlewares = this.middlewares
+
+		this.server = Bun.serve({
 			port: this.options.port,
 			hostname: this.options.hostname,
 			development: false,
@@ -60,9 +79,15 @@ export class Wobe {
 
 					// Run middlewares
 					await Promise.all(
-						middlewares.map((middleware) =>
-							middleware.handler(req),
-						),
+						middlewares
+							.filter(
+								(middleware) =>
+									middleware.pathname === '*' ||
+									middleware.pathname === pathName,
+							)
+							.map((middleware) =>
+								middleware.handler(req, wobeResponse),
+							),
 					)
 
 					await route?.handler?.(req, wobeResponse)
