@@ -18,12 +18,19 @@ export class WobeResponse {
 	private body: string | null = null
 	private status = 200
 	private statusText = 'OK'
+	private response: Response | null = null
 
 	constructor(request: Request) {
 		this.request = request
 	}
 
+	setResponse(response: Response) {
+		this.response = response
+	}
+
 	getResponse() {
+		if (this.response) return this.response
+
 		return new Response(this.body, {
 			headers: this.headers,
 			status: this.status,
