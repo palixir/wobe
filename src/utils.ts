@@ -1,5 +1,9 @@
 export const extractPathnameAndSearchParams = (url: string) => {
-	const matches = url.match(/^(?:https?:\/\/)?(?:[^\/]+)?(.+?)(?:\?(.*))?$/)
+	// With host : /^(?:https?:\/\/)?(?:[^\/]+)?(.+?)(?:\?(.*))?$/
+	// The version with host is more accurate but slower (around 10% slower)
+	const matches = url.match(
+		/^https?:\/\/[^\/]+([^?#]+)(?:\?([^#]*))?(?:#.*)?$/,
+	)
 
 	const pathName = matches?.[1] || ''
 
