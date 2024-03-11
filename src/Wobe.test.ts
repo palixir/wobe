@@ -1,8 +1,18 @@
-import { describe, expect, it, beforeAll, afterAll } from 'bun:test'
+import {
+	describe,
+	expect,
+	it,
+	beforeAll,
+	afterAll,
+	mock,
+	afterEach,
+} from 'bun:test'
 import { Wobe } from './Wobe'
 
 describe('Wobe', () => {
 	let wobe: Wobe
+	const mockMiddleware = mock(() => {})
+	const mockSecondMiddleware = mock(() => {})
 
 	beforeAll(() => {
 		wobe = new Wobe({
@@ -23,11 +33,20 @@ describe('Wobe', () => {
 					method: 'POST',
 				},
 			],
+			middlewares: [
+				{ handler: mockMiddleware },
+				{ handler: mockSecondMiddleware },
+			],
 		})
 	})
 
 	afterAll(() => {
 		wobe.close()
+	})
+
+	afterEach(() => {
+		mockMiddleware.mockClear()
+		mockSecondMiddleware.mockClear()
 	})
 
 	it('should return 404 if the url is not found', async () => {
@@ -49,5 +68,25 @@ describe('Wobe', () => {
 		})
 
 		expect(res.status).toBe(200)
+	})
+
+	it('should handle middlewares before any request', async () => {
+		await fetch('http://127.0.0.1:3000/testGet')
+
+		expect(mockMiddleware).toHaveBeenCalledTimes(1)
+		// @ts-expect-error
+		expect(mockMiddleware.mock.calls[0][0].method).toBe('GET')
+		// @ts-expect-error
+		expect(mockMiddleware.mock.calls[0][0].url).toBe(
+			'http://127.0.0.1:3000/testGet',
+		)
+
+		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
+		// @ts-expect-error
+		expect(mockSecondMiddleware.mock.calls[0][0].method).toBe('GET')
+		// @ts-expect-error
+		expect(mockSecondMiddleware.mock.calls[0][0].url).toBe(
+			'http://127.0.0.1:3000/testGet',
+		)
 	})
 })

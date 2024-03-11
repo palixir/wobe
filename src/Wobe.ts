@@ -9,10 +9,15 @@ export type Routes = Array<{
 	method: HttpMethod
 }>
 
+export interface Middleware {
+	handler: (req: Request) => void
+}
+
 export interface WobeOptions {
 	port: number
 	hostname?: string
 	routes: Routes
+	middlewares?: Array<Middleware>
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
@@ -33,10 +38,10 @@ export class Wobe {
 
 		this.router.compile(options.routes)
 
-		this.server = this.start(this.router)
+		this.server = this.start(this.router, options.middlewares || [])
 	}
 
-	start(router: Router) {
+	start(router: Router, middlewares: Array<Middleware>) {
 		return Bun.serve({
 			port: this.options.port,
 			hostname: this.options.hostname,
@@ -46,12 +51,19 @@ export class Wobe {
 					extractPathnameAndSearchParams(req.url)
 
 				const route = router.find({
-					path: pathName,
+					path: pathName || '/',
 					method: req.method as HttpMethod,
 				})
 
 				if (route) {
 					const wobeResponse = new WobeResponse(req)
+
+					// Run middlewares
+					await Promise.all(
+						middlewares.map((middleware) =>
+							middleware.handler(req),
+						),
+					)
 
 					await route?.handler?.(req, wobeResponse)
 
