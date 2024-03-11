@@ -47,13 +47,13 @@ export class Wobe {
 
 				const route = router.find({
 					path: pathName,
-					method: req.method,
+					method: req.method as HttpMethod,
 				})
 
 				if (route) {
 					const wobeResponse = new WobeResponse(req)
 
-					await route?.handler(req, wobeResponse)
+					await route?.handler?.(req, wobeResponse)
 
 					return wobeResponse.getResponse()
 				}

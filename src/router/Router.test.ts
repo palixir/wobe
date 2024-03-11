@@ -5,7 +5,9 @@ describe('Wobe router', () => {
 	it('should compile a simple route', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route/', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('a')
@@ -18,7 +20,9 @@ describe('Wobe router', () => {
 	it('should compile a simple route without slash at the end', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('a')
@@ -31,7 +35,9 @@ describe('Wobe router', () => {
 	it('should compile a simple route without the slash at the begining', () => {
 		const router = new Router()
 
-		router.compile([{ path: 'a/simple/route', method: 'GET' }])
+		router.compile([
+			{ path: 'a/simple/route', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('a')
@@ -44,7 +50,9 @@ describe('Wobe router', () => {
 	it('should compile a simple route ending by *', () => {
 		const router = new Router()
 
-		router.compile([{ path: 'a/simple/route/*', method: 'GET' }])
+		router.compile([
+			{ path: 'a/simple/route/*', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('a')
@@ -57,7 +65,7 @@ describe('Wobe router', () => {
 	it('should compile a route with a parameter', () => {
 		const router = new Router()
 
-		router.compile([{ path: 'user/:id', method: 'GET' }])
+		router.compile([{ path: 'user/:id', method: 'GET', handler: () => {} }])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('user')
@@ -67,7 +75,9 @@ describe('Wobe router', () => {
 	it('should compile a route with a parameter and children', () => {
 		const router = new Router()
 
-		router.compile([{ path: 'user/:id/profile', method: 'GET' }])
+		router.compile([
+			{ path: 'user/:id/profile', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('user')
@@ -80,7 +90,9 @@ describe('Wobe router', () => {
 	it('should compile a route with a parameter and children (ending with slash)', () => {
 		const router = new Router()
 
-		router.compile([{ path: 'user/:id/profile/', method: 'GET' }])
+		router.compile([
+			{ path: 'user/:id/profile/', method: 'GET', handler: () => {} },
+		])
 
 		expect(router.root.name).toBe('/')
 		expect(router.root.children[0].name).toBe('user')
@@ -94,8 +106,8 @@ describe('Wobe router', () => {
 		const router = new Router()
 
 		router.compile([
-			{ path: 'user/:id/profile/', method: 'GET' },
-			{ path: '/another/route', method: 'GET' },
+			{ path: 'user/:id/profile/', method: 'GET', handler: () => {} },
+			{ path: '/another/route', method: 'GET', handler: () => {} },
 		])
 
 		expect(router.root.name).toBe('/')
@@ -116,10 +128,12 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info2',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -159,12 +173,18 @@ describe('Wobe router', () => {
 				{
 					path: '/user/:id/profile/:section/section/:subsection/info',
 					method: 'GET',
+					handler: () => {},
 				},
 				{
 					path: '/user/:id/profile/:section/section/:subsection/info2',
 					method: 'GET',
+					handler: () => {},
 				},
-				{ path: '/user/id/information', method: 'GET' },
+				{
+					path: '/user/id/information',
+					method: 'GET',
+					handler: () => {},
+				},
 			]),
 		).toThrow('Route already exist with the ":id" parameter')
 	})
@@ -173,8 +193,8 @@ describe('Wobe router', () => {
 		const router = new Router()
 
 		router.compile([
-			{ path: '/same/route', method: 'GET' },
-			{ path: '/same/route', method: 'POST' },
+			{ path: '/same/route', method: 'GET', handler: () => {} },
+			{ path: '/same/route', method: 'POST', handler: () => {} },
 		])
 
 		expect(router.root.name).toBe('/')
@@ -189,7 +209,9 @@ describe('Wobe router', () => {
 	it('should find a simple route', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/a/simple/route',
@@ -202,7 +224,9 @@ describe('Wobe router', () => {
 	it('should find a simple route ending by slash', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route/', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/a/simple/route',
@@ -215,7 +239,9 @@ describe('Wobe router', () => {
 	it('should find a simple route ending with *', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route/*', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route/*', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/a/simple/route',
@@ -235,7 +261,9 @@ describe('Wobe router', () => {
 	it("should not a find a route that doesn't exist", () => {
 		const router = new Router()
 
-		router.compile([{ path: '/a/simple/route/', method: 'GET' }])
+		router.compile([
+			{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/a/route/that/does/not/exist',
@@ -248,7 +276,9 @@ describe('Wobe router', () => {
 	it('should find a route with a dynamic parameter', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/user/:id', method: 'GET' }])
+		router.compile([
+			{ path: '/user/:id', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({ path: '/user/123', method: 'GET' })
 
@@ -258,7 +288,9 @@ describe('Wobe router', () => {
 	it('should find a route with a dynamic parameter and a route after the parameter', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/user/:id/profile', method: 'GET' }])
+		router.compile([
+			{ path: '/user/:id/profile', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/user/123/profile',
@@ -271,7 +303,9 @@ describe('Wobe router', () => {
 	it('should find a route with a dynamic parameter and a route after the parameter (ending by slash)', () => {
 		const router = new Router()
 
-		router.compile([{ path: '/user/:id/profile/', method: 'GET' }])
+		router.compile([
+			{ path: '/user/:id/profile/', method: 'GET', handler: () => {} },
+		])
 
 		const foundedRoute = router.find({
 			path: '/user/123/profile',
@@ -288,6 +322,7 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -306,6 +341,7 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -324,6 +360,7 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -342,10 +379,12 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info2',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -371,10 +410,12 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 			{
 				path: '/user/:id/profile/:section/section2/:subsection/info2',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -401,10 +442,12 @@ describe('Wobe router', () => {
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info',
 				method: 'GET',
+				handler: () => {},
 			},
 			{
 				path: '/user/:id/profile/:section/section/:subsection/info2',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -423,10 +466,12 @@ describe('Wobe router', () => {
 			{
 				path: '/same/route',
 				method: 'GET',
+				handler: () => {},
 			},
 			{
 				path: '/same/route',
 				method: 'POST',
+				handler: () => {},
 			},
 		])
 
@@ -436,7 +481,7 @@ describe('Wobe router', () => {
 		})
 
 		expect(foundedRoute?.name).toBe('route')
-		expect(foundedRoute.method).toBe('GET')
+		expect(foundedRoute?.method).toBe('GET')
 
 		const foundedRoute2 = router.find({
 			path: '/same/route',
@@ -444,7 +489,7 @@ describe('Wobe router', () => {
 		})
 
 		expect(foundedRoute2?.name).toBe('route')
-		expect(foundedRoute2.method).toBe('POST')
+		expect(foundedRoute2?.method).toBe('POST')
 	})
 
 	it('should find a route if there is no slash at the begining', () => {
@@ -454,6 +499,7 @@ describe('Wobe router', () => {
 			{
 				path: '/same/route',
 				method: 'GET',
+				handler: () => {},
 			},
 		])
 
@@ -463,6 +509,6 @@ describe('Wobe router', () => {
 		})
 
 		expect(foundedRoute?.name).toBe('route')
-		expect(foundedRoute.method).toBe('GET')
+		expect(foundedRoute?.method).toBe('GET')
 	})
 })

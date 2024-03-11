@@ -44,7 +44,9 @@ describe('Wobe', () => {
 	})
 
 	it('should return 200 on successfull post request', async () => {
-		const res = await fetch('http://127.0.0.1:3000/testPost')
+		const res = await fetch('http://127.0.0.1:3000/testPost', {
+			method: 'POST',
+		})
 
 		expect(res.status).toBe(200)
 	})
