@@ -5,7 +5,7 @@ export const extractPathnameAndSearchParams = (url: string) => {
 		/^https?:\/\/[^\/]+([^?#]+)(?:\?([^#]*))?(?:#.*)?$/,
 	)
 
-	const pathName = matches?.[1] || ''
+	const pathName = matches?.[1]
 
 	if (matches?.[2]) {
 		const searchParams: Record<string, string> = {}
