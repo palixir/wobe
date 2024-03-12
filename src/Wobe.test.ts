@@ -21,11 +21,11 @@ describe('Wobe', () => {
 		})
 
 		wobe.get('/testGet', (req, res) => {
-			res.send('Test')
+			return res.send('Test')
 		})
 
 		wobe.post('/testPost', (req, res) => {
-			res.send('Tata')
+			return res.send('Tata')
 		})
 
 		wobe.use(mockMiddleware)

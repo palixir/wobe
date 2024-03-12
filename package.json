@@ -12,6 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@apollo/server": "^4.10.1",
     "graphql-yoga": "^5.1.1"
   }
 }

@@ -23,14 +23,18 @@ export type WobeHandler = (
 
 export class Wobe {
 	private options: WobeOptions
-	private server: Server
+	private server: Server | null
 	private routes: Routes
-	private middlewares: Array<{ pathname: string; handler: WobeHandler }>
+	private middlewares: Array<{
+		pathname: string | WobeHandler
+		handler: WobeHandler
+	}>
 
 	constructor(options: WobeOptions) {
 		this.options = options
 		this.routes = []
 		this.middlewares = []
+		this.server = null
 	}
 
 	get(path: string, handler: WobeHandler) {
@@ -90,9 +94,7 @@ export class Wobe {
 							),
 					)
 
-					await route?.handler?.(req, wobeResponse)
-
-					return wobeResponse.getResponse()
+					return route?.handler?.(req, wobeResponse)
 				}
 
 				return new Response(null, { status: 404 })
@@ -101,6 +103,6 @@ export class Wobe {
 	}
 
 	close() {
-		this.server.stop()
+		this.server?.stop()
 	}
 }
