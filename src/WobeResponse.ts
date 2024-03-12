@@ -12,30 +12,15 @@ export interface SetCookieOptions {
 
 export class WobeResponse {
 	public request: Request
-	private headers = new Headers({
+	public headers = new Headers({
 		'Content-Type': 'text/plain',
 	})
-	private body: string | null = null
-	private status = 200
-	private statusText = 'OK'
-	private response: Response | null = null
+	public body: string | null = null
+	public status = 200
+	public statusText = 'OK'
 
 	constructor(request: Request) {
 		this.request = request
-	}
-
-	setResponse(response: Response) {
-		this.response = response
-	}
-
-	getResponse() {
-		if (this.response) return this.response
-
-		return new Response(this.body, {
-			headers: this.headers,
-			status: this.status,
-			statusText: this.statusText,
-		})
 	}
 
 	setCookie({
@@ -78,23 +63,42 @@ export class WobeResponse {
 		this.setCookie({ name, value: '', expires: new Date(0) })
 	}
 
-	send(content: string | object) {
+	send(
+		content: string | object,
+		{
+			status,
+			statusText,
+			headers = new Headers(),
+		}: { status?: number; statusText?: string; headers?: Object } = {},
+	) {
 		if (typeof content === 'object') {
 			this.headers.set('Content-Type', 'application/json')
 			this.body = JSON.stringify(content)
-
-			return
+		} else {
+			this.headers.set('charset', 'utf-8')
+			this.body = content
 		}
 
-		this.headers.set('charset', 'utf-8')
-		this.body = content
+		if (status) this.status = status
+		if (statusText) this.statusText = statusText
+		if (headers) {
+			Object.entries(headers).forEach(([key, value]) => {
+				this.headers.set(key, value)
+			})
+		}
+
+		return new Response(this.body, {
+			headers: this.headers,
+			status: this.status,
+			statusText: this.statusText,
+		})
 	}
 
-	sendStatus(status: number) {
+	setStatus(status: number) {
 		this.status = status
 	}
 
-	sendStatusText(statusText: string) {
+	setStatusText(statusText: string) {
 		this.statusText = statusText
 	}
 }

@@ -1,6 +1,5 @@
 import { createSchema, createYoga } from 'graphql-yoga'
 import { Wobe } from '../src'
-import type { WobeResponse } from '../src/WobeResponse'
 
 const wobe = new Wobe({
 	port: 3000,
