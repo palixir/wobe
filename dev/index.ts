@@ -1,6 +1,11 @@
 import { createSchema, createYoga } from 'graphql-yoga'
 import { Wobe } from '../src'
 import { ApolloServer } from '@apollo/server'
+import {
+	ApolloServerPluginLandingPageLocalDefault,
+	ApolloServerPluginLandingPageProductionDefault,
+} from '@apollo/server/plugin/landingPage/default'
+import { startStandaloneServer } from '@apollo/server/standalone'
 
 const wobe = new Wobe({
 	port: 3000,
@@ -28,6 +33,11 @@ const yoga = createYoga({
 
 // wobe.get('/graphql', async (request, response) => yoga.fetch(request))
 // wobe.post('/graphql', async (request, response) => yoga.fetch(request))
+//
+//
+//
+//
+//
 
 const typeDefs = `#graphql
   type Query {
@@ -45,42 +55,53 @@ const resolvers = {
 const server = new ApolloServer({
 	typeDefs,
 	resolvers,
+	plugins: [ApolloServerPluginLandingPageLocalDefault({ footer: false })],
 })
 
 server.start()
 
-wobe.get('/graphql', async (request, response) => {
-	server
-		.executeHTTPGraphQLRequest({
-			httpGraphQLRequest: {
-				method: request.method,
-				body: request.body,
-				headers: request.headers,
-			},
-		})
-		.then((result) => {
-			response.send(result)
-		})
-})
-wobe.post('/graphql', async (request, response) => {
-	server
-		.executeHTTPGraphQLRequest({
-			httpGraphQLRequest: {
-				method: request.method,
-				body: request.body,
-				headers: request.headers,
-			},
-		})
-		.then((result) => {
-			if (result.body.kind === 'complete')
-				return new Response(result.body.string, {
-					status: result.status ?? 200,
-					// @ts-ignore
-					headers: res.headers,
-				})
+const enablePlayground = true
 
-			return new Response('')
+const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
+
+wobe.get('/graphql', async (request) => {
+	const res = await server.executeHTTPGraphQLRequest({
+		httpGraphQLRequest: {
+			method: request.method,
+			body: request.body,
+			headers: request.headers,
+			search: getQueryString(request.url),
+		},
+	})
+
+	if (res.body.kind === 'complete') {
+		return new Response(res.body.string, {
+			status: res.status ?? 200,
+			headers: res.headers,
 		})
+	}
+
+	return new Response('')
+})
+
+wobe.post('/graphql', async (request, response) => {
+	const res = await server.executeHTTPGraphQLRequest({
+		httpGraphQLRequest: {
+			method: request.method,
+			body: request.body,
+			headers: request.headers,
+			search: getQueryString(request.url),
+		},
+	})
+
+	if (res.body.kind === 'complete') {
+		return new Response(res.body.string, {
+			status: res.status ?? 200,
+			headers: res.headers,
+		})
+	}
+
+	return new Response('')
 })
 
 wobe.start()
