@@ -45,7 +45,7 @@ export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
 export type WobeHandler = (
 	req: Request,
 	wobeResponse: WobeResponse,
-) => Promise<Response> | Response | void | Promise<void>
+) => Promise<Response> | Response | void | Promise<void> | undefined
 
 export type WobePlugin = (wobe: Wobe) => void
 
