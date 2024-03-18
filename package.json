@@ -1,18 +1,9 @@
 {
-  "name": "wobe",
+  "name": "main",
   "module": "index.ts",
   "type": "module",
-  "scripts": {
-    "dev": "bun run --watch dev/index.ts"
-  },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@apollo/server": "^4.10.1",
-    "graphql-yoga": "^5.1.1"
+    "@types/bun": "latest",
+    "typescript": "^5.4.2"
   }
 }

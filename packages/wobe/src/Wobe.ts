@@ -3,6 +3,32 @@ import { WobeResponse } from './WobeResponse'
 import { Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 
+/*
+const ApolloPlugin = (app: WobeApp, request, response) => {
+  app.get('/graphql', async (request) => {
+    const res = await server.executeHTTPGraphQLRequest({
+      httpGraphQLRequest: {
+        method: request.method,
+        body: request.body,
+        headers: request.headers,
+        search: getQueryString(request.url),
+        },
+    })
+  })
+
+  app.post('/graphql', async (request, response) => {
+    const res = await server.executeHTTPGraphQLRequest({
+      httpGraphQLRequest: {
+        method: request.method,
+        body: request.body,
+        headers: request.headers,
+        search: getQueryString(request.url),
+        }
+    })
+})
+})
+*/
+
 export type Routes = Array<{
 	path: string
 	handler: WobeHandler
@@ -20,6 +46,8 @@ export type WobeHandler = (
 	req: Request,
 	wobeResponse: WobeResponse,
 ) => Promise<Response> | Response | void | Promise<void>
+
+export type WobePlugin = (wobe: Wobe) => void
 
 export class Wobe {
 	private options: WobeOptions
@@ -56,6 +84,10 @@ export class Wobe {
 		handlers.map((handler) => {
 			this.middlewares.push({ pathname: path, handler })
 		})
+	}
+
+	usePlugin(plugin: WobePlugin) {
+		plugin(this)
 	}
 
 	start() {

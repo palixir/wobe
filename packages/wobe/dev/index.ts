@@ -11,7 +11,7 @@ const wobe = new Wobe({
 	port: 3000,
 })
 
-wobe.get('/test', (req, res) => {
+wobe.get('/hi', (req, res) => {
 	return res.send('Hi')
 })
 
