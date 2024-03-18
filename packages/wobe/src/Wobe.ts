@@ -134,7 +134,7 @@ export class Wobe {
 		})
 	}
 
-	close() {
+	stop() {
 		this.server?.stop()
 	}
 }

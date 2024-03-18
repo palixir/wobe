@@ -36,7 +36,7 @@ describe('Wobe', () => {
 	})
 
 	afterAll(() => {
-		wobe.close()
+		wobe.stop()
 	})
 
 	afterEach(() => {
