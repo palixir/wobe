@@ -4,7 +4,7 @@ import { WobeGraphqlApolloPlugin } from '.'
 import { createSchema } from 'graphql-yoga'
 
 describe('Wobe GraphQL Yoga plugin', () => {
-	it.only('should query graphql request', async () => {
+	it('should query graphql request', async () => {
 		const wobe = new Wobe({ port: 3000 })
 
 		wobe.usePlugin(
