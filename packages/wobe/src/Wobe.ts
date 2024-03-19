@@ -94,7 +94,9 @@ export class Wobe {
 			hostname: this.options.hostname,
 			development: false,
 			error: (err) => {
-				return new Response(err.message, { status: 500 })
+				return new Response(err.message, {
+					status: Number(err.code) || 500,
+				})
 			},
 			async fetch(req) {
 				const { pathName, searchParams } =

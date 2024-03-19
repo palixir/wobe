@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { WobeResponse } from '../WobeResponse'
 import { cors } from './cors'
 
-describe('cors', () => {
+describe('Cors middleware', () => {
 	const request = new Request('http://localhost:3000/test')
 	const optionsRequest = new Request('http://localhost:3000/test', {
 		method: 'OPTIONS',

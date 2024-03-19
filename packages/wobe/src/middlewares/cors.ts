@@ -1,5 +1,9 @@
 import type { WobeHandler } from '../Wobe'
-import type { Origin } from './index'
+
+type Origin =
+	| string
+	| string[]
+	| ((origin: string) => string | undefined | null)
 
 export interface CorsOptions {
 	origin: Origin
