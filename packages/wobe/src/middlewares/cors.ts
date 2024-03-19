@@ -1,9 +1,5 @@
 import type { WobeHandler } from '../Wobe'
-
-type Origin =
-	| string
-	| string[]
-	| ((origin: string) => string | undefined | null)
+import type { Origin } from './index'
 
 export interface CorsOptions {
 	origin: Origin

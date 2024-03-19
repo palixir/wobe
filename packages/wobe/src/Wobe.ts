@@ -93,6 +93,9 @@ export class Wobe {
 			port: this.options.port,
 			hostname: this.options.hostname,
 			development: false,
+			error: (err) => {
+				return new Response(err.message, { status: 500 })
+			},
 			async fetch(req) {
 				const { pathName, searchParams } =
 					extractPathnameAndSearchParams(req.url)

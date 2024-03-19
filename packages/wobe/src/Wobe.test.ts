@@ -16,6 +16,7 @@ describe('Wobe', async () => {
 	const mockMiddleware = mock(() => {})
 	const mockSecondMiddleware = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
+	const mockTestGet = mock(() => {})
 
 	const port = await getPort()
 
@@ -25,6 +26,7 @@ describe('Wobe', async () => {
 		})
 
 		wobe.get('/testGet', (req, res) => {
+			mockTestGet()
 			return res.send('Test')
 		})
 
@@ -47,6 +49,7 @@ describe('Wobe', async () => {
 		mockMiddleware.mockClear()
 		mockSecondMiddleware.mockClear()
 		mockOnlyOnTestGet.mockClear()
+		mockTestGet.mockClear()
 	})
 
 	it('should return 404 if the url is not found', async () => {
@@ -59,6 +62,7 @@ describe('Wobe', async () => {
 	it('should return 200 on successfull get request', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/testGet`)
 
+		expect(mockTestGet).toHaveBeenCalledTimes(1)
 		expect(res.status).toBe(200)
 	})
 
@@ -132,5 +136,23 @@ describe('Wobe', async () => {
 		})
 
 		expect(res.status).toBe(206)
+
+		mockMiddleware.mockRestore()
+		mockSecondMiddleware.mockRestore()
+	})
+
+	it('should skip handler if one of middleware throw an error', async () => {
+		mockMiddleware.mockImplementation(() => {
+			throw new Error('Middleware error')
+		})
+
+		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
+			method: 'POST',
+		})
+
+		expect(await res.text()).toEqual('Middleware error')
+		expect(mockTestGet).toHaveBeenCalledTimes(0)
+
+		mockMiddleware.mockRestore()
 	})
 })
