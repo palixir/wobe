@@ -1,11 +1,13 @@
 {
-  "name": "wobe-graphql-apollo",
-  "version": "0.1.0",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {},
-  "dependencies": {
-    "@apollo/server": "4.10.1",
-    "wobe": "link:wobe"
-  }
+	"name": "wobe-graphql-apollo",
+	"version": "0.1.0",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"get-port": "7.0.0"
+	},
+	"dependencies": {
+		"@apollo/server": "4.10.1",
+		"wobe": "link:wobe"
+	}
 }

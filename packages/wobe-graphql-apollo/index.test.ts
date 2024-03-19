@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'bun:test'
 import { Wobe } from 'wobe'
+import getPort from 'get-port'
 import { WobeGraphqlApolloPlugin } from '.'
-import { createSchema } from 'graphql-yoga'
 
-describe('Wobe GraphQL Yoga plugin', () => {
+describe('Wobe GraphQL Apollo plugin', () => {
 	it('should query graphql request', async () => {
-		const wobe = new Wobe({ port: 3000 })
+		const port = await getPort()
 
-		wobe.usePlugin(
+		const wobe = new Wobe({ port })
+
+		await wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -17,7 +19,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
           `,
 					resolvers: {
 						Query: {
-							hello: () => 'world',
+							hello: () => 'Hello from Apollo!',
 						},
 					},
 				},
@@ -26,7 +28,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		wobe.start()
 
-		const res = await fetch('http://127.0.0.1:3000/graphql', {
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -42,38 +44,38 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		expect(res.status).toBe(200)
 		expect(await res.json()).toEqual({
-			data: { hello: 'Hello from Yoga!' },
+			data: { hello: 'Hello from Apollo!' },
 		})
 
 		wobe.stop()
 	})
 
-	it('should query graphql request on different graphql endpoint', async () => {
-		const wobe = new Wobe({ port: 3001 })
+	it('should query graphql request on a custom graphql endpoint', async () => {
+		const port = await getPort()
 
-		wobe.usePlugin(
-			WobeGraphqlYogaPlugin({
+		const wobe = new Wobe({ port })
+
+		await wobe.usePlugin(
+			WobeGraphqlApolloPlugin({
+				graphqlEndpoint: '/graphql2',
 				options: {
-					graphqlEndpoint: '/graphql2',
-				},
-				schema: createSchema({
-					typeDefs: `
-				type Query {
-					hello: String
-				}
-			`,
+					typeDefs: `#graphql
+            type Query {
+              hello: String
+            }
+          `,
 					resolvers: {
 						Query: {
-							hello: () => 'Hello from Yoga!',
+							hello: () => 'Hello from Apollo!',
 						},
 					},
-				}),
+				},
 			}),
 		)
 
 		wobe.start()
 
-		const res = await fetch('http://127.0.0.1:3001/graphql2', {
+		const res = await fetch(`http://127.0.0.1:${port}/graphql2`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -89,7 +91,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		expect(res.status).toBe(200)
 		expect(await res.json()).toEqual({
-			data: { hello: 'Hello from Yoga!' },
+			data: { hello: 'Hello from Apollo!' },
 		})
 
 		wobe.stop()

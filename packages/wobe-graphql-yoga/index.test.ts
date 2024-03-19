@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'bun:test'
 import { Wobe } from 'wobe'
-import { WobeGraphqlYogaPlugin } from '.'
 import { createSchema } from 'graphql-yoga'
+import getPort from 'get-port'
+import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
 	it('should query graphql request', async () => {
-		const wobe = new Wobe({ port: 3000 })
+		const port = await getPort()
+		const wobe = new Wobe({ port })
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
@@ -26,7 +28,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		wobe.start()
 
-		const res = await fetch('http://127.0.0.1:3000/graphql', {
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -34,9 +36,9 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			body: JSON.stringify({
 				query: `
 				  query {
-            hello
-					}
-				`,
+      hello
+    }
+      `,
 			}),
 		})
 
@@ -49,19 +51,18 @@ describe('Wobe GraphQL Yoga plugin', () => {
 	})
 
 	it('should query graphql request on different graphql endpoint', async () => {
-		const wobe = new Wobe({ port: 3001 })
+		const port = await getPort()
+		const wobe = new Wobe({ port })
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
-				options: {
-					graphqlEndpoint: '/graphql2',
-				},
+				graphqlEndpoint: '/graphql2',
 				schema: createSchema({
 					typeDefs: `
 				type Query {
-					hello: String
-				}
-			`,
+      hello: String
+    }
+      `,
 					resolvers: {
 						Query: {
 							hello: () => 'Hello from Yoga!',
@@ -73,7 +74,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		wobe.start()
 
-		const res = await fetch('http://127.0.0.1:3001/graphql2', {
+		const res = await fetch(`http://127.0.0.1:${port}/graphql2`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -81,9 +82,9 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			body: JSON.stringify({
 				query: `
 				  query {
-            hello
-					}
-				`,
+      hello
+    }
+      `,
 			}),
 		})
 

@@ -1,21 +1,37 @@
 import { ApolloServer, type ApolloServerOptions } from '@apollo/server'
+import {
+	ApolloServerPluginLandingPageLocalDefault,
+	ApolloServerPluginLandingPageProductionDefault,
+} from '@apollo/server/plugin/landingPage/default'
 import { Wobe, type WobePlugin } from 'wobe'
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 
-export const WobeGraphqlApolloPlugin = ({
+export const WobeGraphqlApolloPlugin = async ({
 	options,
+	graphqlEndpoint = '/graphql',
 }: {
 	options: ApolloServerOptions<any>
-}) => {
+	graphqlEndpoint?: string
+}): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
+		plugins: [
+			...(options?.plugins || []),
+			process.env.NODE_ENV === 'production'
+				? ApolloServerPluginLandingPageProductionDefault({
+						footer: false,
+					})
+				: ApolloServerPluginLandingPageLocalDefault({
+						footer: false,
+					}),
+		],
 	})
 
-	server.start()
+	await server.start()
 
 	return (wobe: Wobe) => {
-		wobe.get('/graphql', async (request) =>
+		wobe.get(graphqlEndpoint, async (request) =>
 			server
 				.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
@@ -44,16 +60,17 @@ export const WobeGraphqlApolloPlugin = ({
 				}),
 		)
 
-		wobe.post('/graphql', async (request) =>
+		wobe.post(graphqlEndpoint, async (request) =>
 			server
 				.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
-						method: request.method,
-						body: request.body,
+						method: request.method.toUpperCase(),
+						body: await request.json(),
 						// @ts-expect-error
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
+					context: () => Promise.resolve(request),
 				})
 				.then((res) => {
 					if (res.body.kind === 'complete') {
@@ -67,6 +84,8 @@ export const WobeGraphqlApolloPlugin = ({
 					return new Response('')
 				})
 				.catch((error) => {
+					if (error instanceof Error) throw error
+
 					return new Response(error.message, {
 						status: error.statusCode,
 					})
@@ -74,24 +93,3 @@ export const WobeGraphqlApolloPlugin = ({
 		)
 	}
 }
-
-const wobe = new Wobe({ port: 3000 })
-
-wobe.usePlugin(
-	WobeGraphqlApolloPlugin({
-		options: {
-			typeDefs: `#graphql
-          type Query {
-            hello: String
-          }
-        `,
-			resolvers: {
-				Query: {
-					hello: () => 'world',
-				},
-			},
-		},
-	}),
-)
-
-wobe.start()

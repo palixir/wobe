@@ -7,17 +7,20 @@ import {
 	mock,
 	afterEach,
 } from 'bun:test'
+import getPort from 'get-port'
 import { Wobe } from './Wobe'
 
-describe('Wobe', () => {
+describe('Wobe', async () => {
 	let wobe: Wobe
 	const mockMiddleware = mock(() => {})
 	const mockSecondMiddleware = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
 
+	const port = await getPort()
+
 	beforeAll(() => {
 		wobe = new Wobe({
-			port: 3000,
+			port,
 		})
 
 		wobe.get('/testGet', (req, res) => {
@@ -46,20 +49,20 @@ describe('Wobe', () => {
 	})
 
 	it('should return 404 if the url is not found', async () => {
-		const res = await fetch('http://127.0.0.1:3000/notfound')
+		const res = await fetch(`http://127.0.0.1:${port}/notfound`)
 
 		expect(res.status).toBe(404)
 		expect(await res.text()).toBe('')
 	})
 
 	it('should return 200 on successfull get request', async () => {
-		const res = await fetch('http://127.0.0.1:3000/testGet')
+		const res = await fetch(`http://127.0.0.1:${port}/testGet`)
 
 		expect(res.status).toBe(200)
 	})
 
 	it('should return 200 on successfull post request', async () => {
-		const res = await fetch('http://127.0.0.1:3000/testPost', {
+		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 
@@ -67,14 +70,14 @@ describe('Wobe', () => {
 	})
 
 	it('should handle middlewares before any request', async () => {
-		await fetch('http://127.0.0.1:3000/testGet')
+		await fetch(`http://127.0.0.1:${port}/testGet`)
 
 		expect(mockMiddleware).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
 		expect(mockMiddleware.mock.calls[0][0].method).toBe('GET')
 		// @ts-expect-error
 		expect(mockMiddleware.mock.calls[0][0].url).toBe(
-			'http://127.0.0.1:3000/testGet',
+			`http://127.0.0.1:${port}/testGet`,
 		)
 
 		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
@@ -82,20 +85,20 @@ describe('Wobe', () => {
 		expect(mockSecondMiddleware.mock.calls[0][0].method).toBe('GET')
 		// @ts-expect-error
 		expect(mockSecondMiddleware.mock.calls[0][0].url).toBe(
-			'http://127.0.0.1:3000/testGet',
+			`http://127.0.0.1:${port}/testGet`,
 		)
 
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 	})
 
 	it('should handle middlewares only on specific path', async () => {
-		await fetch('http://127.0.0.1:3000/testGet')
+		await fetch(`http://127.0.0.1:${port}/testGet`)
 
 		expect(mockMiddleware).toHaveBeenCalledTimes(1)
 		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 
-		await fetch('http://127.0.0.1:3000/testPost', {
+		await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 

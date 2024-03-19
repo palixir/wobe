@@ -3,31 +3,7 @@ import { WobeResponse } from './WobeResponse'
 import { Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 
-/*
-const ApolloPlugin = (app: WobeApp, request, response) => {
-  app.get('/graphql', async (request) => {
-    const res = await server.executeHTTPGraphQLRequest({
-      httpGraphQLRequest: {
-        method: request.method,
-        body: request.body,
-        headers: request.headers,
-        search: getQueryString(request.url),
-        },
-    })
-  })
-
-  app.post('/graphql', async (request, response) => {
-    const res = await server.executeHTTPGraphQLRequest({
-      httpGraphQLRequest: {
-        method: request.method,
-        body: request.body,
-        headers: request.headers,
-        search: getQueryString(request.url),
-        }
-    })
-})
-})
-*/
+export type MaybePromise<T> = T | Promise<T>
 
 export type Routes = Array<{
 	path: string
@@ -86,7 +62,16 @@ export class Wobe {
 		})
 	}
 
-	usePlugin(plugin: WobePlugin) {
+	async usePlugin(plugin: MaybePromise<WobePlugin>) {
+		// TODO : Maybe throw an error if the usePlugin is not await and the plugin is a promise
+		if (plugin instanceof Promise) {
+			await plugin.then((p) => {
+				return p(this)
+			})
+
+			return this
+		}
+
 		plugin(this)
 	}
 

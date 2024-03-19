@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"module": "index.ts",
 	"type": "module",
-	"devDependencies": {},
+	"devDependencies": { "get-port": "7.0.0" },
 	"dependencies": {
 		"graphql-yoga": "5.2.0",
 		"wobe": "link:wobe"
