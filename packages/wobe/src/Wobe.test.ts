@@ -9,6 +9,7 @@ import {
 } from 'bun:test'
 import getPort from 'get-port'
 import { Wobe } from './Wobe'
+import type { WobeResponse } from './WobeResponse'
 
 describe('Wobe', async () => {
 	let wobe: Wobe
@@ -105,5 +106,31 @@ describe('Wobe', async () => {
 		expect(mockMiddleware).toHaveBeenCalledTimes(2)
 		expect(mockSecondMiddleware).toHaveBeenCalledTimes(2)
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
+	})
+
+	it('should handle middlewares sequentially', async () => {
+		// @ts-expect-error
+		mockMiddleware.mockImplementation((req: Request, res: WobeResponse) => {
+			// Executed first
+			res.setStatus(205)
+
+			return res
+		})
+
+		mockSecondMiddleware.mockImplementation(
+			// @ts-expect-error
+			(req: Request, res: WobeResponse) => {
+				// Executed second
+				res.setStatus(206)
+
+				return res
+			},
+		)
+
+		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
+			method: 'POST',
+		})
+
+		expect(res.status).toBe(206)
 	})
 })

@@ -101,4 +101,8 @@ export class WobeResponse {
 	setStatusText(statusText: string) {
 		this.statusText = statusText
 	}
+
+	setHeaders(key: string, value: string) {
+		this.headers.set(key, value)
+	}
 }

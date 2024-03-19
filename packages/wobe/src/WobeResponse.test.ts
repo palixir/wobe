@@ -186,4 +186,23 @@ describe('Wobe Response', () => {
 		expect(response.headers.get('charset')).toBe('utf-7') // We owerwrite the header if already set
 		expect(await response.text()).toBe('Hello World')
 	})
+
+	it('should set headers', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+
+		wobeResponse.setHeaders('Content-Type', 'invalid-content-type')
+
+		const response = wobeResponse.send('Hello World')
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe(
+			'invalid-content-type',
+		)
+		expect(await response.text()).toBe('Hello World')
+	})
 })

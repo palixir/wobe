@@ -18,10 +18,17 @@ export interface WobeOptions {
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
 
+export type WobeHandlerOutput =
+	| Promise<Response>
+	| Response
+	| void
+	| Promise<void>
+	| undefined
+
 export type WobeHandler = (
 	req: Request,
 	wobeResponse: WobeResponse,
-) => Promise<Response> | Response | void | Promise<void> | undefined
+) => WobeHandlerOutput
 
 export type WobePlugin = (wobe: Wobe) => void
 
@@ -98,18 +105,24 @@ export class Wobe {
 				if (route) {
 					const wobeResponse = new WobeResponse(req)
 
-					// Run middlewares
-					await Promise.all(
-						middlewares
-							.filter(
-								(middleware) =>
-									middleware.pathname === '*' ||
-									middleware.pathname === pathName,
-							)
-							.map((middleware) =>
-								middleware.handler(req, wobeResponse),
-							),
-					)
+					// We need to run middleware sequentially
+					const res = await middlewares
+						.filter(
+							(middleware) =>
+								middleware.pathname === '*' ||
+								middleware.pathname === pathName,
+						)
+						.reduce(
+							async (acc, middleware) => {
+								await acc
+
+								return middleware.handler(req, wobeResponse)
+							},
+							Promise.resolve({} as WobeHandlerOutput),
+						)
+
+					if (res instanceof Response)
+						return route?.handler?.(req, res)
 
 					return route?.handler?.(req, wobeResponse)
 				}
