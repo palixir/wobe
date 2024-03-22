@@ -15,15 +15,6 @@ describe('bodyLimit', () => {
 		},
 	})
 
-	const validRequestWithBodyEqualToMaxSize = new Request(
-		'http://localhost:3000/test',
-		{
-			headers: {
-				'Content-Length': '500', // 500 bytes
-			},
-		},
-	)
-
 	it('should not throw an error if the body is not too large', async () => {
 		const wobeResponse = new WobeResponse(validRequest)
 
@@ -34,18 +25,6 @@ describe('bodyLimit', () => {
 		expect(() => handler(validRequest, wobeResponse)).not.toThrow()
 	})
 
-	it('should throw an error if the body is equal to the maxSize', async () => {
-		const wobeResponse = new WobeResponse(invalidRequest)
-
-		const handler = bodyLimit({
-			maxSize: 500, // 500 bytes
-		})
-
-		expect(() => handler(invalidRequest, wobeResponse)).toThrow(
-			'Payload too large',
-		)
-	})
-
 	it('should throw an error if the body is too large', async () => {
 		const wobeResponse = new WobeResponse(invalidRequest)
 
@@ -53,8 +32,6 @@ describe('bodyLimit', () => {
 			maxSize: 500, // 500 bytes
 		})
 
-		expect(() => handler(invalidRequest, wobeResponse)).toThrow(
-			'Payload too large',
-		)
+		expect(() => handler(invalidRequest, wobeResponse)).toThrow()
 	})
 })

@@ -1,5 +1,5 @@
+import { HttpException } from '../HttpException'
 import type { WobeHandler } from '../Wobe'
-import { HttpException } from '../types'
 
 interface BodyLimitOptions {
 	maxSize: number
@@ -12,7 +12,9 @@ export const bodyLimit = (options: BodyLimitOptions): WobeHandler => {
 			const contentLength = Number(req.headers.get('Content-Length') || 0)
 
 			if (contentLength > options.maxSize)
-				throw HttpException('Payload too large', 413)
+				throw new HttpException(
+					new Response('Payload too large', { status: 413 }),
+				)
 		}
 	}
 }

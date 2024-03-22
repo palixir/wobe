@@ -1,5 +1,5 @@
 import type { WobeHandler } from '../Wobe'
-import { HttpException } from '../types'
+import { HttpException } from '../HttpException'
 
 type Origin = string | string[] | ((origin: string) => boolean)
 
@@ -23,6 +23,8 @@ export const csrf = (options: CsrfOptions): WobeHandler => {
 		const requestOrigin = req.headers.get('origin') || ''
 
 		if (!isSameOrigin(options.origin, requestOrigin))
-			throw HttpException('CSRF: Invalid origin', 403)
+			throw new HttpException(
+				new Response('CSRF: Invalid origin', { status: 403 }),
+			)
 	}
 }

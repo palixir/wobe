@@ -2,6 +2,7 @@ import type { Server } from 'bun'
 import { WobeResponse } from './WobeResponse'
 import { Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
+import { HttpException } from './HttpException'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -56,6 +57,7 @@ export class Wobe {
 		this.routes.push({ path, handler, method: 'POST' })
 	}
 
+	// TODO: Add a test for a route like /test/*
 	use(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
 		let path = arg1
 
@@ -94,6 +96,8 @@ export class Wobe {
 			hostname: this.options.hostname,
 			development: false,
 			error: (err) => {
+				if (err instanceof HttpException) return err.response
+
 				return new Response(err.message, {
 					status: Number(err.code) || 500,
 				})

@@ -31,7 +31,7 @@ export interface SecureHeadersOptions {
 	crossOriginOpenerPolicy?: string
 	crossOriginResourcePolicy?: string
 	referrerPolicy?: string
-	strictTransportSecurity?: string
+	strictTransportSecurity?: string[]
 	xContentTypeOptions?: string
 	xDownloadOptions?: string
 }
@@ -42,7 +42,7 @@ export const secureHeaders = ({
 	crossOriginOpenerPolicy = 'same-origin',
 	crossOriginResourcePolicy = 'same-site',
 	referrerPolicy = 'no-referrer',
-	strictTransportSecurity = 'max-age=31536000; includeSubDomains',
+	strictTransportSecurity = ['max-age=31536000; includeSubDomains'],
 	xContentTypeOptions = 'nosniff',
 	xDownloadOptions = 'noopen',
 }: SecureHeadersOptions): WobeHandler => {
@@ -86,7 +86,7 @@ export const secureHeaders = ({
 		if (strictTransportSecurity)
 			res.headers.set(
 				'Strict-Transport-Security',
-				strictTransportSecurity,
+				strictTransportSecurity.join('; '),
 			)
 
 		if (xContentTypeOptions)

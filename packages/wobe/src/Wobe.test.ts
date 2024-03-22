@@ -10,7 +10,7 @@ import {
 import getPort from 'get-port'
 import { Wobe } from './Wobe'
 import type { WobeResponse } from './WobeResponse'
-import { HttpException } from './utils'
+import { HttpException } from './HttpException'
 
 describe('Wobe', async () => {
 	let wobe: Wobe
@@ -144,7 +144,9 @@ describe('Wobe', async () => {
 
 	it('should skip handler if one of middleware throw an error', async () => {
 		mockMiddleware.mockImplementation(() => {
-			throw HttpException('Middleware error', 200)
+			throw new HttpException(
+				new Response('Middleware error', { status: 200 }),
+			)
 		})
 
 		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {

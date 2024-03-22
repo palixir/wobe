@@ -34,14 +34,14 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			crossOriginEmbedderPolicy: 'require-corp',
+			crossOriginEmbedderPolicy: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Cross-Origin-Embedder-Policy'),
-		).toEqual('require-corp')
+		).toEqual('random-value')
 	})
 
 	it('should have a default value for Cross-Origin-Opener-Policy', () => {
@@ -70,13 +70,13 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			crossOriginOpenerPolicy: 'same-origin',
+			crossOriginOpenerPolicy: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
 		expect(wobeResponse.headers.get('Cross-Origin-Opener-Policy')).toEqual(
-			'same-origin',
+			'random-value',
 		)
 	})
 
@@ -106,14 +106,14 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			crossOriginResourcePolicy: 'same-site',
+			crossOriginResourcePolicy: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Cross-Origin-Resource-Policy'),
-		).toEqual('same-site')
+		).toEqual('random-value')
 	})
 
 	it('should have default value for Referer-Policy', () => {
@@ -142,13 +142,13 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			referrerPolicy: 'no-referrer',
+			referrerPolicy: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
 		expect(wobeResponse.headers.get('Referrer-Policy')).toEqual(
-			'no-referrer',
+			'random-value',
 		)
 	})
 
@@ -178,13 +178,13 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+			strictTransportSecurity: ['random-value1', 'random-value2'],
 		})
 
 		handler(request, wobeResponse)
 
 		expect(wobeResponse.headers.get('Strict-Transport-Security')).toEqual(
-			'max-age=31536000; includeSubDomains',
+			'random-value1; random-value2',
 		)
 	})
 
@@ -215,13 +215,13 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			xContentTypeOptions: 'nosniff',
+			xContentTypeOptions: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
 		expect(wobeResponse.headers.get('X-Content-Type-Options')).toEqual(
-			'nosniff',
+			'random-value',
 		)
 	})
 
@@ -250,11 +250,13 @@ describe('Secure headers', () => {
 		const wobeResponse = new WobeResponse(request)
 
 		const handler = secureHeaders({
-			xDownloadOptions: 'noopen',
+			xDownloadOptions: 'random-value',
 		})
 
 		handler(request, wobeResponse)
 
-		expect(wobeResponse.headers.get('X-Download-Options')).toEqual('noopen')
+		expect(wobeResponse.headers.get('X-Download-Options')).toEqual(
+			'random-value',
+		)
 	})
 })
