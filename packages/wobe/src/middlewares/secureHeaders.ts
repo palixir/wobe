@@ -27,13 +27,29 @@ interface ContentSecurityPolicyOptions {
 
 export interface SecureHeadersOptions {
 	contentSecurityPolicy?: ContentSecurityPolicyOptions
+	crossOriginEmbedderPolicy?: string
+	crossOriginOpenerPolicy?: string
+	crossOriginResourcePolicy?: string
+	referrerPolicy?: string
+	strictTransportSecurity?: string
+	xContentTypeOptions?: string
+	xDownloadOptions?: string
 }
 
-export const secureHeaders = (options?: SecureHeadersOptions): WobeHandler => {
-	return (req, res) => {
-		if (options?.contentSecurityPolicy) {
-			const contentSecurityPolicy = Object.entries(
-				options.contentSecurityPolicy,
+export const secureHeaders = ({
+	contentSecurityPolicy,
+	crossOriginEmbedderPolicy,
+	crossOriginOpenerPolicy = 'same-origin',
+	crossOriginResourcePolicy = 'same-site',
+	referrerPolicy = 'no-referrer',
+	strictTransportSecurity = 'max-age=31536000; includeSubDomains',
+	xContentTypeOptions = 'nosniff',
+	xDownloadOptions = 'noopen',
+}: SecureHeadersOptions): WobeHandler => {
+	return (_, res) => {
+		if (contentSecurityPolicy) {
+			const formatContentSecurityPolicy = Object.entries(
+				contentSecurityPolicy,
 			)
 				.map(
 					([key, value]) =>
@@ -41,7 +57,39 @@ export const secureHeaders = (options?: SecureHeadersOptions): WobeHandler => {
 				)
 				.join('; ')
 
-			res.setHeaders('Content-Security-Policy', contentSecurityPolicy)
+			res.setHeaders(
+				'Content-Security-Policy',
+				formatContentSecurityPolicy,
+			)
 		}
+
+		if (crossOriginEmbedderPolicy)
+			res.setHeaders(
+				'Cross-Origin-Embedder-Policy',
+				crossOriginEmbedderPolicy,
+			)
+
+		if (crossOriginOpenerPolicy)
+			res.setHeaders(
+				'Cross-Origin-Opener-Policy',
+				crossOriginOpenerPolicy,
+			)
+
+		if (crossOriginResourcePolicy)
+			res.setHeaders(
+				'Cross-Origin-Resource-Policy',
+				crossOriginResourcePolicy,
+			)
+
+		if (referrerPolicy) res.setHeaders('Referrer-Policy', referrerPolicy)
+
+		if (strictTransportSecurity)
+			res.setHeaders('Strict-Transport-Security', strictTransportSecurity)
+
+		if (xContentTypeOptions)
+			res.setHeaders('X-Content-Type-Options', xContentTypeOptions)
+
+		if (xDownloadOptions)
+			res.setHeaders('X-Download-Options', xDownloadOptions)
 	}
 }
