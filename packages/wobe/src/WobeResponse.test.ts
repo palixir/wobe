@@ -194,7 +194,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.setHeaders('Content-Type', 'invalid-content-type')
+		wobeResponse.headers.set('Content-Type', 'invalid-content-type')
 
 		const response = wobeResponse.send('Hello World')
 

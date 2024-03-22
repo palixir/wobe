@@ -41,26 +41,29 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 		const allowOrigin = getAllowOrigin(opts.origin)
 
 		if (allowOrigin)
-			res.setHeaders('Access-Control-Allow-Origin', allowOrigin)
+			res.headers.set('Access-Control-Allow-Origin', allowOrigin)
 
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
-		if (opts.origin !== '*') res.setHeaders('Vary', 'Origin')
+		if (opts.origin !== '*') res.headers.set('Vary', 'Origin')
 
 		if (opts.credentials)
-			res.setHeaders('Access-Control-Allow-Credentials', 'true')
+			res.headers.set('Access-Control-Allow-Credentials', 'true')
 
 		if (opts.exposeHeaders?.length)
-			res.setHeaders(
+			res.headers.set(
 				'Access-Control-Expose-Headers',
 				opts.exposeHeaders.join(','),
 			)
 
 		if (req.method === 'OPTIONS') {
 			if (opts.maxAge)
-				res.setHeaders('Access-Control-Max-Age', opts.maxAge.toString())
+				res.headers.set(
+					'Access-Control-Max-Age',
+					opts.maxAge.toString(),
+				)
 
 			if (opts.allowMethods?.length)
-				res.setHeaders(
+				res.headers.set(
 					'Access-Control-Allow-Methods',
 					opts.allowMethods.join(','),
 				)
@@ -72,7 +75,7 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 						?.split(/\s*,\s*/)
 
 			if (headers?.length) {
-				res.setHeaders(
+				res.headers.set(
 					'Access-Control-Allow-Headers',
 					headers.join(','),
 				)
