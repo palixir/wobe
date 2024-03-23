@@ -27,8 +27,8 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 		...options,
 	}
 
-	return (req, res) => {
-		const requestOrigin = req.headers.get('origin') || ''
+	return (ctx, res) => {
+		const requestOrigin = ctx.request.headers.get('origin') || ''
 
 		const getAllowOrigin = (origin: Origin) => {
 			if (typeof origin === 'string') return origin
@@ -55,7 +55,7 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 				opts.exposeHeaders.join(','),
 			)
 
-		if (req.method === 'OPTIONS') {
+		if (ctx.request.method === 'OPTIONS') {
 			if (opts.maxAge)
 				res.headers.set(
 					'Access-Control-Max-Age',
@@ -70,7 +70,7 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 
 			const headers = opts.allowHeaders?.length
 				? opts.allowHeaders
-				: req.headers
+				: ctx.request.headers
 						.get('Access-Control-Request-Headers')
 						?.split(/\s*,\s*/)
 
@@ -85,11 +85,7 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 			res.headers.delete('Content-Length')
 			res.headers.delete('Content-Type')
 
-			return new Response(null, {
-				headers: res.headers,
-				status: 204,
-				statusText: res.statusText,
-			})
+			res.status = 204
 		}
 	}
 }

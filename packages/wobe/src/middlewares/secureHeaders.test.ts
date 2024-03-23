@@ -18,7 +18,7 @@ describe('Secure headers', () => {
 			},
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Content-Security-Policy')).toEqual(
 			"default-src 'self'; report-to endpoint-5",
@@ -37,7 +37,7 @@ describe('Secure headers', () => {
 			crossOriginEmbedderPolicy: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Cross-Origin-Embedder-Policy'),
@@ -54,7 +54,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Cross-Origin-Opener-Policy')).toEqual(
 			'same-origin',
@@ -73,7 +73,7 @@ describe('Secure headers', () => {
 			crossOriginOpenerPolicy: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Cross-Origin-Opener-Policy')).toEqual(
 			'random-value',
@@ -90,7 +90,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Cross-Origin-Resource-Policy'),
@@ -109,7 +109,7 @@ describe('Secure headers', () => {
 			crossOriginResourcePolicy: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Cross-Origin-Resource-Policy'),
@@ -126,7 +126,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Referrer-Policy')).toEqual(
 			'no-referrer',
@@ -145,7 +145,7 @@ describe('Secure headers', () => {
 			referrerPolicy: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Referrer-Policy')).toEqual(
 			'random-value',
@@ -162,7 +162,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Strict-Transport-Security')).toEqual(
 			'max-age=31536000; includeSubDomains',
@@ -181,7 +181,7 @@ describe('Secure headers', () => {
 			strictTransportSecurity: ['random-value1', 'random-value2'],
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Strict-Transport-Security')).toEqual(
 			'random-value1; random-value2',
@@ -199,7 +199,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('X-Content-Type-Options')).toEqual(
 			'nosniff',
@@ -218,7 +218,7 @@ describe('Secure headers', () => {
 			xContentTypeOptions: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('X-Content-Type-Options')).toEqual(
 			'random-value',
@@ -236,7 +236,7 @@ describe('Secure headers', () => {
 
 		const handler = secureHeaders({})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('X-Download-Options')).toEqual('noopen')
 	})
@@ -253,7 +253,7 @@ describe('Secure headers', () => {
 			xDownloadOptions: 'random-value',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('X-Download-Options')).toEqual(
 			'random-value',

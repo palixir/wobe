@@ -13,7 +13,7 @@ describe('Cors middleware', () => {
 
 		const handler = cors()
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Origin')).toBe(
 			'*',
@@ -28,7 +28,7 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Vary')).toBe('Origin')
 	})
@@ -38,7 +38,7 @@ describe('Cors middleware', () => {
 
 		const handler = cors()
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Vary')).toBeNull()
 	})
@@ -50,7 +50,7 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3000',
@@ -65,7 +65,7 @@ describe('Cors middleware', () => {
 		})
 
 		// With no origin header
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3000',
@@ -73,11 +73,13 @@ describe('Cors middleware', () => {
 
 		// With an origin header
 		handler(
-			new Request('http://localhost:3000/test', {
-				headers: {
-					origin: 'http://localhost:3001',
-				},
-			}),
+			{
+				request: new Request('http://localhost:3000/test', {
+					headers: {
+						origin: 'http://localhost:3001',
+					},
+				}),
+			},
 			wobeResponse,
 		)
 
@@ -99,7 +101,7 @@ describe('Cors middleware', () => {
 		})
 
 		// With no origin header
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3001',
@@ -107,11 +109,13 @@ describe('Cors middleware', () => {
 
 		// With an origin header
 		handler(
-			new Request('http://localhost:3000/test', {
-				headers: {
-					origin: 'http://localhost:3000',
-				},
-			}),
+			{
+				request: new Request('http://localhost:3000/test', {
+					headers: {
+						origin: 'http://localhost:3000',
+					},
+				}),
+			},
 			wobeResponse,
 		)
 
@@ -128,7 +132,7 @@ describe('Cors middleware', () => {
 			credentials: true,
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Access-Control-Allow-Credentials'),
@@ -143,7 +147,7 @@ describe('Cors middleware', () => {
 			credentials: false,
 		})
 
-		handler(request, wobeResponse)
+		handler({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Access-Control-Allow-Credentials'),
@@ -158,7 +162,7 @@ describe('Cors middleware', () => {
 			exposeHeaders: ['X-Test'],
 		})
 
-		handlerWithExposeHeaders(request, wobeResponse)
+		handlerWithExposeHeaders({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Expose-Headers')).toBe(
 			'X-Test',
@@ -172,7 +176,7 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		handlerWithoutExposeHeaders(request, wobeResponse)
+		handlerWithoutExposeHeaders({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Access-Control-Expose-Headers'),
@@ -187,7 +191,7 @@ describe('Cors middleware', () => {
 			maxAge: 100,
 		})
 
-		handlerWithMaxAge(request, wobeResponse)
+		handlerWithMaxAge({ request }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Max-Age')).toBeNull()
 	})
@@ -200,7 +204,7 @@ describe('Cors middleware', () => {
 			maxAge: 100,
 		})
 
-		handlerWithMaxAge(optionsRequest, wobeResponse)
+		handlerWithMaxAge({ request: optionsRequest }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Max-Age')).toBe('100')
 	})
@@ -213,7 +217,7 @@ describe('Cors middleware', () => {
 			allowMethods: ['GET', 'POST'],
 		})
 
-		handlerWithAllowMethods(request, wobeResponse)
+		handlerWithAllowMethods({ request }, wobeResponse)
 
 		expect(
 			wobeResponse.headers.get('Access-Control-Allow-Methods'),
@@ -228,7 +232,7 @@ describe('Cors middleware', () => {
 			allowMethods: ['GET', 'POST'],
 		})
 
-		handlerWithAllowMethods(optionsRequest, wobeResponse)
+		handlerWithAllowMethods({ request: optionsRequest }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Methods')).toBe(
 			'GET,POST',
@@ -243,7 +247,7 @@ describe('Cors middleware', () => {
 			allowHeaders: ['X-Test'],
 		})
 
-		handlerWithAllowMethods(optionsRequest, wobeResponse)
+		handlerWithAllowMethods({ request: optionsRequest }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Headers')).toBe(
 			'X-Test',
@@ -267,7 +271,7 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		handlerWithAllowMethods(customRequest, wobeResponse)
+		handlerWithAllowMethods({ request: customRequest }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Access-Control-Allow-Headers')).toBe(
 			'X-Test',
@@ -288,7 +292,7 @@ describe('Cors middleware', () => {
 		wobeResponse.headers.set('Content-Length', '100')
 		wobeResponse.headers.set('Content-Type', 'application/json')
 
-		handlerWithAllowMethods(optionsRequest, wobeResponse)
+		handlerWithAllowMethods({ request: optionsRequest }, wobeResponse)
 
 		expect(wobeResponse.headers.get('Content-Length')).toBeNull()
 		expect(wobeResponse.headers.get('Content-Type')).toBeNull()
@@ -301,12 +305,9 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		const response = await handlerWithAllowMethods(
-			optionsRequest,
-			wobeResponse,
-		)
+		await handlerWithAllowMethods({ request: optionsRequest }, wobeResponse)
 
-		expect(response?.status).toBe(204)
-		expect(response?.statusText).toBe('OK')
+		expect(wobeResponse.status).toBe(204)
+		expect(wobeResponse.statusText).toBe('OK')
 	})
 })

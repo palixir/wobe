@@ -18,8 +18,8 @@ export const bearerAuth = ({
 	hashFunction = defaultHash,
 	realm = '',
 }: BearerAuthOptions): WobeHandler => {
-	return (req, res) => {
-		const requestAuthorization = req.headers.get('Authorization')
+	return (ctx, res) => {
+		const requestAuthorization = ctx.request.headers.get('Authorization')
 
 		if (!requestAuthorization)
 			throw new HttpException(

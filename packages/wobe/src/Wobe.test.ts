@@ -26,12 +26,12 @@ describe('Wobe', async () => {
 			port,
 		})
 
-		wobe.get('/testGet', (req, res) => {
+		wobe.get('/testGet', (_, res) => {
 			mockTestGet()
 			return res.send('Test')
 		})
 
-		wobe.post('/testPost', (req, res) => {
+		wobe.post('/testPost', (_, res) => {
 			return res.send('Tata')
 		})
 
@@ -80,17 +80,17 @@ describe('Wobe', async () => {
 
 		expect(mockMiddleware).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
-		expect(mockMiddleware.mock.calls[0][0].method).toBe('GET')
+		expect(mockMiddleware.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockMiddleware.mock.calls[0][0].url).toBe(
+		expect(mockMiddleware.mock.calls[0][0].request.url).toBe(
 			`http://127.0.0.1:${port}/testGet`,
 		)
 
 		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
-		expect(mockSecondMiddleware.mock.calls[0][0].method).toBe('GET')
+		expect(mockSecondMiddleware.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockSecondMiddleware.mock.calls[0][0].url).toBe(
+		expect(mockSecondMiddleware.mock.calls[0][0].request.url).toBe(
 			`http://127.0.0.1:${port}/testGet`,
 		)
 

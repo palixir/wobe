@@ -19,8 +19,8 @@ const isSameOrigin = (optsOrigin: Origin, requestOrigin: string) => {
 // as they fall under forbidden headers list, meaning that only the browser can set them.
 // https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#using-standard-headers-to-verify-origin
 export const csrf = (options: CsrfOptions): WobeHandler => {
-	return (req) => {
-		const requestOrigin = req.headers.get('origin') || ''
+	return (ctx) => {
+		const requestOrigin = ctx.request.headers.get('origin') || ''
 
 		if (!isSameOrigin(options.origin, requestOrigin))
 			throw new HttpException(

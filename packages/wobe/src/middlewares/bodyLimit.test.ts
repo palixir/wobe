@@ -22,7 +22,9 @@ describe('bodyLimit', () => {
 			maxSize: 500, // 500 bytes
 		})
 
-		expect(() => handler(validRequest, wobeResponse)).not.toThrow()
+		expect(() =>
+			handler({ request: validRequest }, wobeResponse),
+		).not.toThrow()
 	})
 
 	it('should throw an error if the body is too large', async () => {
@@ -32,6 +34,8 @@ describe('bodyLimit', () => {
 			maxSize: 500, // 500 bytes
 		})
 
-		expect(() => handler(invalidRequest, wobeResponse)).toThrow()
+		expect(() =>
+			handler({ request: invalidRequest }, wobeResponse),
+		).toThrow()
 	})
 })

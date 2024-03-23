@@ -1,9 +1,9 @@
-import type { HttpMethod, Routes } from '../Wobe'
+import type { HttpMethod, Routes, WobeHandler } from '../Wobe'
 
 export interface Node {
 	name: string
 	children: Array<Node>
-	handler?: Function
+	handler?: WobeHandler
 	method?: HttpMethod
 	isParameterNode?: boolean
 }
@@ -18,7 +18,7 @@ export class Router {
 		isParameterNode,
 	}: {
 		path: string
-		handler?: Function
+		handler?: WobeHandler
 		method?: HttpMethod
 		isParameterNode?: boolean
 	}): Node {

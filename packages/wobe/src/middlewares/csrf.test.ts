@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { csrf } from './csrf'
 import { WobeResponse } from '../WobeResponse'
-import { HttpException } from '../HttpException'
 
 describe('Csrf middleware', () => {
 	it('should not block requests with a valid origin (string)', () => {
@@ -14,7 +13,7 @@ describe('Csrf middleware', () => {
 
 		const handler = csrf({ origin: 'http://localhost:3000' })
 
-		expect(() => handler(request, wobeResponse)).not.toThrow()
+		expect(() => handler({ request }, wobeResponse)).not.toThrow()
 	})
 
 	it('should not block requests with a valid origin (array)', () => {
@@ -29,7 +28,7 @@ describe('Csrf middleware', () => {
 			origin: ['http://localhost:3001', 'http://localhost:3000'],
 		})
 
-		expect(() => handler(request, wobeResponse)).not.toThrow(
+		expect(() => handler({ request }, wobeResponse)).not.toThrow(
 			'CSRF: Invalid origin',
 		)
 	})
@@ -46,7 +45,7 @@ describe('Csrf middleware', () => {
 			origin: (origin) => origin === 'http://localhost:3000',
 		})
 
-		expect(() => handler(request, wobeResponse)).not.toThrow()
+		expect(() => handler({ request }, wobeResponse)).not.toThrow()
 	})
 
 	it('should block requests with an invalid origin (string)', async () => {
@@ -55,7 +54,7 @@ describe('Csrf middleware', () => {
 
 		const handler = csrf({ origin: 'http://localhost:3000' })
 
-		expect(() => handler(request, wobeResponse)).toThrow()
+		expect(() => handler({ request }, wobeResponse)).toThrow()
 	})
 
 	it('should block requests with an invalid origin (array)', () => {
@@ -70,7 +69,7 @@ describe('Csrf middleware', () => {
 			origin: ['http://localhost:3000', 'http://localhost:3002'],
 		})
 
-		expect(() => handler(request, wobeResponse)).toThrow()
+		expect(() => handler({ request }, wobeResponse)).toThrow()
 	})
 
 	it('should block requests with an invalid origin (function)', () => {
@@ -85,6 +84,6 @@ describe('Csrf middleware', () => {
 			origin: (origin) => origin === 'http://localhost:3000',
 		})
 
-		expect(() => handler(request, wobeResponse)).toThrow()
+		expect(() => handler({ request }, wobeResponse)).toThrow()
 	})
 })

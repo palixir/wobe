@@ -3,6 +3,7 @@ import { WobeResponse } from './WobeResponse'
 import { Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
+import type { Context } from './context'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -20,18 +21,38 @@ export interface WobeOptions {
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
 
 export type WobeHandlerOutput =
-	| Promise<Response>
-	| Response
 	| void
 	| Promise<void>
 	| undefined
+	| Response
+	| Promise<Response>
 
 export type WobeHandler = (
-	req: Request,
+	ctx: Context,
 	wobeResponse: WobeResponse,
 ) => WobeHandlerOutput
 
 export type WobePlugin = (wobe: Wobe) => void
+
+/*
+use(logger(),{
+  beforeHandler: () =>{},
+  afterHandler: () =>{}
+})
+
+useBeforeHandler(logger())
+userAfterHandler(logger())
+
+use(logger({
+beforeHandler: () =>{},
+afterHandler: () =>{}
+}))
+
+// With context instead of request
+// Context object contains request, state (before or after handler)
+use(logger(), {beforeHandler: true, afterHandler: true})
+
+*/
 
 export class Wobe {
 	private options: WobeOptions
@@ -103,8 +124,7 @@ export class Wobe {
 				})
 			},
 			async fetch(req) {
-				const { pathName, searchParams } =
-					extractPathnameAndSearchParams(req.url)
+				const { pathName } = extractPathnameAndSearchParams(req.url)
 
 				const route = router.find({
 					path: pathName || '/',
@@ -115,7 +135,7 @@ export class Wobe {
 					const wobeResponse = new WobeResponse(req)
 
 					// We need to run middleware sequentially
-					const res = await middlewares
+					await middlewares
 						.filter(
 							(middleware) =>
 								middleware.pathname === '*' ||
@@ -125,15 +145,20 @@ export class Wobe {
 							async (acc, middleware) => {
 								await acc
 
-								return middleware.handler(req, wobeResponse)
+								return middleware.handler(
+									{ request: req, state: 'beforeHandler' },
+									wobeResponse,
+								)
 							},
 							Promise.resolve({} as WobeHandlerOutput),
 						)
 
-					if (res instanceof Response)
-						return route?.handler?.(req, res)
+					const res = await route.handler?.(
+						{ request: req, state: 'handler' },
+						wobeResponse,
+					)
 
-					return route?.handler?.(req, wobeResponse)
+					if (res instanceof Response) return res
 				}
 
 				return new Response(null, { status: 404 })
