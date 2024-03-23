@@ -10,9 +10,11 @@ const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 export const WobeGraphqlApolloPlugin = async ({
 	options,
 	graphqlEndpoint = '/graphql',
+	context,
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
+	context?: Record<string, any>
 }): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
@@ -31,7 +33,7 @@ export const WobeGraphqlApolloPlugin = async ({
 	await server.start()
 
 	return (wobe: Wobe) => {
-		wobe.get(graphqlEndpoint, async (request) =>
+		wobe.get(graphqlEndpoint, async ({ request }) =>
 			server
 				.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
@@ -41,6 +43,7 @@ export const WobeGraphqlApolloPlugin = async ({
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
+					context: () => Promise.resolve({ ...context, request }),
 				})
 				.then((res) => {
 					if (res.body.kind === 'complete') {
@@ -60,7 +63,7 @@ export const WobeGraphqlApolloPlugin = async ({
 				}),
 		)
 
-		wobe.post(graphqlEndpoint, async (request) =>
+		wobe.post(graphqlEndpoint, async ({ request }) =>
 			server
 				.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
@@ -70,7 +73,7 @@ export const WobeGraphqlApolloPlugin = async ({
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
-					context: () => Promise.resolve(request),
+					context: () => Promise.resolve({ ...context, request }),
 				})
 				.then((res) => {
 					if (res.body.kind === 'complete') {

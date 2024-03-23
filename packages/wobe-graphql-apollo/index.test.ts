@@ -50,6 +50,61 @@ describe('Wobe GraphQL Apollo plugin', () => {
 		wobe.stop()
 	})
 
+	it('should query graphql request with context in graphql resolver', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe({ port })
+
+		await wobe.usePlugin(
+			WobeGraphqlApolloPlugin({
+				context: {
+					tata: 'test',
+				},
+				options: {
+					typeDefs: `#graphql
+            type Query {
+              hello: String
+            }
+          `,
+					resolvers: {
+						Query: {
+							hello: (_, __, context) => {
+								expect(context.request).toBeDefined()
+								expect(context.request.method).toBe('POST')
+								expect(context.tata).toBe('test')
+
+								return 'Hello from Apollo!'
+							},
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.start()
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+				  query {
+            hello
+					}
+				`,
+			}),
+		})
+
+		expect(res.status).toBe(200)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Apollo!' },
+		})
+
+		wobe.stop()
+	})
+
 	it('should query graphql request on a custom graphql endpoint', async () => {
 		const port = await getPort()
 
