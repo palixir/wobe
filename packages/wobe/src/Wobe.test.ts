@@ -16,6 +16,8 @@ describe('Wobe', async () => {
 	let wobe: Wobe
 	const mockMiddleware = mock(() => {})
 	const mockSecondMiddleware = mock(() => {})
+	const mockMiddlewareBeforeAndAfterHandler = mock(() => {})
+	const mockMiddlewareOnlyBeforeHandler = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
 	const mockTestGet = mock(() => {})
 
@@ -35,9 +37,11 @@ describe('Wobe', async () => {
 			return res.send('Tata')
 		})
 
-		wobe.use(mockMiddleware)
-		wobe.use(mockSecondMiddleware)
-		wobe.use('/testGet', mockOnlyOnTestGet)
+		wobe.useBeforeHandler(mockMiddleware)
+		wobe.useBeforeHandler(mockSecondMiddleware)
+		wobe.useBeforeHandler(mockMiddlewareOnlyBeforeHandler)
+		wobe.useBeforeHandler('/testGet', mockOnlyOnTestGet)
+		wobe.use(mockMiddlewareBeforeAndAfterHandler)
 
 		wobe.start()
 	})
@@ -49,6 +53,8 @@ describe('Wobe', async () => {
 	afterEach(() => {
 		mockMiddleware.mockClear()
 		mockSecondMiddleware.mockClear()
+		mockMiddlewareBeforeAndAfterHandler.mockClear()
+		mockMiddlewareOnlyBeforeHandler.mockClear()
 		mockOnlyOnTestGet.mockClear()
 		mockTestGet.mockClear()
 	})
@@ -67,7 +73,7 @@ describe('Wobe', async () => {
 		expect(res.status).toBe(200)
 	})
 
-	it('should return 200 on successfull post request', async () => {
+	it.only('should return 200 on successfull post request', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
@@ -157,5 +163,21 @@ describe('Wobe', async () => {
 		expect(mockTestGet).toHaveBeenCalledTimes(0)
 
 		mockMiddleware.mockRestore()
+	})
+
+	it('should handle a middleware only before handler', async () => {
+		await fetch(`http://127.0.0.1:${port}/testPost`, {
+			method: 'POST',
+		})
+
+		expect(mockMiddlewareOnlyBeforeHandler).toHaveBeenCalledTimes(1)
+	})
+
+	it('should handle a middleware before and after handler', async () => {
+		await fetch(`http://127.0.0.1:${port}/testPost`, {
+			method: 'POST',
+		})
+
+		expect(mockMiddlewareBeforeAndAfterHandler).toHaveBeenCalledTimes(2)
 	})
 })

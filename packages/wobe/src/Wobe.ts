@@ -50,7 +50,9 @@ afterHandler: () =>{}
 
 // With context instead of request
 // Context object contains request, state (before or after handler)
-use(logger(), {beforeHandler: true, afterHandler: true})
+use(logger())
+useBeforeHandler(logger())
+useAfterHandler(logger())
 
 */
 
@@ -61,6 +63,8 @@ export class Wobe {
 	private middlewares: Array<{
 		pathname: string | WobeHandler
 		handler: WobeHandler
+		beforeHandler?: boolean
+		afterHandler?: boolean
 	}>
 
 	constructor(options: WobeOptions) {
@@ -76,6 +80,19 @@ export class Wobe {
 
 	post(path: string, handler: WobeHandler) {
 		this.routes.push({ path, handler, method: 'POST' })
+	}
+
+	_addMiddleware(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+		let path = arg1
+
+		if (typeof arg1 !== 'string') {
+			path = '*'
+			handlers.unshift(arg1)
+		}
+
+		handlers.map((handler) => {
+			this.middlewares.push({ pathname: path, handler })
+		})
 	}
 
 	// TODO: Add a test for a route like /test/*
