@@ -1,8 +1,6 @@
 {
 	"name": "main",
 	"version": "0.1.0",
-	"module": "index.ts",
-	"type": "module",
 	"workspaces": ["packages/*"],
 	"devDependencies": {
 		"@types/bun": "latest",

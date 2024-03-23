@@ -1,8 +1,7 @@
 {
 	"name": "wobe",
 	"version": "0.1.0",
-	"module": "index.ts",
-	"type": "module",
+	"main": "index.ts",
 	"devDependencies": {
 		"get-port": "7.0.0"
 	},

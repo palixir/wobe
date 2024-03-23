@@ -4,6 +4,7 @@ import type { WobeHandler } from '../Wobe'
 
 export interface BearerAuthOptions {
 	token: string
+	realm?: string
 	hashFunction?: (token: string) => string
 }
 
@@ -15,6 +16,7 @@ const defaultHash = (token: string) =>
 export const bearerAuth = ({
 	token,
 	hashFunction = defaultHash,
+	realm = '',
 }: BearerAuthOptions): WobeHandler => {
 	return (req, res) => {
 		const requestAuthorization = req.headers.get('Authorization')
@@ -24,7 +26,7 @@ export const bearerAuth = ({
 				new Response('Unauthorized', {
 					status: 401,
 					headers: {
-						'WWW-Authenticate': `${prefix} realm="", error="invalid_request"`,
+						'WWW-Authenticate': `${prefix} realm="${realm}", error="invalid_request"`,
 					},
 				}),
 			)
@@ -34,7 +36,7 @@ export const bearerAuth = ({
 				new Response('Unauthorized', {
 					status: 401,
 					headers: {
-						'WWW-Authenticate': `${prefix} realm="", error="invalid_request"`,
+						'WWW-Authenticate': `${prefix} realm="${realm}", error="invalid_request"`,
 					},
 				}),
 			)
@@ -49,7 +51,7 @@ export const bearerAuth = ({
 				new Response('Unauthorized', {
 					status: 401,
 					headers: {
-						'WWW-Authenticate': `${prefix} realm="", error="invalid_token"`,
+						'WWW-Authenticate': `${prefix} realm="${realm}", error="invalid_token"`,
 					},
 				}),
 			)
