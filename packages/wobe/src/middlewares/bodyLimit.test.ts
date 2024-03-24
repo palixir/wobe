@@ -23,7 +23,10 @@ describe('bodyLimit', () => {
 		})
 
 		expect(() =>
-			handler({ request: validRequest }, wobeResponse),
+			handler(
+				{ request: validRequest, ipAdress: 'ipAdress' },
+				wobeResponse,
+			),
 		).not.toThrow()
 	})
 
@@ -35,7 +38,10 @@ describe('bodyLimit', () => {
 		})
 
 		expect(() =>
-			handler({ request: invalidRequest }, wobeResponse),
+			handler(
+				{ request: invalidRequest, ipAdress: 'ipAdress' },
+				wobeResponse,
+			),
 		).toThrow()
 	})
 })

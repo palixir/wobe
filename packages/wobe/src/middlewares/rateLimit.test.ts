@@ -1,9 +1,9 @@
-import { describe, expect, it, spyOn, mock } from 'bun:test'
+import { describe, expect, it, mock } from 'bun:test'
 import { rateLimit } from './rateLimit'
 import { WobeResponse } from '../WobeResponse'
-import { HttpException } from '../HttpException'
 
-const mockHttpExceptionConstructor = mock(() => {})
+// @ts-expect-error
+const mockHttpExceptionConstructor = mock((response: Response) => {})
 
 mock.module('../HttpException', () => ({
 	HttpException: class HttpException {
@@ -130,9 +130,8 @@ describe('rateLimit', () => {
 			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
 		).toThrow()
 
-		const responseFromHttpException =
-			// @ts-expect-error
-			mockHttpExceptionConstructor.mock.calls[0][0] as Response
+		const responseFromHttpException = mockHttpExceptionConstructor.mock
+			.calls[0][0] as Response
 
 		expect(responseFromHttpException.status).toBe(429)
 		expect(await responseFromHttpException.text()).toBe(

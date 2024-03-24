@@ -15,7 +15,10 @@ describe('BearerAuth', () => {
 		})
 
 		expect(() =>
-			handler({ request }, new WobeResponse(request)),
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
 		).not.toThrow()
 	})
 
@@ -31,7 +34,10 @@ describe('BearerAuth', () => {
 		})
 
 		expect(() =>
-			handler({ request }, new WobeResponse(request)),
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
 		).not.toThrow()
 	})
 
@@ -49,7 +55,10 @@ describe('BearerAuth', () => {
 		})
 
 		expect(() =>
-			handler({ request }, new WobeResponse(request)),
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
 		).not.toThrow()
 	})
 
@@ -64,7 +73,12 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() => handler({ request }, new WobeResponse(request))).toThrow()
+		expect(() =>
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
+		).toThrow()
 	})
 
 	it('should not authorize the request if the authorization is missing', () => {
@@ -74,7 +88,12 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() => handler({ request }, new WobeResponse(request))).toThrow()
+		expect(() =>
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
+		).toThrow()
 	})
 
 	it('should not authorize the request if the prefix is bad', () => {
@@ -88,6 +107,11 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() => handler({ request }, new WobeResponse(request))).toThrow()
+		expect(() =>
+			handler(
+				{ request, ipAdress: 'ipAdress' },
+				new WobeResponse(request),
+			),
+		).toThrow()
 	})
 })

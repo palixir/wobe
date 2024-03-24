@@ -21,7 +21,11 @@ describe('logger', () => {
 			loggerFunction: mockLoggerFunction,
 		})
 
-		const context: Context = { state: 'beforeHandler', request }
+		const context: Context = {
+			state: 'beforeHandler',
+			request,
+			ipAdress: 'ipAdress',
+		}
 
 		handler(context, new WobeResponse(request))
 
@@ -46,7 +50,11 @@ describe('logger', () => {
 			loggerFunction: mockLoggerFunction,
 		})
 
-		const context: Context = { state: 'beforeHandler', request }
+		const context: Context = {
+			state: 'beforeHandler',
+			request,
+			ipAdress: 'ipAdress',
+		}
 
 		// We begin to handle the beforeHandler to get the requestStartTimeInMs
 		handler(context, new WobeResponse(request))
