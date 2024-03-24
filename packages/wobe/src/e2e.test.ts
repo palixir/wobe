@@ -49,6 +49,10 @@ describe('Wobe e2e', async () => {
 			return res.send('Test')
 		})
 
+		wobe.get('/testReturnResponse', () => {
+			return new Response('Content', { status: 200 })
+		})
+
 		wobe.start()
 	})
 
@@ -58,6 +62,17 @@ describe('Wobe e2e', async () => {
 
 	beforeEach(() => {
 		spyConsoleLog.mockClear()
+	})
+
+	it('should return a response directly from a route', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testReturnResponse`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
+			},
+		})
+
+		expect(await res.text()).toEqual('Content')
+		expect(res.status).toBe(200)
 	})
 
 	it('should block requests with invalid origin', async () => {
@@ -114,7 +129,7 @@ describe('Wobe e2e', async () => {
 		expect(spyConsoleLog.mock.calls[1][0]).toContain(
 			`[After handler] [GET] http://127.0.0.1:${port}/test (status:200)`,
 		)
-		expect(spyConsoleLog.mock.calls[1][0]).toContain(`ms]`)
+		expect(spyConsoleLog.mock.calls[1][0]).toContain('ms]')
 	})
 
 	it('should have a beforeHandler and afterHandler middleware and a route that update response', async () => {

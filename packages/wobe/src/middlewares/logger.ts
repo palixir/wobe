@@ -20,7 +20,13 @@ const defaultLoggerFunction = ({
 	requestStartTimeInMs,
 }: LoggerFunctionOptions) => {
 	console.log(
-		`[${beforeHandler ? 'Before handler' : 'After handler'}] [${method}] ${url}${status ? ' (status:' + status + ')' : ''}${requestStartTimeInMs ? '[' + (Date.now() - requestStartTimeInMs) + 'ms]' : ''}`,
+		`[${
+			beforeHandler ? 'Before handler' : 'After handler'
+		}] [${method}] ${url}${status ? ' (status:' + status + ')' : ''}${
+			requestStartTimeInMs
+				? '[' + (Date.now() - requestStartTimeInMs) + 'ms]'
+				: ''
+		}`,
 	)
 }
 

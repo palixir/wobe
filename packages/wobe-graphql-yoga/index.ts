@@ -1,5 +1,5 @@
 import { createYoga, type YogaServerOptions } from 'graphql-yoga'
-import { Wobe, type WobePlugin } from 'wobe'
+import type { Wobe, WobePlugin } from 'wobe'
 
 export const WobeGraphqlYogaPlugin = ({
 	context,

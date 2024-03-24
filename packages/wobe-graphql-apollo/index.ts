@@ -3,7 +3,7 @@ import {
 	ApolloServerPluginLandingPageLocalDefault,
 	ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default'
-import { Wobe, type WobePlugin } from 'wobe'
+import type { Wobe, WobePlugin } from 'wobe'
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 

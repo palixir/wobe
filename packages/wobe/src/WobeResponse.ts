@@ -15,7 +15,7 @@ export class WobeResponse {
 	public headers = new Headers({
 		'Content-Type': 'text/plain',
 	})
-	public body: string | null = null
+	public body: string | null | ReadableStream = null
 	public status = 200
 	public statusText = 'OK'
 
@@ -63,13 +63,24 @@ export class WobeResponse {
 		this.setCookie({ name, value: '', expires: new Date(0) })
 	}
 
+	copyResponse(response: Response) {
+		this.headers = response.headers
+		this.body = response.body
+		this.status = response.status
+		this.statusText = response.statusText
+	}
+
 	send(
 		content: string | object,
 		{
 			status,
 			statusText,
 			headers = new Headers(),
-		}: { status?: number; statusText?: string; headers?: Object } = {},
+		}: {
+			status?: number
+			statusText?: string
+			headers?: Record<string, any>
+		} = {},
 	) {
 		if (typeof content === 'object') {
 			this.headers.set('Content-Type', 'application/json')
@@ -82,9 +93,11 @@ export class WobeResponse {
 		if (status) this.status = status
 		if (statusText) this.statusText = statusText
 		if (headers) {
-			Object.entries(headers).forEach(([key, value]) => {
+			const entries = Object.entries(headers)
+
+			for (const [key, value] of entries) {
 				this.headers.set(key, value)
-			})
+			}
 		}
 
 		return new Response(this.body, {

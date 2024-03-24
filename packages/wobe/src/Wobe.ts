@@ -161,12 +161,18 @@ export class Wobe {
 
 					context.state = 'handler'
 
-					await route.handler?.(context, wobeResponse)
+					const handlerResult = await route.handler?.(
+						context,
+						wobeResponse,
+					)
+
+					if (handlerResult instanceof Response)
+						wobeResponse.copyResponse(handlerResult)
 
 					context.state = 'afterHandler'
 
 					// We need to run middleware sequentially
-					const res = await middlewares
+					const responseAfterMiddleware = await middlewares
 						.filter(
 							(middleware) =>
 								(middleware.hook === 'afterHandler' ||
@@ -184,7 +190,8 @@ export class Wobe {
 							Promise.resolve({} as WobeHandlerOutput),
 						)
 
-					if (res instanceof Response) return res
+					if (responseAfterMiddleware instanceof Response)
+						return responseAfterMiddleware
 
 					return new Response(wobeResponse.body, {
 						status: wobeResponse.status,

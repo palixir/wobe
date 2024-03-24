@@ -53,7 +53,9 @@ export const secureHeaders = ({
 			)
 				.map(
 					([key, value]) =>
-						`${key} ${Array.isArray(value) ? value.join(' ') : value}`,
+						`${key} ${
+							Array.isArray(value) ? value.join(' ') : value
+						}`,
 				)
 				.join('; ')
 
