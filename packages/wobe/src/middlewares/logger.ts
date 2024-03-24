@@ -1,6 +1,7 @@
 import type { HttpMethod, WobeHandler } from '../Wobe'
 
 export interface LoggerFunctionOptions {
+	beforeHandler: boolean
 	method: HttpMethod
 	url: string
 	status?: number
@@ -12,24 +13,28 @@ export interface LoggerOptions {
 }
 
 const defaultLoggerFunction = ({
+	beforeHandler,
 	method,
 	url,
 	status,
 	requestStartTimeInMs,
 }: LoggerFunctionOptions) => {
 	console.log(
-		`[Wobe] [${method}] ${url}: ${status ? ':' + status : ''} ${requestStartTimeInMs ? '[' + (Date.now() - requestStartTimeInMs) + 'ms]' : ''}`,
+		`[${beforeHandler ? 'Before handler' : 'After handler'}] [${method}] ${url}${status ? ' (status:' + status + ')' : ''}${requestStartTimeInMs ? '[' + (Date.now() - requestStartTimeInMs) + 'ms]' : ''}`,
 	)
 }
 
-export const logger = ({
-	loggerFunction = defaultLoggerFunction,
-}: LoggerOptions): WobeHandler => {
+export const logger = (
+	{ loggerFunction }: LoggerOptions = {
+		loggerFunction: defaultLoggerFunction,
+	},
+): WobeHandler => {
 	return (ctx, res) => {
 		const { state, request } = ctx
 
 		if (state === 'beforeHandler') {
-			loggerFunction({
+			loggerFunction?.({
+				beforeHandler: true,
 				method: request.method as HttpMethod,
 				url: request.url,
 			})
@@ -37,7 +42,8 @@ export const logger = ({
 		}
 
 		if (state === 'afterHandler') {
-			loggerFunction({
+			loggerFunction?.({
+				beforeHandler: false,
 				method: request.method as HttpMethod,
 				url: request.url,
 				status: res.status,

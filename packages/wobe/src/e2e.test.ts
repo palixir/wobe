@@ -1,18 +1,30 @@
-import { describe, expect, it, beforeAll, afterAll } from 'bun:test'
+import {
+	describe,
+	expect,
+	it,
+	beforeAll,
+	afterAll,
+	spyOn,
+	beforeEach,
+} from 'bun:test'
 import { Wobe } from './Wobe'
 import getPort from 'get-port'
 import { csrf } from './middlewares'
 import { bearerAuth } from './middlewares/bearerAuth'
+import { logger } from './middlewares/logger'
 
 describe('Wobe e2e', async () => {
 	let wobe: Wobe
 	const port = await getPort()
+
+	const spyConsoleLog = spyOn(console, 'log').mockReturnValue()
 
 	beforeAll(() => {
 		wobe = new Wobe({ port })
 
 		wobe.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
 		wobe.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
+		wobe.beforeAndAfterHandler(logger())
 
 		wobe.get('/test', (_, res) => {
 			return res.send('Test')
@@ -27,6 +39,10 @@ describe('Wobe e2e', async () => {
 
 	afterAll(() => {
 		wobe.stop()
+	})
+
+	beforeEach(() => {
+		spyConsoleLog.mockClear()
 	})
 
 	it('should block requests with invalid origin', async () => {
@@ -64,5 +80,25 @@ describe('Wobe e2e', async () => {
 		expect(res.headers.get('WWW-Authenticate')).toEqual(
 			'Bearer realm="", error="invalid_token"',
 		)
+	})
+
+	it('should log with logger middleware', async () => {
+		await fetch(`http://127.0.0.1:${port}/test`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
+			},
+		})
+
+		expect(spyConsoleLog).toHaveBeenCalledTimes(2)
+		expect(spyConsoleLog).toHaveBeenNthCalledWith(
+			1,
+			`[Before handler] [GET] http://127.0.0.1:${port}/test`,
+		)
+
+		// We don't use toHaveBeenNthCalledWith to avoid flaky on execution time
+		expect(spyConsoleLog.mock.calls[1][0]).toContain(
+			`[After handler] [GET] http://127.0.0.1:${port}/test (status:200)`,
+		)
+		expect(spyConsoleLog.mock.calls[1][0]).toContain(`ms]`)
 	})
 })

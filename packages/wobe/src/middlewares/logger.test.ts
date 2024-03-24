@@ -27,6 +27,7 @@ describe('logger', () => {
 
 		expect(mockLoggerFunction).toHaveBeenCalledTimes(1)
 		expect(mockLoggerFunction).toHaveBeenCalledWith({
+			beforeHandler: true,
 			method: 'GET',
 			url: 'http://localhost:3000/test',
 		})
@@ -56,6 +57,7 @@ describe('logger', () => {
 
 		expect(mockLoggerFunction).toHaveBeenCalledTimes(2)
 		expect(mockLoggerFunction).toHaveBeenNthCalledWith(2, {
+			beforeHandler: false,
 			method: 'GET',
 			url: 'http://localhost:3000/test',
 			status: 200,
