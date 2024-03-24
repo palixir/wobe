@@ -22,6 +22,21 @@ describe('Wobe e2e', async () => {
 	beforeAll(() => {
 		wobe = new Wobe({ port })
 
+		wobe.beforeHandler('/testMiddlewareLifecyce', (_, res) => {
+			res.headers.set('X-Test', 'Test')
+		})
+
+		wobe.get('/testMiddlewareLifecyce', (_, res) => {
+			res.headers.set('X-Test-2', 'Test2')
+
+			return res.send('Test')
+		})
+
+		wobe.afterHandler('/testMiddlewareLifecyce', (_, res) => {
+			res.headers.set('X-Test-3', 'Test3')
+			return res.send('Test after handler')
+		})
+
 		wobe.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
 		wobe.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
 		wobe.beforeAndAfterHandler(logger())
@@ -100,5 +115,22 @@ describe('Wobe e2e', async () => {
 			`[After handler] [GET] http://127.0.0.1:${port}/test (status:200)`,
 		)
 		expect(spyConsoleLog.mock.calls[1][0]).toContain(`ms]`)
+	})
+
+	it('should have a beforeHandler and afterHandler middleware and a route that update response', async () => {
+		const res = await fetch(
+			`http://127.0.0.1:${port}/testMiddlewareLifecyce`,
+			{
+				headers: {
+					origin: `http://127.0.0.1:${port}`,
+				},
+			},
+		)
+
+		expect(res.status).toBe(200)
+		expect(res.headers.get('X-Test')).toBe('Test')
+		expect(res.headers.get('X-Test-2')).toBe('Test2')
+		expect(res.headers.get('X-Test-3')).toBe('Test3')
+		expect(await res.text()).toBe('Test after handler')
 	})
 })

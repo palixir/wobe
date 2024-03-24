@@ -34,30 +34,9 @@ export type WobeHandler = (
 
 export type WobePlugin = (wobe: Wobe) => void
 
-/*
-use(logger(),{
-  beforeHandler: () =>{},
-  afterHandler: () =>{}
-})
-
-useBeforeHandler(logger())
-userAfterHandler(logger())
-
-use(logger({
-beforeHandler: () =>{},
-afterHandler: () =>{}
-}))
-
-// With context instead of request
-// Context object contains request, state (before or after handler)
-beforeAndAfterHandler(logger())
-beforeHandler(logger())
-afterHandler(logger())
-
-*/
-
 type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
+// TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options: WobeOptions
 	private server: Server | null
@@ -155,6 +134,7 @@ export class Wobe {
 
 				if (route) {
 					const context: Context = {
+						ipAdress: this.requestIP(req)?.address || '',
 						request: req,
 						state: 'beforeHandler',
 					}
@@ -181,12 +161,12 @@ export class Wobe {
 
 					context.state = 'handler'
 
-					const res = await route.handler?.(context, wobeResponse)
+					await route.handler?.(context, wobeResponse)
 
 					context.state = 'afterHandler'
 
 					// We need to run middleware sequentially
-					await middlewares
+					const res = await middlewares
 						.filter(
 							(middleware) =>
 								(middleware.hook === 'afterHandler' ||
@@ -205,6 +185,12 @@ export class Wobe {
 						)
 
 					if (res instanceof Response) return res
+
+					return new Response(wobeResponse.body, {
+						status: wobeResponse.status,
+						headers: wobeResponse.headers,
+						statusText: wobeResponse.statusText,
+					})
 				}
 
 				return new Response(null, { status: 404 })
