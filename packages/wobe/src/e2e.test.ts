@@ -11,8 +11,8 @@ describe('Wobe e2e', async () => {
 	beforeAll(() => {
 		wobe = new Wobe({ port })
 
-		wobe.use(csrf({ origin: `http://127.0.0.1:${port}` }))
-		wobe.use('/testBearer', bearerAuth({ token: '123' }))
+		wobe.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
+		wobe.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
 
 		wobe.get('/test', (_, res) => {
 			return res.send('Test')

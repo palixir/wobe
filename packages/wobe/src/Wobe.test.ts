@@ -37,11 +37,11 @@ describe('Wobe', async () => {
 			return res.send('Tata')
 		})
 
-		wobe.useBeforeHandler(mockMiddleware)
-		wobe.useBeforeHandler(mockSecondMiddleware)
-		wobe.useBeforeHandler(mockMiddlewareOnlyBeforeHandler)
-		wobe.useBeforeHandler('/testGet', mockOnlyOnTestGet)
-		wobe.use(mockMiddlewareBeforeAndAfterHandler)
+		wobe.beforeHandler(mockMiddleware)
+		wobe.beforeHandler(mockSecondMiddleware)
+		wobe.beforeHandler(mockMiddlewareOnlyBeforeHandler)
+		wobe.beforeHandler('/testGet', mockOnlyOnTestGet)
+		wobe.beforeAndAfterHandler(mockMiddlewareBeforeAndAfterHandler)
 
 		wobe.start()
 	})
@@ -73,7 +73,7 @@ describe('Wobe', async () => {
 		expect(res.status).toBe(200)
 	})
 
-	it.only('should return 200 on successfull post request', async () => {
+	it('should return 200 on successfull post request', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})

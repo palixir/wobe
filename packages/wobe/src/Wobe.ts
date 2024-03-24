@@ -50,11 +50,13 @@ afterHandler: () =>{}
 
 // With context instead of request
 // Context object contains request, state (before or after handler)
-use(logger())
-useBeforeHandler(logger())
-useAfterHandler(logger())
+beforeAndAfterHandler(logger())
+beforeHandler(logger())
+afterHandler(logger())
 
 */
+
+type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
 export class Wobe {
 	private options: WobeOptions
@@ -63,8 +65,7 @@ export class Wobe {
 	private middlewares: Array<{
 		pathname: string | WobeHandler
 		handler: WobeHandler
-		beforeHandler?: boolean
-		afterHandler?: boolean
+		hook: Hook
 	}>
 
 	constructor(options: WobeOptions) {
@@ -82,31 +83,35 @@ export class Wobe {
 		this.routes.push({ path, handler, method: 'POST' })
 	}
 
-	_addMiddleware(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		let path = arg1
+	private _addMiddleware =
+		(hook: Hook) =>
+		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {
+			let path = arg1
 
-		if (typeof arg1 !== 'string') {
-			path = '*'
-			handlers.unshift(arg1)
+			if (typeof arg1 !== 'string') {
+				path = '*'
+				handlers.unshift(arg1)
+			}
+
+			handlers.map((handler) => {
+				this.middlewares.push({ pathname: path, handler, hook })
+			})
 		}
-
-		handlers.map((handler) => {
-			this.middlewares.push({ pathname: path, handler })
-		})
-	}
 
 	// TODO: Add a test for a route like /test/*
-	use(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		let path = arg1
+	beforeAndAfterHandler(
+		arg1: string | WobeHandler,
+		...handlers: WobeHandler[]
+	) {
+		this._addMiddleware('beforeAndAfterHandler')(arg1, ...handlers)
+	}
 
-		if (typeof arg1 !== 'string') {
-			path = '*'
-			handlers.unshift(arg1)
-		}
+	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+		this._addMiddleware('beforeHandler')(arg1, ...handlers)
+	}
 
-		handlers.map((handler) => {
-			this.middlewares.push({ pathname: path, handler })
-		})
+	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+		this._addMiddleware('afterHandler')(arg1, ...handlers)
 	}
 
 	async usePlugin(plugin: MaybePromise<WobePlugin>) {
@@ -159,8 +164,11 @@ export class Wobe {
 					await middlewares
 						.filter(
 							(middleware) =>
-								middleware.pathname === '*' ||
-								middleware.pathname === pathName,
+								(middleware.hook === 'beforeHandler' ||
+									middleware.hook ===
+										'beforeAndAfterHandler') &&
+								(middleware.pathname === '*' ||
+									middleware.pathname === pathName),
 						)
 						.reduce(
 							async (acc, middleware) => {
@@ -176,6 +184,25 @@ export class Wobe {
 					const res = await route.handler?.(context, wobeResponse)
 
 					context.state = 'afterHandler'
+
+					// We need to run middleware sequentially
+					await middlewares
+						.filter(
+							(middleware) =>
+								(middleware.hook === 'afterHandler' ||
+									middleware.hook ===
+										'beforeAndAfterHandler') &&
+								(middleware.pathname === '*' ||
+									middleware.pathname === pathName),
+						)
+						.reduce(
+							async (acc, middleware) => {
+								await acc
+
+								return middleware.handler(context, wobeResponse)
+							},
+							Promise.resolve({} as WobeHandlerOutput),
+						)
 
 					if (res instanceof Response) return res
 				}
