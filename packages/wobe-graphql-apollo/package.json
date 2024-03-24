@@ -8,5 +8,8 @@
 	"dependencies": {
 		"@apollo/server": "4.10.1",
 		"wobe": "workspace:*"
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.json"
 	}
 }

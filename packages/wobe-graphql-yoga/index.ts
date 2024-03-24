@@ -2,22 +2,22 @@ import { createYoga, type YogaServerOptions } from 'graphql-yoga'
 import { Wobe, type WobePlugin } from 'wobe'
 
 export const WobeGraphqlYogaPlugin = ({
-  context,
-  ...options
+	context,
+	...options
 }: {
-  context?: Record<string, any>
+	context?: Record<string, any>
 } & YogaServerOptions<any, any>): WobePlugin => {
-  const yoga = createYoga({
-    ...options,
-    context: () => ({ ...context }),
-  })
+	const yoga = createYoga({
+		...options,
+		context: () => ({ ...context }),
+	})
 
-  return (wobe: Wobe) => {
-    wobe.get(options?.graphqlEndpoint || '/graphql', async ({ request, ipAdress: 'ipAdress' }) =>
-      yoga.fetch(request),
-    )
-    wobe.post(options?.graphqlEndpoint || '/graphql', async ({ request, ipAdress: 'ipAdress' }) =>
-      yoga.fetch(request),
-    )
-  }
+	return (wobe: Wobe) => {
+		wobe.get(options?.graphqlEndpoint || '/graphql', async ({ request }) =>
+			yoga.fetch(request),
+		)
+		wobe.post(options?.graphqlEndpoint || '/graphql', async ({ request }) =>
+			yoga.fetch(request),
+		)
+	}
 }
