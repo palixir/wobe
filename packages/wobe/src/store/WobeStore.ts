@@ -1,5 +1,5 @@
 export interface WobeStoreOptions {
-	timeLimit: number
+	interval: number
 }
 
 export class WobeStore {
@@ -16,7 +16,7 @@ export class WobeStore {
 	_init() {
 		setInterval(() => {
 			this.store.clear()
-		}, this.options.timeLimit)
+		}, this.options.interval)
 	}
 
 	set(key: string, value: any) {

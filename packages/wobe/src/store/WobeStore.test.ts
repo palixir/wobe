@@ -3,7 +3,7 @@ import { WobeStore } from './WobeStore'
 
 describe('WobeStore', () => {
 	const wobeStore = new WobeStore({
-		timeLimit: 100,
+		interval: 100,
 	})
 
 	beforeEach(() => {
@@ -32,7 +32,7 @@ describe('WobeStore', () => {
 
 	it('should clear a cache after timeLimit', () => {
 		const localWobeStore = new WobeStore({
-			timeLimit: 100,
+			interval: 100,
 		})
 
 		localWobeStore.set('key', 'value')
