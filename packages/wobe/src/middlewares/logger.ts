@@ -9,7 +9,7 @@ export interface LoggerFunctionOptions {
 }
 
 export interface LoggerOptions {
-	loggerFunction?: (options: LoggerFunctionOptions) => void
+	loggerFunction: (options: LoggerFunctionOptions) => void
 }
 
 const defaultLoggerFunction = ({
@@ -33,7 +33,7 @@ export const logger = (
 		const { state, request } = ctx
 
 		if (state === 'beforeHandler') {
-			loggerFunction?.({
+			loggerFunction({
 				beforeHandler: true,
 				method: request.method as HttpMethod,
 				url: request.url,
@@ -42,7 +42,7 @@ export const logger = (
 		}
 
 		if (state === 'afterHandler') {
-			loggerFunction?.({
+			loggerFunction({
 				beforeHandler: false,
 				method: request.method as HttpMethod,
 				url: request.url,
