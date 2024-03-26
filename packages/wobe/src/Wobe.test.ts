@@ -24,9 +24,7 @@ describe('Wobe', async () => {
 	const port = await getPort()
 
 	beforeAll(() => {
-		wobe = new Wobe({
-			port,
-		})
+		wobe = new Wobe()
 
 		wobe.get('/testGet', (_, res) => {
 			mockTestGet()
@@ -43,7 +41,7 @@ describe('Wobe', async () => {
 		wobe.beforeHandler('/testGet', mockOnlyOnTestGet)
 		wobe.beforeAndAfterHandler(mockMiddlewareBeforeAndAfterHandler)
 
-		wobe.start()
+		wobe.listen(port)
 	})
 
 	afterAll(() => {

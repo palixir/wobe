@@ -7,7 +7,7 @@ import { WobeGraphqlYogaPlugin } from '.'
 describe('Wobe GraphQL Yoga plugin', () => {
 	it('should query graphql request', async () => {
 		const port = await getPort()
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
@@ -26,7 +26,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
@@ -52,7 +52,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 	it('should query graphql request with context in graphql resolver', async () => {
 		const port = await getPort()
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
@@ -80,7 +80,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
@@ -106,7 +106,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 	it('should query graphql request on different graphql endpoint', async () => {
 		const port = await getPort()
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
@@ -126,7 +126,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql2`, {
 			method: 'POST',

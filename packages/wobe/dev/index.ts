@@ -1,11 +1,9 @@
 import { Wobe } from '../src'
 
-const wobe = new Wobe({
-	port: 3000,
-})
+const wobe = new Wobe()
 
 wobe.get('/hi', (_, res) => {
 	return res.send('hi')
 })
 
-wobe.start()
+wobe.listen(8080)

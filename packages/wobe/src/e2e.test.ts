@@ -22,10 +22,19 @@ describe('Wobe e2e', async () => {
 	const mockMiddlewareWithWildcardRoute = mock(() => {})
 
 	beforeAll(() => {
-		wobe = new Wobe({ port })
+		wobe = new Wobe()
+			.beforeHandler('/testMiddlewareLifecyce', (_, res) => {
+				res.headers.set('X-Test', 'Test')
+			})
+			.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
+			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
+			.beforeHandler('/test/*', mockMiddlewareWithWildcardRoute)
 
-		wobe.beforeHandler('/testMiddlewareLifecyce', (_, res) => {
-			res.headers.set('X-Test', 'Test')
+		wobe.beforeAndAfterHandler(logger())
+
+		wobe.afterHandler('/testMiddlewareLifecyce', (_, res) => {
+			res.headers.set('X-Test-3', 'Test3')
+			return res.send('Test after handler')
 		})
 
 		wobe.get('/testMiddlewareLifecyce', (_, res) => {
@@ -33,35 +42,20 @@ describe('Wobe e2e', async () => {
 
 			return res.send('Test')
 		})
+			.get('/test/v1', (_, res) => {
+				return res.send('Test')
+			})
+			.get('/test', (_, res) => {
+				return res.send('Test')
+			})
+			.get('/testBearer', (_, res) => {
+				return res.send('Test')
+			})
+			.get('/testReturnResponse', () => {
+				return new Response('Content', { status: 200 })
+			})
 
-		wobe.afterHandler('/testMiddlewareLifecyce', (_, res) => {
-			res.headers.set('X-Test-3', 'Test3')
-			return res.send('Test after handler')
-		})
-
-		wobe.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
-		wobe.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
-		wobe.beforeAndAfterHandler(logger())
-
-		wobe.beforeHandler('/test/*', mockMiddlewareWithWildcardRoute)
-
-		wobe.get('/test/v1', (_, res) => {
-			return res.send('Test')
-		})
-
-		wobe.get('/test', (_, res) => {
-			return res.send('Test')
-		})
-
-		wobe.get('/testBearer', (_, res) => {
-			return res.send('Test')
-		})
-
-		wobe.get('/testReturnResponse', () => {
-			return new Response('Content', { status: 200 })
-		})
-
-		wobe.start()
+		wobe.listen(port)
 	})
 
 	afterAll(() => {

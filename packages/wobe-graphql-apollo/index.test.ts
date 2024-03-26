@@ -7,7 +7,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 	it('should query graphql request', async () => {
 		const port = await getPort()
 
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		await wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
@@ -26,7 +26,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
@@ -53,7 +53,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 	it('should query graphql request with context in graphql resolver', async () => {
 		const port = await getPort()
 
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		await wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
@@ -81,7 +81,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
 			method: 'POST',
@@ -108,7 +108,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 	it('should query graphql request on a custom graphql endpoint', async () => {
 		const port = await getPort()
 
-		const wobe = new Wobe({ port })
+		const wobe = new Wobe()
 
 		await wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
@@ -128,7 +128,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 			}),
 		)
 
-		wobe.start()
+		wobe.listen(port)
 
 		const res = await fetch(`http://127.0.0.1:${port}/graphql2`, {
 			method: 'POST',

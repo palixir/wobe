@@ -14,7 +14,6 @@ export type Routes = Array<{
 }>
 
 export interface WobeOptions {
-	port: number
 	hostname?: string
 }
 
@@ -38,7 +37,7 @@ type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
 // TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
-	private options: WobeOptions
+	private options?: WobeOptions
 	private server: Server | null
 	private routes: Routes
 	private middlewares: Array<{
@@ -47,7 +46,7 @@ export class Wobe {
 		hook: Hook
 	}>
 
-	constructor(options: WobeOptions) {
+	constructor(options?: WobeOptions) {
 		this.options = options
 		this.routes = []
 		this.middlewares = []
@@ -56,10 +55,14 @@ export class Wobe {
 
 	get(path: string, handler: WobeHandler) {
 		this.routes.push({ path, handler, method: 'GET' })
+
+		return this
 	}
 
 	post(path: string, handler: WobeHandler) {
 		this.routes.push({ path, handler, method: 'POST' })
+
+		return this
 	}
 
 	private _addMiddleware =
@@ -75,21 +78,23 @@ export class Wobe {
 			handlers.map((handler) => {
 				this.middlewares.push({ pathname: path, handler, hook })
 			})
+
+			return this
 		}
 
 	beforeAndAfterHandler(
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		this._addMiddleware('beforeAndAfterHandler')(arg1, ...handlers)
+		return this._addMiddleware('beforeAndAfterHandler')(arg1, ...handlers)
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		this._addMiddleware('beforeHandler')(arg1, ...handlers)
+		return this._addMiddleware('beforeHandler')(arg1, ...handlers)
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		this._addMiddleware('afterHandler')(arg1, ...handlers)
+		return this._addMiddleware('afterHandler')(arg1, ...handlers)
 	}
 
 	async usePlugin(plugin: MaybePromise<WobePlugin>) {
@@ -105,7 +110,7 @@ export class Wobe {
 		plugin(this)
 	}
 
-	start() {
+	listen(port: number) {
 		const router = new Router()
 
 		router.compile(this.routes)
@@ -113,8 +118,8 @@ export class Wobe {
 		const middlewares = this.middlewares
 
 		this.server = Bun.serve({
-			port: this.options.port,
-			hostname: this.options.hostname,
+			port,
+			hostname: this.options?.hostname,
 			development: false,
 			error: (err) => {
 				if (err instanceof HttpException) return err.response
