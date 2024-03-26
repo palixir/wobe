@@ -69,6 +69,19 @@ export class Router {
 		return true
 	}
 
+	toStringNode(node: Node): string {
+		const result = node.children
+			.map((child) => {
+				return this.toStringNode(child)
+			})
+			.join(',')
+
+		return `Path : "${node.name}" :
+		 Children :
+		  - ${result}
+		`
+	}
+
 	find({
 		path,
 		method,
@@ -123,6 +136,82 @@ export class Router {
 		return currentNode
 	}
 
+	compileV2(routes: Routes) {
+		const tmp: Array<{
+			name: string
+			routeId: number
+			childrenIndex: Array<number>
+			parentIndex: number
+		}> = []
+
+		for (let i = 0; i < routes.length; i++) {
+			let currentRoutePath = routes[i].path
+			let previousSlashIndex = 0
+			let parentIndex = -1
+
+			if (currentRoutePath[0] !== '/')
+				currentRoutePath = '/' + currentRoutePath
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '*')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '/')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			for (let j = 1; j < currentRoutePath.length; j++) {
+				const char = currentRoutePath[j]
+
+				if (char === '/' || j === currentRoutePath.length - 1) {
+					const currentPath = currentRoutePath.slice(
+						previousSlashIndex,
+						j === currentRoutePath.length - 1 ? j + 1 : j,
+					)
+
+					const existingRouteIndex = tmp.findIndex(
+						(node) =>
+							node.name === currentPath &&
+							node.parentIndex === parentIndex,
+					)
+
+					if (existingRouteIndex !== -1) {
+						parentIndex = existingRouteIndex
+					}
+
+					if (existingRouteIndex === -1) {
+						if (parentIndex !== -1)
+							tmp[parentIndex].childrenIndex.push(tmp.length)
+
+						tmp.push({
+							name: currentPath,
+							routeId: i,
+							childrenIndex: [],
+							parentIndex,
+						})
+
+						parentIndex = tmp.length - 1
+					}
+
+					previousSlashIndex = j
+				}
+			}
+		}
+
+		console.log(tmp)
+
+		// Second part
+
+		for (let i = 0; i < tmp.length; i++) {
+			const currentNode = tmp[i]
+
+			if (currentNode.childrenIndex.length === 1) {
+				const concatenatedPath =
+					currentNode.name + tmp[currentNode.childrenIndex[0]].name
+
+				console.log(concatenatedPath)
+			}
+		}
+	}
+
 	compile(routes: Routes) {
 		for (let i = 0; i < routes.length; i++) {
 			let route = routes[i].path
@@ -152,12 +241,6 @@ export class Router {
 							(!node.method || node.method === routes[i].method),
 					)
 
-					// We remove the slash to optimize the research
-					const node = this.createNode({
-						path: currentPath,
-						isParameterNode: currentPath[0] === ':',
-					})
-
 					previousSlashIndex = j
 
 					if (routeAlreadyExist) {
@@ -165,6 +248,11 @@ export class Router {
 
 						continue
 					}
+
+					const node = this.createNode({
+						path: currentPath,
+						isParameterNode: currentPath[0] === ':',
+					})
 
 					// The following use case is not authorized because the id can be interpreted as a parameter
 					// /user/:id/info and /user/id/anyway are not authorized

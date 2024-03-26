@@ -2,6 +2,18 @@ import { describe, expect, it } from 'bun:test'
 import { Router } from './Router'
 
 describe('Wobe router', () => {
+	describe.only('Router - CompileV2', () => {
+		it('should compile a simple route', () => {
+			const router = new Router()
+
+			router.compileV2([
+				{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
+				{ path: '/a/simple/route2/', method: 'GET', handler: () => {} },
+				{ path: '/a/simple2/route/', method: 'GET', handler: () => {} },
+			])
+		})
+	})
+
 	describe('Router - Compile', () => {
 		it('should compile a simple route', () => {
 			const router = new Router()
@@ -16,6 +28,8 @@ describe('Wobe router', () => {
 			expect(router.root.children[0].children[0].children[0].name).toBe(
 				'route',
 			)
+
+			console.log(router.toStringNode(router.root))
 		})
 
 		it('should compile a simple route without slash at the end', () => {
