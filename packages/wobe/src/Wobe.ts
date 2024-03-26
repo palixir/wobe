@@ -77,7 +77,6 @@ export class Wobe {
 			})
 		}
 
-	// TODO: Add a test for a route like /test/*
 	beforeAndAfterHandler(
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
@@ -138,17 +137,30 @@ export class Wobe {
 						request: req,
 						state: 'beforeHandler',
 					}
+
 					const wobeResponse = new WobeResponse(req)
 
+					const listOfMiddlewaresToExecute = []
+
+					for (let i = 0; i < middlewares.length; i++) {
+						const currentMiddleware = middlewares[i]
+
+						if (
+							router.isMiddlewarePathnameMatchWithRoute({
+								middlewarePathname:
+									currentMiddleware.pathname as string,
+								route: pathName as string, // A route has been founded so we are pretty sure
+							})
+						)
+							listOfMiddlewaresToExecute.push(currentMiddleware)
+					}
+
 					// We need to run middleware sequentially
-					await middlewares
+					await listOfMiddlewaresToExecute
 						.filter(
 							(middleware) =>
-								(middleware.hook === 'beforeHandler' ||
-									middleware.hook ===
-										'beforeAndAfterHandler') &&
-								(middleware.pathname === '*' ||
-									middleware.pathname === pathName),
+								middleware.hook === 'beforeHandler' ||
+								middleware.hook === 'beforeAndAfterHandler',
 						)
 						.reduce(
 							async (acc, middleware) => {
@@ -172,23 +184,24 @@ export class Wobe {
 					context.state = 'afterHandler'
 
 					// We need to run middleware sequentially
-					const responseAfterMiddleware = await middlewares
-						.filter(
-							(middleware) =>
-								(middleware.hook === 'afterHandler' ||
-									middleware.hook ===
-										'beforeAndAfterHandler') &&
-								(middleware.pathname === '*' ||
-									middleware.pathname === pathName),
-						)
-						.reduce(
-							async (acc, middleware) => {
-								await acc
+					const responseAfterMiddleware =
+						await listOfMiddlewaresToExecute
+							.filter(
+								(middleware) =>
+									middleware.hook === 'afterHandler' ||
+									middleware.hook === 'beforeAndAfterHandler',
+							)
+							.reduce(
+								async (acc, middleware) => {
+									await acc
 
-								return middleware.handler(context, wobeResponse)
-							},
-							Promise.resolve({} as WobeHandlerOutput),
-						)
+									return middleware.handler(
+										context,
+										wobeResponse,
+									)
+								},
+								Promise.resolve({} as WobeHandlerOutput),
+							)
 
 					if (responseAfterMiddleware instanceof Response)
 						return responseAfterMiddleware

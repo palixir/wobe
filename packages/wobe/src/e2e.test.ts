@@ -5,6 +5,7 @@ import {
 	beforeAll,
 	afterAll,
 	spyOn,
+	mock,
 	beforeEach,
 } from 'bun:test'
 import { Wobe } from './Wobe'
@@ -18,6 +19,7 @@ describe('Wobe e2e', async () => {
 	const port = await getPort()
 
 	const spyConsoleLog = spyOn(console, 'log').mockReturnValue()
+	const mockMiddlewareWithWildcardRoute = mock(() => {})
 
 	beforeAll(() => {
 		wobe = new Wobe({ port })
@@ -41,6 +43,12 @@ describe('Wobe e2e', async () => {
 		wobe.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
 		wobe.beforeAndAfterHandler(logger())
 
+		wobe.beforeHandler('/test/*', mockMiddlewareWithWildcardRoute)
+
+		wobe.get('/test/v1', (_, res) => {
+			return res.send('Test')
+		})
+
 		wobe.get('/test', (_, res) => {
 			return res.send('Test')
 		})
@@ -62,6 +70,17 @@ describe('Wobe e2e', async () => {
 
 	beforeEach(() => {
 		spyConsoleLog.mockClear()
+		mockMiddlewareWithWildcardRoute.mockClear()
+	})
+
+	it('should execute middlewares with a route name like /test/* for any route begin by /test/', async () => {
+		await fetch(`http://127.0.0.1:${port}/test/v1`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
+			},
+		})
+
+		expect(mockMiddlewareWithWildcardRoute).toHaveBeenCalledTimes(1)
 	})
 
 	it('should return a response directly from a route', async () => {
