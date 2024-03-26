@@ -95,21 +95,21 @@ export class Router {
 					isLastCharacter ? i + 1 : i,
 				)
 
-				// Use for loop instead of find because it's faster (around 15-20%)
-				for (let j = 0; j < currentNode.children.length; j++) {
-					if (currentPath.length === 0) continue
+				if (currentPath.length > 0) {
+					// Use for loop instead of find because it's faster (around 15-20%)
+					for (let j = 0; j < currentNode.children.length; j++) {
+						const child = currentNode.children[j]
 
-					const child = currentNode.children[j]
-
-					if (
-						child.name === '*' ||
-						child.isParameterNode ||
-						(child.name === currentPath &&
-							(!child.method || child.method === method))
-					) {
-						currentNode = child
-						isFounded = true
-						break
+						if (
+							child.isParameterNode ||
+							child.name === '*' ||
+							(child.name === currentPath &&
+								(!child.method || child.method === method))
+						) {
+							currentNode = child
+							isFounded = true
+							break
+						}
 					}
 				}
 

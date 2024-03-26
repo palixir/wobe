@@ -3,12 +3,14 @@ import { routes, type RouterInterface } from './tools'
 import { regExpRouter, trieRouter } from './hono'
 import { wobeRouter } from './wobe'
 import { findMyWayRouter } from './findMyWay'
+import { koaRouter } from './koaRouter'
 
 const routers: RouterInterface[] = [
 	regExpRouter,
 	trieRouter,
-	wobeRouter,
 	findMyWayRouter,
+	koaRouter,
+	wobeRouter,
 ]
 
 for (const route of routes) {

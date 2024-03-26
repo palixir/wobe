@@ -13,12 +13,12 @@ export interface RouterInterface {
 }
 
 export const routes: Route[] = [
-	// {
-	// 	name: 'short static',
-	// 	method: 'GET',
-	// 	path: '/user',
-	// 	handler,
-	// },
+	{
+		name: 'short static',
+		method: 'GET',
+		path: '/user',
+		handler,
+	},
 	// {
 	// 	name: 'static with same radix',
 	// 	method: 'GET',
