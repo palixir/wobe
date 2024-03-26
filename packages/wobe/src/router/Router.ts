@@ -136,6 +136,100 @@ export class Router {
 		return currentNode
 	}
 
+	// This function compute an element of the array and add all children to the current node
+	addAllChidrenToACurrentNodeRecursively({
+		arrayOfElements,
+		indexToCompute,
+		currentNode,
+		routes,
+	}: {
+		arrayOfElements: Array<{
+			name: string
+			routeId: number
+			childrenIndex: Array<number>
+			parentIndex: number
+		}>
+		indexToCompute: number
+		currentNode: Node
+		routes: Routes
+	}): { computedChildrenIndex: Array<number>; currentNode: Node } {
+		const element = arrayOfElements[indexToCompute]
+
+		let computedChildrenIndex: Array<number> = []
+		let currentPath = element.name
+
+		if (element.childrenIndex.length === 1) {
+			currentPath += arrayOfElements[element.childrenIndex[0]].name
+
+			const {
+				currentNode: newCurrentNode,
+				computedChildrenIndex: newComputedChildrenIndex,
+			} = this.addAllChidrenToACurrentNodeRecursively({
+				arrayOfElements,
+				indexToCompute: element.childrenIndex[0],
+				currentNode,
+				routes,
+			})
+
+			computedChildrenIndex.push(...newComputedChildrenIndex)
+		}
+
+		// const childNode = this.createNode({
+		// 	path: currentPath,
+		// 	handler: routes[arrayOfElements[indexToCompute].routeId].handler,
+		// 	method: routes[arrayOfElements[indexToCompute].routeId].method,
+		// 	isParameterNode: false,
+		// })
+
+		// currentNode.children.push(childNode)
+
+		// currentNode = childNode
+
+		computedChildrenIndex.push(indexToCompute)
+
+		// for (let i = 0; i < element.childrenIndex.length; i++) {
+		// 	const childIndex = element.childrenIndex[i]
+
+		// 	if (computedChildrenIndex.includes(childIndex)) continue
+
+		// 	let currentPath = element.name
+
+		// If child has only one child, we can merge the path
+		// if (arrayOfElements[childIndex].childrenIndex.length === 1) {
+		// 	currentPath +=
+		// 		arrayOfElements[
+		// 			arrayOfElements[childIndex].childrenIndex[0]
+		// 		].name
+		// }
+
+		// console.log({ element }, arrayOfElements[childIndex])
+
+		// Child node
+		// const childNode = this.createNode({
+		// 	path: currentPath,
+		// 	handler: routes[arrayOfElements[childIndex].routeId].handler,
+		// 	method: routes[arrayOfElements[childIndex].routeId].method,
+		// 	isParameterNode: false,
+		// })
+
+		// 	// If there is more than one child we need to process recursively
+		// 	if (arrayOfElements[childIndex].childrenIndex.length > 1) {
+		// 		computedChildrenIndex.push(
+		// 			...this.addAllChidrenToACurrentNodeRecursively({
+		// 				arrayOfElements,
+		// 				currentNode: childNode,
+		// 				indexToCompute: childIndex,
+		// 				routes,
+		// 			}),
+		// 		)
+		// 	}
+
+		// 	currentNode.children.push(childNode)
+		// }
+
+		return { computedChildrenIndex, currentNode }
+	}
+
 	compileV2(routes: Routes) {
 		const tmp: Array<{
 			name: string
@@ -196,19 +290,29 @@ export class Router {
 			}
 		}
 
-		console.log(tmp)
+		// console.log(tmp)
 
 		// Second part
 
+		let currentNode = this.root
+		const alreadyComputed: Array<number> = []
+
 		for (let i = 0; i < tmp.length; i++) {
-			const currentNode = tmp[i]
+			if (alreadyComputed.includes(i)) continue
 
-			if (currentNode.childrenIndex.length === 1) {
-				const concatenatedPath =
-					currentNode.name + tmp[currentNode.childrenIndex[0]].name
+			const { computedChildrenIndex, currentNode: newCurrentnode } =
+				this.addAllChidrenToACurrentNodeRecursively({
+					arrayOfElements: tmp,
+					indexToCompute: i,
+					currentNode,
+					routes,
+				})
 
-				console.log(concatenatedPath)
-			}
+			alreadyComputed.push(...computedChildrenIndex)
+
+			currentNode = newCurrentnode
+
+			// console.log(tata)
 		}
 	}
 

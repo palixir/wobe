@@ -8,9 +8,18 @@ describe('Wobe router', () => {
 
 			router.compileV2([
 				{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
-				{ path: '/a/simple/route2/', method: 'GET', handler: () => {} },
-				{ path: '/a/simple2/route/', method: 'GET', handler: () => {} },
+				// { path: '/a/simple/route2/', method: 'GET', handler: () => {} },
+				// { path: '/a/simple2/route/', method: 'GET', handler: () => {} },
 			])
+
+			expect(router.root.name).toBe('/')
+			expect(router.root.children[0].name).toBe('/a/simple/route')
+			// expect(router.root.children[0].children[0].name).toBe('/route')
+			// expect(router.root.children[0].children[0].handler).toBeDefined()
+			// expect(router.root.children[0].children[0].method).toBe('GET')
+			// expect(router.root.children[0].children[1].name).toBe('route2')
+			// expect(router.root.children[0].children[1].handler).toBeDefined()
+			// expect(router.root.children[0].children[1].method).toBe('GET')
 		})
 	})
 
