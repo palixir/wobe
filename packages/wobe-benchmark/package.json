@@ -1,0 +1,15 @@
+{
+	"name": "wobe-benchmark",
+	"version": "0.1.0",
+	"main": "index.ts",
+	"dependencies": {
+		"hono": "4.1.4",
+		"wobe": "workspace:*"
+	},
+	"devDependencies": {
+		"mitata": "0.1.11"
+	},
+	"scripts": {
+		"bench:router": "bun run router/benchmark.ts"
+	}
+}

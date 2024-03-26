@@ -97,9 +97,9 @@ export class Router {
 
 				// Use for loop instead of find because it's faster (around 15-20%)
 				for (let j = 0; j < currentNode.children.length; j++) {
-					const child = currentNode.children[j]
-
 					if (currentPath.length === 0) continue
+
+					const child = currentNode.children[j]
 
 					if (
 						child.name === '*' ||

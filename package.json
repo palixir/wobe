@@ -17,5 +17,8 @@
 			"biome lint ./packages/**/*.ts --no-errors-on-unmatched",
 			"biome format --write ."
 		]
+	},
+	"dependencies": {
+		"find-my-way": "^8.1.0"
 	}
 }
