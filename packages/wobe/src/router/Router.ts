@@ -9,6 +9,7 @@ export interface Node {
 }
 
 export class Router {
+	private numberOfNodes = 0
 	public root: Node = { name: '/', children: [] }
 
 	createNode({
@@ -22,6 +23,7 @@ export class Router {
 		method?: HttpMethod
 		isParameterNode?: boolean
 	}): Node {
+		this.numberOfNodes += 1
 		return { name: path, children: [], handler, method, isParameterNode }
 	}
 
@@ -136,98 +138,35 @@ export class Router {
 		return currentNode
 	}
 
-	// This function compute an element of the array and add all children to the current node
-	addAllChidrenToACurrentNodeRecursively({
-		arrayOfElements,
-		indexToCompute,
-		currentNode,
-		routes,
-	}: {
-		arrayOfElements: Array<{
-			name: string
-			routeId: number
-			childrenIndex: Array<number>
-			parentIndex: number
-		}>
-		indexToCompute: number
-		currentNode: Node
-		routes: Routes
-	}): { computedChildrenIndex: Array<number>; currentNode: Node } {
-		const element = arrayOfElements[indexToCompute]
+	/*
+    /a/simple/route
+    /a/simple/route2
 
-		let computedChildrenIndex: Array<number> = []
-		let currentPath = element.name
+    1 : La partie commune = la route entière
+    2 : On split la route par /
+    3 : On regarde si la partie commune commence par le split[0] ?
+    4 : Si oui, on regarde si le split[1] aussi
+    5 : Si non on ajoute une deuxième route de base
 
-		if (element.childrenIndex.length === 1) {
-			currentPath += arrayOfElements[element.childrenIndex[0]].name
+  */
 
-			const {
-				currentNode: newCurrentNode,
-				computedChildrenIndex: newComputedChildrenIndex,
-			} = this.addAllChidrenToACurrentNodeRecursively({
-				arrayOfElements,
-				indexToCompute: element.childrenIndex[0],
-				currentNode,
-				routes,
-			})
+	compileV3(routes: Routes) {
+		for (let i = 0; i < routes.length; i++) {
+			let currentRoutePath = routes[i].path
 
-			computedChildrenIndex.push(...newComputedChildrenIndex)
+			if (currentRoutePath[0] !== '/')
+				currentRoutePath = '/' + currentRoutePath
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '*')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '/')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			for (let j = 1; j < currentRoutePath.length; j++) {
+				const char = currentRoutePath[j]
+			}
 		}
-
-		// const childNode = this.createNode({
-		// 	path: currentPath,
-		// 	handler: routes[arrayOfElements[indexToCompute].routeId].handler,
-		// 	method: routes[arrayOfElements[indexToCompute].routeId].method,
-		// 	isParameterNode: false,
-		// })
-
-		// currentNode.children.push(childNode)
-
-		// currentNode = childNode
-
-		computedChildrenIndex.push(indexToCompute)
-
-		// for (let i = 0; i < element.childrenIndex.length; i++) {
-		// 	const childIndex = element.childrenIndex[i]
-
-		// 	if (computedChildrenIndex.includes(childIndex)) continue
-
-		// 	let currentPath = element.name
-
-		// If child has only one child, we can merge the path
-		// if (arrayOfElements[childIndex].childrenIndex.length === 1) {
-		// 	currentPath +=
-		// 		arrayOfElements[
-		// 			arrayOfElements[childIndex].childrenIndex[0]
-		// 		].name
-		// }
-
-		// console.log({ element }, arrayOfElements[childIndex])
-
-		// Child node
-		// const childNode = this.createNode({
-		// 	path: currentPath,
-		// 	handler: routes[arrayOfElements[childIndex].routeId].handler,
-		// 	method: routes[arrayOfElements[childIndex].routeId].method,
-		// 	isParameterNode: false,
-		// })
-
-		// 	// If there is more than one child we need to process recursively
-		// 	if (arrayOfElements[childIndex].childrenIndex.length > 1) {
-		// 		computedChildrenIndex.push(
-		// 			...this.addAllChidrenToACurrentNodeRecursively({
-		// 				arrayOfElements,
-		// 				currentNode: childNode,
-		// 				indexToCompute: childIndex,
-		// 				routes,
-		// 			}),
-		// 		)
-		// 	}
-
-		// 	currentNode.children.push(childNode)
-		// }
-
-		return { computedChildrenIndex, currentNode }
 	}
 
 	compileV2(routes: Routes) {
@@ -294,25 +233,101 @@ export class Router {
 
 		// Second part
 
+		const tmp2: Array<{
+			name: string
+			routeId: number
+			childrenIndex: Array<number>
+			parentIndex: number
+		}> = []
+
+		for (let i = 0; i < routes.length; i++) {
+			let currentRoutePath = routes[i].path
+			let previousSlashIndex = 0
+			let parentIndex = -1
+
+			if (currentRoutePath[0] !== '/')
+				currentRoutePath = '/' + currentRoutePath
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '*')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			if (currentRoutePath[currentRoutePath.length - 1] === '/')
+				currentRoutePath = currentRoutePath.slice(0, -1)
+
+			for (let j = 1; j < currentRoutePath.length; j++) {
+				const char = currentRoutePath[j]
+
+				if (char === '/' || j === currentRoutePath.length - 1) {
+					const currentPath = currentRoutePath.slice(
+						previousSlashIndex,
+						j === currentRoutePath.length - 1 ? j + 1 : j,
+					)
+
+					const similarPath = tmp.find(
+						(element) => element.name === currentPath,
+					)
+
+					if (similarPath?.childrenIndex.length === 1) continue
+
+					const existingRouteIndex = tmp2.findIndex(
+						(node) =>
+							node.name === currentPath &&
+							node.parentIndex === parentIndex,
+					)
+
+					if (existingRouteIndex !== -1) {
+						parentIndex = existingRouteIndex
+					}
+
+					if (existingRouteIndex === -1) {
+						if (parentIndex !== -1)
+							tmp[parentIndex].childrenIndex.push(tmp2.length)
+
+						tmp2.push({
+							name: currentPath,
+							routeId: i,
+							childrenIndex: [],
+							parentIndex,
+						})
+
+						parentIndex = tmp2.length - 1
+					}
+
+					previousSlashIndex = j
+				}
+			}
+		}
+
+		console.log(tmp2)
+	}
+
+	postCompile() {
 		let currentNode = this.root
-		const alreadyComputed: Array<number> = []
+		let parentNode = currentNode
+		let numberOfNodes = 0
+		let childrenIndex = 0
 
-		for (let i = 0; i < tmp.length; i++) {
-			if (alreadyComputed.includes(i)) continue
+		while (numberOfNodes < this.numberOfNodes) {
+			const children = currentNode.children
 
-			const { computedChildrenIndex, currentNode: newCurrentnode } =
-				this.addAllChidrenToACurrentNodeRecursively({
-					arrayOfElements: tmp,
-					indexToCompute: i,
-					currentNode,
-					routes,
-				})
+			if (children.length === 0) {
+				currentNode = parentNode
+				numberOfNodes += 1
+				childrenIndex += 1
 
-			alreadyComputed.push(...computedChildrenIndex)
+				continue
+			}
 
-			currentNode = newCurrentnode
+			if (children.length === 1) {
+				currentNode.name += children[0].name
+				currentNode.children = children[0].children
+				numberOfNodes += 1
+				currentNode = parentNode
 
-			// console.log(tata)
+				continue
+			}
+
+			parentNode = currentNode
 		}
 	}
 
