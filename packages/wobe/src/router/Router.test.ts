@@ -2,27 +2,6 @@ import { describe, expect, it } from 'bun:test'
 import { Router } from './Router'
 
 describe('Wobe router', () => {
-	describe.only('Router - CompileV2', () => {
-		it('should compile a simple route', () => {
-			const router = new Router()
-
-			router.compile([
-				{ path: '/a/simple/route/', method: 'GET', handler: () => {} },
-				{ path: '/a/simple/route2/', method: 'GET', handler: () => {} },
-				// { path: '/a/simple2/route/', method: 'GET', handler: () => {} },
-			])
-
-			// expect(router.root.name).toBe('/')
-			// expect(router.root.children[0].name).toBe('/a/simple/route')
-			// expect(router.root.children[0].children[0].name).toBe('/route')
-			// expect(router.root.children[0].children[0].handler).toBeDefined()
-			// expect(router.root.children[0].children[0].method).toBe('GET')
-			// expect(router.root.children[0].children[1].name).toBe('route2')
-			// expect(router.root.children[0].children[1].handler).toBeDefined()
-			// expect(router.root.children[0].children[1].method).toBe('GET')
-		})
-	})
-
 	describe('Router - Compile', () => {
 		it('should compile a simple route', () => {
 			const router = new Router()
@@ -37,8 +16,6 @@ describe('Wobe router', () => {
 			expect(router.root.children[0].children[0].children[0].name).toBe(
 				'route',
 			)
-
-			console.log(router.toStringNode(router.root))
 		})
 
 		it('should compile a simple route without slash at the end', () => {
