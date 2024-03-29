@@ -28,13 +28,14 @@ export class RadixTree {
 
 			let foundNode = currentNode.children.find(
 				(node) =>
-					node.name === pathPart &&
+					node.name === '/' + pathPart &&
 					(node.method === method || !node.method),
 			)
 
 			if (!foundNode) {
+				console.log(pathPart)
 				foundNode = {
-					name: pathPart,
+					name: '/' + pathPart,
 					children: [],
 					isParameterNode,
 				}
@@ -64,7 +65,7 @@ export class RadixTree {
 				const currentChar = path[i]
 				const currentNodeChar = node.name[nodeNameIndex]
 
-				console.log({ path, currentChar, currentNodeChar, i, node })
+				console.log({ currentChar, currentNodeChar, node })
 
 				if (currentChar !== currentNodeChar) return null
 
