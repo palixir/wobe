@@ -6,6 +6,7 @@ export interface Node {
 	handler?: (...args: any[]) => Promise<any> | any
 	method?: HttpMethod
 	isParameterNode?: boolean
+	isWildcardNode?: boolean
 }
 
 export class RadixTree {
@@ -25,6 +26,7 @@ export class RadixTree {
 		for (let i = 0; i < pathParts.length; i++) {
 			const pathPart = pathParts[i]
 			const isParameterNode = pathPart[0] === ':'
+			const isWildcardNode = pathPart[0] === '*'
 
 			let foundNode = currentNode.children.find(
 				(node) =>
@@ -37,6 +39,7 @@ export class RadixTree {
 					name: (i === 0 ? '' : '/') + pathPart,
 					children: [],
 					isParameterNode,
+					isWildcardNode,
 				}
 
 				currentNode.children.push(foundNode)
@@ -54,8 +57,9 @@ export class RadixTree {
 	// or it can also be /a/simple/route if there is only one children in each node
 	findRoute(method: HttpMethod, path: string) {
 		if (path[0] !== '/') path = '/' + path
+
+		if (path[path.length - 1] !== '/') path = path + '/'
 		if (path[path.length - 1] === '*') path = path.slice(0, -1)
-		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 
 		const pathLength = path.length
 
@@ -73,13 +77,13 @@ export class RadixTree {
 				(pathToCompute !== node.name ||
 					(node.method && method !== node.method)) &&
 				!node.isParameterNode &&
-				node.name[1] !== '*'
+				!node.isWildcardNode
 			)
 				return null
 
 			if (
 				numberOfChildren === 0 &&
-				(indexToEnd === pathLength || node.isParameterNode)
+				(indexToEnd === pathLength - 1 || node.isParameterNode)
 			)
 				return node
 
@@ -87,15 +91,28 @@ export class RadixTree {
 				let nextIndexToBegin = indexToBegin + pathToCompute.length
 				let nextIndexToEnd = indexToEnd + node.children[i].name.length
 
+				// /a/simple/route/*/
+				// /a/simple/route/
+
 				if (
 					node.children[i].isParameterNode ||
-					node.children[i].name[1] === '*'
+					node.children[i].isWildcardNode
 				) {
+					// +1 because we need to skip a / because we don't care what is at the place of the parameter
 					nextIndexToBegin = path.indexOf('/', indexToBegin + 1)
-					if (nextIndexToBegin === -1) return null
 
+					// +1 because we need to skip a / because we don't care what is at the place of the parameter
 					nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
-					if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
+
+					if (
+						nextIndexToEnd === -1 &&
+						node.children[i].isWildcardNode
+					) {
+						nextIndexToEnd = pathLength - 1
+					}
+
+					if (nextIndexToEnd === -1 && indexToEnd === pathLength - 1)
+						return null
 				}
 
 				foundNode = isNodeMatch(
@@ -110,17 +127,22 @@ export class RadixTree {
 			return foundNode
 		}
 
-		// 1 is the index to begin because the root node is always '/'
-		return isNodeMatch(this.root, 0, 1)
+		return isNodeMatch(this.root, 0, this.root.name.length)
 	}
 
 	// This function optimize the tree by merging all the nodes that only have one child
 	optimizeTree() {
 		const optimizeNode = (node: Node) => {
-			if (node.children.length === 1) {
+			if (
+				node.children.length === 1 &&
+				!node.isParameterNode &&
+				!node.children[0].isParameterNode &&
+				!node.isWildcardNode &&
+				!node.children[0].isWildcardNode
+			) {
 				const child = node.children[0]
 
-				node.name += `${node.name[node.name.length - 1] !== '/' ? '/' : ''}${child.name}`
+				node.name += child.name
 				node.children = child.children
 				node.handler = child.handler
 				node.method = child.method

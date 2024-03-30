@@ -6,6 +6,8 @@ const createWobeRouter = (name: string, radixTree: RadixTree) => {
 		radixTree.addRoute(route.method, route.path, () => Promise.resolve())
 	}
 
+	radixTree.optimizeTree()
+
 	return {
 		name: `Wobe ${name}`,
 		match: (route: Route) => {

@@ -43,12 +43,12 @@ export const routes: Route[] = [
 	// 	path: '/event/abcd1234/comment',
 	// 	handler,
 	// },
-	{
-		name: 'long static',
-		method: 'GET',
-		path: '/very/deeply/nested/route/hello/there',
-		handler,
-	},
+	// {
+	// 	name: 'long static',
+	// 	method: 'GET',
+	// 	path: '/very/deeply/nested/route/hello/there',
+	// 	handler,
+	// },
 	// {
 	// 	name: 'wildcard',
 	// 	method: 'GET',
