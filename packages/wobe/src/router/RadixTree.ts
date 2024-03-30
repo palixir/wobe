@@ -53,52 +53,65 @@ export class RadixTree {
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
 	findRoute(method: HttpMethod, path: string) {
-		const isNodeMatch = (node: Node, path: string): Node | null => {
-			let foundNode: Node | null = node
-			let nodeNameIndex = 0
+		if (path[0] !== '/') path = '/' + path
+		if (path[path.length - 1] === '*') path = path.slice(0, -1)
+		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 
-			// /a/simple/route
-			// /a/simple/route
+		const pathLength = path.length
 
-			for (let i = 0; i < path.length; i++) {
-				const currentChar = path[i]
-				const currentNodeChar = node.name[nodeNameIndex]
+		const isNodeMatch = (
+			node: Node,
+			indexToBegin: number,
+			indexToEnd: number,
+		): Node | null => {
+			let foundNode: Node | null = null
+
+			const pathToCompute = path.substring(indexToBegin, indexToEnd)
+			const numberOfChildren = node.children.length
+
+			if (
+				(pathToCompute !== node.name ||
+					(node.method && method !== node.method)) &&
+				!node.isParameterNode &&
+				node.name[1] !== '*'
+			)
+				return null
+
+			if (
+				numberOfChildren === 0 &&
+				(indexToEnd === pathLength || node.isParameterNode)
+			)
+				return node
+
+			for (let i = 0; i < numberOfChildren; i++) {
+				let nextIndexToBegin = indexToBegin + pathToCompute.length
+				let nextIndexToEnd = indexToEnd + node.children[i].name.length
 
 				if (
-					nodeNameIndex === node.name.length - 1 ||
-					currentNodeChar === '*'
+					node.children[i].isParameterNode ||
+					node.children[i].name[1] === '*'
 				) {
-					if (node.children.length === 0 && currentNodeChar === '*') {
-						return node
-					}
+					nextIndexToBegin = path.indexOf('/', indexToBegin + 1)
+					if (nextIndexToBegin === -1) return null
 
-					for (let k = 0; k < node.children.length; k++) {
-						let nextIndex = nodeNameIndex + 1
-
-						if (currentNodeChar === '*') {
-							nextIndex = path.indexOf('/', i)
-						}
-
-						foundNode = isNodeMatch(
-							node.children[k],
-							path.slice(nextIndex),
-						)
-
-						if (foundNode) return foundNode
-					}
+					nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
+					if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 				}
 
-				if (currentChar !== currentNodeChar && node.name[1] !== ':') {
-					return null
-				}
+				foundNode = isNodeMatch(
+					node.children[i],
+					nextIndexToBegin,
+					nextIndexToEnd,
+				)
 
-				nodeNameIndex++
+				if (foundNode) return foundNode
 			}
 
 			return foundNode
 		}
 
-		return isNodeMatch(this.root, path)
+		// 1 is the index to begin because the root node is always '/'
+		return isNodeMatch(this.root, 0, 1)
 	}
 
 	// This function optimize the tree by merging all the nodes that only have one child

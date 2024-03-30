@@ -1,16 +1,17 @@
-import { Router } from 'wobe/src/router'
+import { RadixTree } from 'wobe/src/router'
 import { routes, type Route } from './tools'
 
-const createWobeRouter = (name: string, router: Router) => {
-	// @ts-expect-error
-	router.compile(routes)
+const createWobeRouter = (name: string, radixTree: RadixTree) => {
+	for (const route of routes) {
+		radixTree.addRoute(route.method, route.path, () => Promise.resolve())
+	}
 
 	return {
 		name: `Wobe ${name}`,
 		match: (route: Route) => {
-			router.find({ method: route.method, path: route.path })
+			radixTree.findRoute(route.method, route.path)
 		},
 	}
 }
 
-export const wobeRouter = createWobeRouter('Radix router', new Router())
+export const wobeRouter = createWobeRouter('Radix router', new RadixTree())
