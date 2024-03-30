@@ -83,16 +83,15 @@ export class RadixTree {
 
 			if (
 				numberOfChildren === 0 &&
-				(indexToEnd === pathLength - 1 || node.isParameterNode)
+				(indexToEnd === pathLength - 1 ||
+					node.isParameterNode ||
+					node.isWildcardNode)
 			)
 				return node
 
 			for (let i = 0; i < numberOfChildren; i++) {
 				let nextIndexToBegin = indexToBegin + pathToCompute.length
 				let nextIndexToEnd = indexToEnd + node.children[i].name.length
-
-				// /a/simple/route/*/
-				// /a/simple/route/
 
 				if (
 					node.children[i].isParameterNode ||

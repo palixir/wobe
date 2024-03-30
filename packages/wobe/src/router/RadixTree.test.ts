@@ -608,9 +608,40 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
 
 			const route = radixTree.findRoute('GET', '/a/simple/route')
+			const route2 = radixTree.findRoute('GET', '/a/simple/route/route')
 
 			expect(route).toBeDefined()
 			expect(route?.handler).toBeDefined()
+
+			expect(route2).toBeDefined()
+			expect(route2?.handler).toBeDefined()
+		})
+
+		it('should find a route with multiple wildcards', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/*/*/*/', () =>
+				Promise.resolve(),
+			)
+
+			const route = radixTree.findRoute('GET', '/a/simple/route')
+			const route2 = radixTree.findRoute('GET', '/a/simple/route/route')
+			const route3 = radixTree.findRoute(
+				'GET',
+				'/a/simple/route/route/again/another/route',
+			)
+
+			expect(route).toBeDefined()
+			expect(route?.method).toBe('GET')
+			expect(route?.handler).toBeDefined()
+
+			expect(route2).toBeDefined()
+			expect(route2?.method).toBe('GET')
+			expect(route2?.handler).toBeDefined()
+
+			expect(route3).toBeDefined()
+			expect(route3?.method).toBe('GET')
+			expect(route3?.handler).toBeDefined()
 		})
 
 		it('should find a route with a wildcard at the end after an optimizeTree', () => {
