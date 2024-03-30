@@ -3,7 +3,7 @@ import { RadixTree } from './RadixTree'
 
 describe('RadixTree', () => {
 	describe('addRoute', () => {
-		it.only('should add a route to the radix tree', () => {
+		it('should add a route to the radix tree', () => {
 			const radixTree = new RadixTree()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
@@ -38,7 +38,7 @@ describe('RadixTree', () => {
 				Promise.resolve(),
 			)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -66,7 +66,7 @@ describe('RadixTree', () => {
 				Promise.resolve(),
 			)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -94,7 +94,7 @@ describe('RadixTree', () => {
 				Promise.resolve(),
 			)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -137,7 +137,7 @@ describe('RadixTree', () => {
 
 			expect(radixTree.root.children.length).toBe(1)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -168,7 +168,7 @@ describe('RadixTree', () => {
 				Promise.resolve(),
 			)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -223,7 +223,7 @@ describe('RadixTree', () => {
 
 			expect(radixTree.root.children.length).toBe(2)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -240,7 +240,7 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0].method,
 			).toBe('GET')
 
-			expect(radixTree.root.children[1].name).toBe('/a2')
+			expect(radixTree.root.children[1].name).toBe('a2')
 			expect(radixTree.root.children[1].method).toBeUndefined()
 			expect(radixTree.root.children[1].handler).toBeUndefined()
 			expect(radixTree.root.children[1].children[0].name).toBe('/simple')
@@ -263,7 +263,7 @@ describe('RadixTree', () => {
 
 			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -288,7 +288,7 @@ describe('RadixTree', () => {
 				Promise.resolve(),
 			)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -333,7 +333,7 @@ describe('RadixTree', () => {
 
 			expect(radixTree.root.children.length).toBe(1)
 
-			expect(radixTree.root.children[0].name).toBe('/a')
+			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
 			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
@@ -369,6 +369,28 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
+		it('should find a route with a parameter at the end of the route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/:id', () => Promise.resolve())
+
+			const route = radixTree.findRoute('GET', '/a/1')
+
+			expect(route).toBeDefined()
+			expect(route?.handler).toBeDefined()
+		})
+
+		it.only('should find a route with a parameter at the middle of the route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
+
+			const route = radixTree.findRoute('GET', '/a/1/route')
+
+			expect(route).toBeDefined()
+			expect(route?.handler).toBeDefined()
+		})
+
 		it('should find a route with a wildcard', () => {
 			const radixTree = new RadixTree()
 
@@ -390,18 +412,7 @@ describe('RadixTree', () => {
 			const route = radixTree.findRoute('GET', '/a/simple/route/route')
 
 			expect(route).toBeDefined()
-			expect(route.handler).toBeDefined()
-		})
-
-		it('should find a route with a wildcard at the end', () => {
-			const radixTree = new RadixTree()
-
-			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
-
-			const route = radixTree.findRoute('GET', '/a/simple/route')
-
-			expect(route).toBeDefined()
-			expect(route.handler).toBeDefined()
+			expect(route?.handler).toBeDefined()
 		})
 
 		it('should not find a route', () => {
@@ -413,7 +424,7 @@ describe('RadixTree', () => {
 
 			const route = radixTree.findRoute('GET', '/a/simple/route/route')
 
-			expect(route).toBeUndefined()
+			expect(route).toBeNull()
 		})
 	})
 

@@ -28,14 +28,13 @@ export class RadixTree {
 
 			let foundNode = currentNode.children.find(
 				(node) =>
-					node.name === '/' + pathPart &&
+					node.name === (i === 0 ? '' : '/') + pathPart &&
 					(node.method === method || !node.method),
 			)
 
 			if (!foundNode) {
-				console.log(pathPart)
 				foundNode = {
-					name: '/' + pathPart,
+					name: (i === 0 ? '' : '/') + pathPart,
 					children: [],
 					isParameterNode,
 				}
@@ -65,22 +64,32 @@ export class RadixTree {
 				const currentChar = path[i]
 				const currentNodeChar = node.name[nodeNameIndex]
 
-				console.log({ currentChar, currentNodeChar, node })
+				if (
+					nodeNameIndex === node.name.length - 1 ||
+					currentNodeChar === '*'
+				) {
+					if (node.children.length === 0 && currentNodeChar === '*') {
+						return node
+					}
 
-				if (currentChar !== currentNodeChar) return null
-
-				if (nodeNameIndex === node.name.length - 1) {
 					for (let k = 0; k < node.children.length; k++) {
+						let nextIndex = nodeNameIndex + 1
+
+						if (currentNodeChar === '*') {
+							nextIndex = path.indexOf('/', i)
+						}
+
 						foundNode = isNodeMatch(
 							node.children[k],
-							path.slice(nodeNameIndex + 1),
+							path.slice(nextIndex),
 						)
 
-						if (foundNode) {
-							foundNode = node.children[k]
-							break
-						}
+						if (foundNode) return foundNode
 					}
+				}
+
+				if (currentChar !== currentNodeChar && node.name[1] !== ':') {
+					return null
 				}
 
 				nodeNameIndex++
