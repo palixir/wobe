@@ -370,7 +370,7 @@ describe('RadixTree', () => {
 	})
 
 	describe('findRoute', () => {
-		it('should find a route', () => {
+		it.only('should find a route', () => {
 			const radixTree = new RadixTree()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>

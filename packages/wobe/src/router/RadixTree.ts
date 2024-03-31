@@ -55,78 +55,124 @@ export class RadixTree {
 	// This function is used to find the route in the tree
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
+	// 172 ns
 	findRoute(method: HttpMethod, path: string) {
-		if (path[0] !== '/') path = '/' + path
+		// if (path[0] !== '/') path = '/' + path
 
-		if (path[path.length - 1] !== '/') path = path + '/'
+		// if (path[path.length - 1] !== '/') path += '/'
+		// if (path[path.length - 1] === '*') path = path.slice(0, -1)
+
+		// const { length: pathLength } = path
+
+		// const isNodeMatch = (
+		// 	node: Node,
+		// 	indexToBegin: number,
+		// 	indexToEnd: number,
+		// ): Node | null => {
+		// 	let foundNode: Node | null = null
+
+		// 	const pathToCompute = path.substring(indexToBegin, indexToEnd)
+		// 	const { length: numberOfChildren } = node.children
+		// 	const { isParameterNode, isWildcardNode, method: nodeMethod } = node
+
+		// 	if (
+		// 		(pathToCompute !== node.name ||
+		// 			(nodeMethod && method !== nodeMethod)) &&
+		// 		!isParameterNode &&
+		// 		!isWildcardNode
+		// 	)
+		// 		return null
+
+		// 	if (
+		// 		numberOfChildren === 0 &&
+		// 		(indexToEnd === pathLength - 1 ||
+		// 			isParameterNode ||
+		// 			isWildcardNode)
+		// 	)
+		// 		return node
+
+		// 	for (let i = 0; i < numberOfChildren; i++) {
+		// 		const child = node.children[i]
+		// 		let nextIndexToBegin = indexToBegin + pathToCompute.length
+		// 		let nextIndexToEnd = indexToEnd + child.name.length
+
+		// 		if (child.isParameterNode || child.isWildcardNode) {
+		// 			// +1 because we need to skip a / because we don't care what is at the place of the parameter
+		// 			nextIndexToBegin = path.indexOf('/', indexToBegin + 1)
+
+		// 			// +1 because we need to skip a / because we don't care what is at the place of the parameter
+		// 			nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
+
+		// 			if (nextIndexToEnd === -1 && child.isWildcardNode)
+		// 				nextIndexToEnd = pathLength - 1
+
+		// 			if (nextIndexToEnd === -1 && indexToEnd === pathLength - 1)
+		// 				return null
+		// 		}
+
+		// 		foundNode = isNodeMatch(child, nextIndexToBegin, nextIndexToEnd)
+
+		// 		if (foundNode) return foundNode
+		// 	}
+
+		// 	return foundNode
+		// }
+
+		// return isNodeMatch(this.root, 0, this.root.name.length)
+		//
+
+		// Other implementation
+		let currentNode = this.root
+		let isFounded = false
+		let indexOfLastSlash = 0
+
+		if (path[0] !== '/') path = '/' + path
 		if (path[path.length - 1] === '*') path = path.slice(0, -1)
+		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 
 		const pathLength = path.length
 
-		const isNodeMatch = (
-			node: Node,
-			indexToBegin: number,
-			indexToEnd: number,
-		): Node | null => {
-			let foundNode: Node | null = null
+		for (let i = 0; i < pathLength; i++) {
+			const isLastCharacter = i === pathLength - 1
 
-			const pathToCompute = path.substring(indexToBegin, indexToEnd)
-			const numberOfChildren = node.children.length
+			if (path[i] === '/' || isLastCharacter) {
+				const currentPath = path.substring(indexOfLastSlash, i + 1)
 
-			if (
-				(pathToCompute !== node.name ||
-					(node.method && method !== node.method)) &&
-				!node.isParameterNode &&
-				!node.isWildcardNode
-			)
-				return null
-
-			if (
-				numberOfChildren === 0 &&
-				(indexToEnd === pathLength - 1 ||
-					node.isParameterNode ||
-					node.isWildcardNode)
-			)
-				return node
-
-			for (let i = 0; i < numberOfChildren; i++) {
-				let nextIndexToBegin = indexToBegin + pathToCompute.length
-				let nextIndexToEnd = indexToEnd + node.children[i].name.length
-
-				if (
-					node.children[i].isParameterNode ||
-					node.children[i].isWildcardNode
-				) {
-					// +1 because we need to skip a / because we don't care what is at the place of the parameter
-					nextIndexToBegin = path.indexOf('/', indexToBegin + 1)
-
-					// +1 because we need to skip a / because we don't care what is at the place of the parameter
-					nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
-
-					if (
-						nextIndexToEnd === -1 &&
-						node.children[i].isWildcardNode
-					) {
-						nextIndexToEnd = pathLength - 1
-					}
-
-					if (nextIndexToEnd === -1 && indexToEnd === pathLength - 1)
-						return null
+				if (currentPath === currentNode.name) {
+					indexOfLastSlash = i
+					currentNode = currentNode.children[0]
+					continue
 				}
 
-				foundNode = isNodeMatch(
-					node.children[i],
-					nextIndexToBegin,
-					nextIndexToEnd,
-				)
+				console.log(currentPath)
 
-				if (foundNode) return foundNode
+				if (currentPath.length > 0) {
+					// Use for loop instead of find because it's faster (around 15-20%)
+					for (let j = 0; j < currentNode.children.length; j++) {
+						const child = currentNode.children[j]
+
+						if (
+							child.isParameterNode ||
+							child.name === '*' ||
+							(child.name === currentPath &&
+								(!child.method ||
+									(child.method && child.method === method)))
+						) {
+							currentNode = child
+							isFounded = true
+							break
+						}
+					}
+				}
+
+				if (!isFounded) return undefined
+
+				isFounded = false
+				indexOfLastSlash = i
 			}
-
-			return foundNode
 		}
 
-		return isNodeMatch(this.root, 0, this.root.name.length)
+		return currentNode
 	}
 
 	// This function optimize the tree by merging all the nodes that only have one child
