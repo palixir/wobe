@@ -7,10 +7,11 @@ export interface Node {
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
+	maxChildLength: number
 }
 
 export class RadixTree {
-	public root: Node = { name: '/', children: [] }
+	public root: Node = { name: '/', children: [], maxChildLength: 0 }
 
 	constructor() {}
 
@@ -40,6 +41,7 @@ export class RadixTree {
 					children: [],
 					isParameterNode,
 					isWildcardNode,
+					maxChildLength: 0,
 				}
 
 				currentNode.children.push(foundNode)
@@ -124,66 +126,69 @@ export class RadixTree {
 		// Other implementation
 		let currentNode = this.root
 		let isFounded = false
-		let indexOfLastSlash = 0
+		let beginIndex = 1
 
 		if (path[0] !== '/') path = '/' + path
 		if (path[path.length - 1] === '*') path = path.slice(0, -1)
 		if (path[path.length - 1] === '/') path = path.slice(0, -1)
 
-		const pathLength = path.length
+		while (true) {
+			let endIndex =
+				currentNode.maxChildLength > 0
+					? currentNode.maxChildLength + 1
+					: path.length
 
-		for (let i = 0; i < pathLength; i++) {
-			const isLastCharacter = i === pathLength - 1
+			if (currentNode.isWildcardNode) {
+				endIndex = path.indexOf('/', beginIndex + 1)
+			}
 
-			if (path[i] === '/' || isLastCharacter) {
-				const currentPath = path.substring(indexOfLastSlash, i + 1)
+			const currentPath = path.substring(beginIndex, endIndex)
 
-				if (currentPath === currentNode.name) {
-					indexOfLastSlash = i
-					currentNode = currentNode.children[0]
-					continue
-				}
+			console.log(
+				{ currentPath, path, endIndex, pathLength: path.length },
+				currentNode,
+			)
 
-				console.log(currentPath)
+			if (currentPath.length > 0) {
+				// Use for loop instead of find because it's faster (around 15-20%)
+				for (let j = 0; j < currentNode.children.length; j++) {
+					const child = currentNode.children[j]
 
-				if (currentPath.length > 0) {
-					// Use for loop instead of find because it's faster (around 15-20%)
-					for (let j = 0; j < currentNode.children.length; j++) {
-						const child = currentNode.children[j]
+					if (
+						child.isParameterNode ||
+						child.isWildcardNode ||
+						(child.name === currentPath &&
+							(!child.method ||
+								(child.method && child.method === method)))
+					) {
+						currentNode = child
+						isFounded = true
 
-						if (
-							child.isParameterNode ||
-							child.name === '*' ||
-							(child.name === currentPath &&
-								(!child.method ||
-									(child.method && child.method === method)))
-						) {
-							currentNode = child
-							isFounded = true
-							break
-						}
+						if (child.method && endIndex >= path.length)
+							return child
+						break
 					}
 				}
-
-				if (!isFounded) return undefined
-
-				isFounded = false
-				indexOfLastSlash = i
 			}
-		}
 
-		return currentNode
+			if (!isFounded) return null
+
+			isFounded = false
+			beginIndex = endIndex
+		}
 	}
 
 	// This function optimize the tree by merging all the nodes that only have one child
 	optimizeTree() {
 		const optimizeNode = (node: Node) => {
+			// Merge multiple nodes that have only one child except parameter, wildcard and root nodes
 			if (
 				node.children.length === 1 &&
 				!node.isParameterNode &&
 				!node.children[0].isParameterNode &&
 				!node.isWildcardNode &&
-				!node.children[0].isWildcardNode
+				!node.children[0].isWildcardNode &&
+				node.name !== '/'
 			) {
 				const child = node.children[0]
 
@@ -191,11 +196,24 @@ export class RadixTree {
 				node.children = child.children
 				node.handler = child.handler
 				node.method = child.method
+				node.maxChildLength = child.maxChildLength
 
 				optimizeNode(node)
 			}
 
 			node.children.forEach(optimizeNode)
+
+			// add maxChildLength to allow to get the index of the end for substring in find
+			if (node.children.length > 0) {
+				let maxChildLength = -99999999
+				for (let i = 0; i < node.children.length; i++) {
+					const child = node.children[i]
+					if (child.name.length > maxChildLength)
+						maxChildLength = child.name.length
+				}
+
+				node.maxChildLength = maxChildLength
+			}
 		}
 
 		optimizeNode(this.root)
