@@ -58,12 +58,12 @@ export class RadixTree {
 	// This function is used to find the route in the tree
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
-	// 172 ns
 	findRoute(method: HttpMethod, path: string) {
+		// const now = performance.now()
 		if (path[0] !== '/') path = '/' + path
+		// console.log((performance.now() - now) * 1000000)
 
 		if (path[path.length - 1] !== '/') path += '/'
-		if (path[path.length - 1] === '*') path = path.slice(0, -1)
 
 		const { length: pathLength } = path
 
@@ -73,35 +73,40 @@ export class RadixTree {
 			indexToEnd: number,
 		): Node | null => {
 			const { length: numberOfChildren } = node.children
-			const { isParameterNode, isWildcardNode, method: nodeMethod } = node
+			const {
+				isParameterNode,
+				isWildcardNode,
+				method: nodeMethod,
+				name: nodeName,
+			} = node
 
-			let foundNode: Node | null = null
+			const isRoot = indexToBegin === 0
 
-			let pathToCompute = ''
+			const pathToCompute = isRoot
+				? '/'
+				: path.substring(indexToBegin, indexToEnd)
 
-			if (!isWildcardNode && !isParameterNode)
-				pathToCompute = path.substring(indexToBegin, indexToEnd)
+			if (!isRoot) {
+				if (!isParameterNode && !isWildcardNode) {
+					if (pathToCompute.length !== nodeName.length) return null
+					if (nodeMethod && method !== nodeMethod) return null
+					if (pathToCompute !== nodeName) return null
+				}
 
-			if (
-				(pathToCompute !== node.name ||
-					(nodeMethod && method !== nodeMethod)) &&
-				!isParameterNode &&
-				!isWildcardNode
-			)
-				return null
-
-			if (
-				numberOfChildren === 0 &&
-				(indexToEnd === pathLength - 1 ||
-					isParameterNode ||
-					isWildcardNode)
-			)
-				return node
+				if (
+					numberOfChildren === 0 &&
+					(indexToEnd === pathLength - 1 ||
+						isParameterNode ||
+						isWildcardNode)
+				) {
+					return node
+				}
+			}
 
 			for (let i = 0; i < numberOfChildren; i++) {
 				const child = node.children[i]
-				let nextIndexToBegin = indexToBegin + pathToCompute.length
-				let nextIndexToEnd = indexToEnd + child.name.length
+				let nextIndexToBegin = 0
+				let nextIndexToEnd = 0
 
 				if (child.isParameterNode || child.isWildcardNode) {
 					// +1 because we need to skip a / because we don't care what is at the place of the parameter
@@ -111,18 +116,25 @@ export class RadixTree {
 					nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
 
 					if (nextIndexToEnd === -1 && child.isWildcardNode)
-						nextIndexToEnd = pathLength - 1
+						nextIndexToEnd = pathLength
 
 					if (nextIndexToEnd === -1 && indexToEnd === pathLength - 1)
 						return null
+				} else {
+					nextIndexToBegin = indexToBegin + pathToCompute.length
+					nextIndexToEnd = nextIndexToBegin + child.name.length
 				}
 
-				foundNode = isNodeMatch(child, nextIndexToBegin, nextIndexToEnd)
+				const foundNode = isNodeMatch(
+					child,
+					nextIndexToBegin,
+					nextIndexToEnd,
+				)
 
 				if (foundNode) return foundNode
 			}
 
-			return foundNode
+			return null
 		}
 
 		return isNodeMatch(this.root, 0, this.root.name.length)
