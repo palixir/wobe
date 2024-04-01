@@ -77,42 +77,67 @@ export class RadixTree {
 			} = node
 
 			if (indexToBegin > 0) {
+				if (
+					indexToEnd - indexToBegin !== nodeName.length &&
+					!isParameterNode &&
+					!isWildcardNode
+				)
+					return null
+
 				const pathToCompute = path.substring(indexToBegin, indexToEnd)
 
-				if (!isParameterNode && !isWildcardNode) {
-					if (pathToCompute.length !== nodeName.length) return null
+				const isPathToComputeEqualToNodeName =
+					pathToCompute === nodeName
+
+				const isWildcardOrParameter = isParameterNode || isWildcardNode
+
+				if (!isWildcardOrParameter) {
 					if (nodeMethod && method !== nodeMethod) return null
-					if (pathToCompute !== nodeName) return null
+					if (!isPathToComputeEqualToNodeName) return null
 				}
+
+				const isLastElement =
+					indexToEnd === pathLength || indexToEnd === pathLength - 1
 
 				// => Explanation:  indexToEnd === pathLength || indexToEnd === pathLength - 1
 				// We can have a / at the end of the path
-				if (
-					numberOfChildren === 0 &&
-					(indexToEnd === pathLength ||
-						indexToEnd === pathLength - 1 ||
-						isParameterNode ||
-						isWildcardNode)
-				) {
-					return node
+				if (isLastElement || isWildcardOrParameter) {
+					if (numberOfChildren === 0) return node
+
+					if (
+						node.handler &&
+						(isPathToComputeEqualToNodeName ||
+							isWildcardOrParameter) &&
+						isLastElement
+					)
+						return node
 				}
 			}
 
+			const nextIndexToBegin = indexToBegin + (indexToEnd - indexToBegin)
+
 			for (let i = 0; i < numberOfChildren; i++) {
 				const child = node.children[i]
-
-				const nextIndexToBegin =
-					indexToBegin + (indexToEnd - indexToBegin)
 
 				let nextIndexToEnd = 0
 
 				if (child.isWildcardNode || child.isParameterNode) {
 					nextIndexToEnd = path.indexOf('/', nextIndexToBegin + 1)
-
-					if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 				} else {
-					nextIndexToEnd = nextIndexToBegin + child.name.length
+					nextIndexToEnd = path.indexOf(
+						'/',
+						nextIndexToBegin + child.name.length - 1,
+					)
+
+					// If the path is bigger than the child name and the child don't have any children
+					// if (
+					// 	nextIndexToEnd < pathLength &&
+					// 	child.children.length === 0
+					// )
+					// 	nextIndexToEnd = pathLength
 				}
+
+				if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 
 				if (!child.isWildcardNode && indexToEnd === nextIndexToEnd)
 					continue
@@ -138,6 +163,7 @@ export class RadixTree {
 			// Merge multiple nodes that have only one child except parameter, wildcard and root nodes
 			if (
 				node.children.length === 1 &&
+				!node.handler &&
 				!node.isParameterNode &&
 				!node.children[0].isParameterNode &&
 				!node.isWildcardNode &&
