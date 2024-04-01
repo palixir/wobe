@@ -385,6 +385,21 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
+		it('should find a route not begining with a slash', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', 'a/simple/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.handler).toBeDefined()
+		})
+
 		it('should find a route after an optimizeTree', () => {
 			const radixTree = new RadixTree()
 
@@ -600,11 +615,11 @@ describe('RadixTree', () => {
 
 			radixTree.optimizeTree()
 
-			// const route = radixTree.findRoute('GET', '/a/1/john/30')
+			const route = radixTree.findRoute('GET', '/a/1/john/30')
 			const invalidRoute = radixTree.findRoute('GET', '/a/1/john')
 
-			// expect(route).not.toBeNull()
-			// expect(route?.handler).toBeDefined()
+			expect(route).not.toBeNull()
+			expect(route?.handler).toBeDefined()
 
 			expect(invalidRoute).toBeNull()
 		})
@@ -672,11 +687,11 @@ describe('RadixTree', () => {
 			expect(route?.method).toBe('GET')
 			expect(route?.handler).toBeDefined()
 
-			expect(route2).toBeDefined()
+			expect(route2).not.toBeNull()
 			expect(route2?.method).toBe('GET')
 			expect(route2?.handler).toBeDefined()
 
-			expect(route3).toBeDefined()
+			expect(route3).not.toBeNull()
 			expect(route3?.method).toBe('GET')
 			expect(route3?.handler).toBeDefined()
 		})

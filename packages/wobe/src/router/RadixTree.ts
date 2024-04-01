@@ -59,11 +59,7 @@ export class RadixTree {
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
 	findRoute(method: HttpMethod, path: string) {
-		// const now = performance.now()
 		if (path[0] !== '/') path = '/' + path
-		// console.log((performance.now() - now) * 1000000)
-
-		if (path[path.length - 1] !== '/') path += '/'
 
 		const { length: pathLength } = path
 
@@ -80,22 +76,21 @@ export class RadixTree {
 				name: nodeName,
 			} = node
 
-			const isRoot = indexToBegin === 0
+			if (indexToBegin > 0) {
+				const pathToCompute = path.substring(indexToBegin, indexToEnd)
 
-			const pathToCompute = isRoot
-				? '/'
-				: path.substring(indexToBegin, indexToEnd)
-
-			if (!isRoot) {
 				if (!isParameterNode && !isWildcardNode) {
 					if (pathToCompute.length !== nodeName.length) return null
 					if (nodeMethod && method !== nodeMethod) return null
 					if (pathToCompute !== nodeName) return null
 				}
 
+				// => Explanation:  indexToEnd === pathLength || indexToEnd === pathLength - 1
+				// We can have a / at the end of the path
 				if (
 					numberOfChildren === 0 &&
-					(indexToEnd === pathLength - 1 ||
+					(indexToEnd === pathLength ||
+						indexToEnd === pathLength - 1 ||
 						isParameterNode ||
 						isWildcardNode)
 				) {
@@ -105,25 +100,22 @@ export class RadixTree {
 
 			for (let i = 0; i < numberOfChildren; i++) {
 				const child = node.children[i]
-				let nextIndexToBegin = 0
+
+				const nextIndexToBegin =
+					indexToBegin + (indexToEnd - indexToBegin)
+
 				let nextIndexToEnd = 0
 
-				if (child.isParameterNode || child.isWildcardNode) {
-					// +1 because we need to skip a / because we don't care what is at the place of the parameter
-					nextIndexToBegin = path.indexOf('/', indexToBegin + 1)
+				if (child.isWildcardNode || child.isParameterNode) {
+					nextIndexToEnd = path.indexOf('/', nextIndexToBegin + 1)
 
-					// +1 because we need to skip a / because we don't care what is at the place of the parameter
-					nextIndexToEnd = path.indexOf('/', indexToEnd + 1)
-
-					if (nextIndexToEnd === -1 && child.isWildcardNode)
-						nextIndexToEnd = pathLength
-
-					if (nextIndexToEnd === -1 && indexToEnd === pathLength - 1)
-						return null
+					if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 				} else {
-					nextIndexToBegin = indexToBegin + pathToCompute.length
 					nextIndexToEnd = nextIndexToBegin + child.name.length
 				}
+
+				if (!child.isWildcardNode && indexToEnd === nextIndexToEnd)
+					continue
 
 				const foundNode = isNodeMatch(
 					child,

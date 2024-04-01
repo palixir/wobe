@@ -19,12 +19,12 @@ export const routes: Route[] = [
 		path: '/user',
 		handler,
 	},
-	// {
-	// 	name: 'static with same radix',
-	// 	method: 'GET',
-	// 	path: '/user/comments',
-	// 	handler,
-	// },
+	{
+		name: 'static with same radix',
+		method: 'GET',
+		path: '/user/comments',
+		handler,
+	},
 	// {
 	// 	name: 'dynamic route',
 	// 	method: 'GET',
