@@ -398,15 +398,16 @@ describe('RadixTree', () => {
 		it('should find a route', () => {
 			const radixTree = new RadixTree()
 
-			radixTree.addRoute('GET', '/a/simple/route', () =>
+			radixTree.addRoute('GET', '/a/simple/route-2', () =>
 				Promise.resolve(),
 			)
 
 			radixTree.optimizeTree()
 
-			const route = radixTree.findRoute('GET', '/a/simple/route')
+			const route = radixTree.findRoute('GET', '/a/simple/route-2')
 
 			expect(route).not.toBeNull()
+			expect(route?.name).toBe('a/simple/route-2')
 			expect(route?.handler).toBeDefined()
 		})
 
@@ -705,6 +706,25 @@ describe('RadixTree', () => {
 			radixTree.optimizeTree()
 
 			const route = radixTree.findRoute('GET', '/a/simple/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.name).toBe('/*')
+			expect(route?.handler).toBeDefined()
+		})
+
+		it('should find a complex route with a wildcard', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route/*/', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute(
+				'GET',
+				'/a/simple/route/*/*/*/route',
+			)
 
 			expect(route).not.toBeNull()
 			expect(route?.name).toBe('/*')
