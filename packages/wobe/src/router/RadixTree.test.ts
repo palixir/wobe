@@ -410,6 +410,19 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
+		it('should find a route that is a simple root route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/')
+
+			expect(route).not.toBeNull()
+			expect(route?.handler).toBeDefined()
+		})
+
 		it('should find a route with a part of another route', () => {
 			const radixTree = new RadixTree()
 
@@ -486,7 +499,7 @@ describe('RadixTree', () => {
 			expect(route2).toBeNull()
 		})
 
-		it('should find a route ending with a slash', () => {
+		it('should find a route ending by a slash', () => {
 			const radixTree = new RadixTree()
 
 			radixTree.addRoute('GET', '/a/simple/route/', () =>
@@ -657,6 +670,28 @@ describe('RadixTree', () => {
 
 			expect(route2).not.toBeNull()
 			expect(route2?.name).toBe('/route2')
+			expect(route2?.handler).toBeDefined()
+		})
+
+		it('should find a route begining by *', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/*', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/simple/route')
+			const route2 = radixTree.findRoute(
+				'GET',
+				'/*/another/big/long/route',
+			)
+
+			expect(route).not.toBeNull()
+			expect(route?.name).toBe('*')
+			expect(route?.handler).toBeDefined()
+
+			expect(route2).not.toBeNull()
+			expect(route2?.name).toBe('*')
 			expect(route2?.handler).toBeDefined()
 		})
 

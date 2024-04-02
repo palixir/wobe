@@ -63,84 +63,69 @@ export class RadixTree {
 
 		const { length: pathLength } = path
 
+		if (pathLength === 1 && path === '/') return this.root
+
+		let nextIndexToEnd = 0
+
 		const isNodeMatch = (
 			node: Node,
 			indexToBegin: number,
 			indexToEnd: number,
 		): Node | null => {
 			const { length: numberOfChildren } = node.children
-			const {
-				isParameterNode,
-				isWildcardNode,
-				method: nodeMethod,
-				name: nodeName,
-			} = node
-
-			if (indexToBegin > 0) {
-				if (
-					indexToEnd - indexToBegin !== nodeName.length &&
-					!isParameterNode &&
-					!isWildcardNode
-				)
-					return null
-
-				const pathToCompute = path.substring(indexToBegin, indexToEnd)
-
-				const isPathToComputeEqualToNodeName =
-					pathToCompute === nodeName
-
-				const isWildcardOrParameter = isParameterNode || isWildcardNode
-
-				if (!isWildcardOrParameter) {
-					if (nodeMethod && method !== nodeMethod) return null
-					if (!isPathToComputeEqualToNodeName) return null
-				}
-
-				const isLastElement =
-					indexToEnd === pathLength || indexToEnd === pathLength - 1
-
-				// => Explanation:  indexToEnd === pathLength || indexToEnd === pathLength - 1
-				// We can have a / at the end of the path
-				if (isLastElement || isWildcardOrParameter) {
-					if (numberOfChildren === 0) return node
-
-					if (
-						node.handler &&
-						(isPathToComputeEqualToNodeName ||
-							isWildcardOrParameter) &&
-						isLastElement
-					)
-						return node
-				}
-			}
 
 			const nextIndexToBegin = indexToBegin + (indexToEnd - indexToBegin)
 
 			for (let i = 0; i < numberOfChildren; i++) {
 				const child = node.children[i]
 
-				let nextIndexToEnd = 0
+				const isChildWildcardOrParameterNode =
+					child.isWildcardNode || child.isParameterNode
 
-				if (child.isWildcardNode || child.isParameterNode) {
-					nextIndexToEnd = path.indexOf('/', nextIndexToBegin + 1)
-				} else {
-					nextIndexToEnd = path.indexOf(
-						'/',
-						nextIndexToBegin + child.name.length - 1,
-					)
-
-					// If the path is bigger than the child name and the child don't have any children
-					// if (
-					// 	nextIndexToEnd < pathLength &&
-					// 	child.children.length === 0
-					// )
-					// 	nextIndexToEnd = pathLength
-				}
+				// We get the next end index
+				nextIndexToEnd = path.indexOf(
+					'/',
+					isChildWildcardOrParameterNode
+						? nextIndexToBegin + 1
+						: nextIndexToBegin + child.name.length - 1,
+				)
 
 				if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 
-				if (!child.isWildcardNode && indexToEnd === nextIndexToEnd)
+				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode)
 					continue
+
+				// If the child is not a wildcard or parameter node
+				// and the length of the child name is different from the length of the path
+				if (
+					!isChildWildcardOrParameterNode &&
+					nextIndexToEnd - nextIndexToBegin !== child.name.length
+				)
+					continue
+
+				// If the child has no child and the node is a wildcard or parameter node
+				if (
+					child.children.length === 0 &&
+					child.handler &&
+					isChildWildcardOrParameterNode
+				)
+					return child
+
+				if (
+					(nextIndexToEnd === pathLength ||
+						nextIndexToEnd === pathLength - 1) &&
+					child.method &&
+					child.method === method
+				) {
+					if (isChildWildcardOrParameterNode) return child
+
+					const pathToCompute = path.substring(
+						nextIndexToBegin,
+						nextIndexToEnd,
+					)
+
+					if (pathToCompute === child.name) return child
+				}
 
 				const foundNode = isNodeMatch(
 					child,
