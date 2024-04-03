@@ -7,12 +7,12 @@ const name = 'find-my-way'
 const router = findMyWay()
 
 for (const route of routes) {
-	router.on(route.method as HTTPMethod, route.path, handler)
+	router.on(route.method as HTTPMethod, route.pathToCompile, handler)
 }
 
 export const findMyWayRouter: RouterInterface = {
 	name,
 	match: (route) => {
-		router.find(route.method as HTTPMethod, route.path)
+		return router.find(route.method as HTTPMethod, route.path)
 	},
 }

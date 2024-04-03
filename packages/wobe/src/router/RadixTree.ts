@@ -7,12 +7,10 @@ export interface Node {
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
-	maxChildLength: number
-	indexOfChildWildcardOrParameterNode?: number
 }
 
 export class RadixTree {
-	public root: Node = { name: '/', children: [], maxChildLength: 0 }
+	public root: Node = { name: '/', children: [] }
 
 	constructor() {}
 
@@ -42,7 +40,6 @@ export class RadixTree {
 					children: [],
 					isParameterNode,
 					isWildcardNode,
-					maxChildLength: 0,
 				}
 
 				currentNode.children.push(foundNode)
@@ -72,11 +69,9 @@ export class RadixTree {
 			indexToBegin: number,
 			indexToEnd: number,
 		): Node | null => {
-			const { length: numberOfChildren } = node.children
-
 			const nextIndexToBegin = indexToBegin + (indexToEnd - indexToBegin)
 
-			for (let i = 0; i < numberOfChildren; i++) {
+			for (let i = 0; i < node.children.length; i++) {
 				const child = node.children[i]
 
 				const isChildWildcardOrParameterNode =
@@ -103,18 +98,15 @@ export class RadixTree {
 				)
 					continue
 
-				// If the child has no child and the node is a wildcard or parameter node
+				// If the child has no children and the node is a wildcard or parameter node
 				if (
 					child.children.length === 0 &&
-					child.handler &&
 					isChildWildcardOrParameterNode
 				)
 					return child
 
 				if (
-					(nextIndexToEnd === pathLength ||
-						nextIndexToEnd === pathLength - 1) &&
-					child.method &&
+					nextIndexToEnd >= pathLength - 1 &&
 					child.method === method
 				) {
 					if (isChildWildcardOrParameterNode) return child
@@ -161,30 +153,11 @@ export class RadixTree {
 				node.children = child.children
 				node.handler = child.handler
 				node.method = child.method
-				node.maxChildLength = child.maxChildLength
 
 				optimizeNode(node)
 			}
 
 			node.children.forEach(optimizeNode)
-
-			// add maxChildLength to allow to get the index of the end for substring in find
-			if (node.children.length > 0) {
-				let indexOfChildWildcardOrParameterNode = -1
-				let maxChildLength = -99999999
-				for (let i = 0; i < node.children.length; i++) {
-					const child = node.children[i]
-					if (child.name.length > maxChildLength)
-						maxChildLength = child.name.length
-
-					if (child.isParameterNode || child.isWildcardNode)
-						indexOfChildWildcardOrParameterNode = i
-				}
-
-				node.maxChildLength = maxChildLength
-				node.indexOfChildWildcardOrParameterNode =
-					indexOfChildWildcardOrParameterNode
-			}
 		}
 
 		optimizeNode(this.root)

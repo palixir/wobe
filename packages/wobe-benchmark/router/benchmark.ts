@@ -4,6 +4,7 @@ import { regExpRouter, trieRouter } from './hono'
 import { wobeRouter } from './wobe'
 import { findMyWayRouter } from './findMyWay'
 import { koaRouter } from './koaRouter'
+import { radix3Router } from './radix3'
 
 const routers: RouterInterface[] = [
 	regExpRouter,
@@ -11,6 +12,7 @@ const routers: RouterInterface[] = [
 	findMyWayRouter,
 	koaRouter,
 	wobeRouter,
+	radix3Router,
 ]
 
 for (const route of routes) {

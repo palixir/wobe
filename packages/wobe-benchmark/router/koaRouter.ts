@@ -7,15 +7,15 @@ const router = new KoaRouter()
 
 for (const route of routes) {
 	if (route.method === 'GET') {
-		router.get(route.path.replace('*', '(.*)'), handler)
+		router.get(route.pathToCompile.replace('*', '(.*)'), handler)
 	} else {
-		router.post(route.path, handler)
+		router.post(route.pathToCompile, handler)
 	}
 }
 
 export const koaRouter: RouterInterface = {
 	name,
 	match: (route) => {
-		router.match(route.path, route.method) // only matching
+		return router.match(route.path, route.method) // only matching
 	},
 }

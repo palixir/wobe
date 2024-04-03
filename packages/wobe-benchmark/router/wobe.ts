@@ -3,7 +3,9 @@ import { routes, type Route } from './tools'
 
 const createWobeRouter = (name: string, radixTree: RadixTree) => {
 	for (const route of routes) {
-		radixTree.addRoute(route.method, route.path, () => Promise.resolve())
+		radixTree.addRoute(route.method, route.pathToCompile, () =>
+			Promise.resolve(),
+		)
 	}
 
 	radixTree.optimizeTree()
@@ -11,7 +13,7 @@ const createWobeRouter = (name: string, radixTree: RadixTree) => {
 	return {
 		name: `Wobe ${name}`,
 		match: (route: Route) => {
-			radixTree.findRoute(route.method, route.path)
+			return radixTree.findRoute(route.method, route.path)
 		},
 	}
 }

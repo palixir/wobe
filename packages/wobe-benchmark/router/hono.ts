@@ -8,13 +8,13 @@ const createHonoRouter = (
 	router: Router<unknown>,
 ): RouterInterface => {
 	for (const route of routes) {
-		router.add(route.method, route.path, handler)
+		router.add(route.method, route.pathToCompile, handler)
 	}
 
 	return {
 		name: `Hono ${name}`,
 		match: (route) => {
-			router.match(route.method, route.path)
+			return router.match(route.method, route.path)
 		},
 	}
 }

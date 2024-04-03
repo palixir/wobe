@@ -1,6 +1,6 @@
 import type { Server } from 'bun'
 import { WobeResponse } from './WobeResponse'
-import { Router } from './router'
+import { RadixTree, Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
 import type { Context } from './context'
@@ -45,22 +45,24 @@ export class Wobe {
 		handler: WobeHandler
 		hook: Hook
 	}>
+	private router: RadixTree
 
 	constructor(options?: WobeOptions) {
 		this.options = options
 		this.routes = []
 		this.middlewares = []
 		this.server = null
+		this.router = new RadixTree()
 	}
 
 	get(path: string, handler: WobeHandler) {
-		this.routes.push({ path, handler, method: 'GET' })
+		this.router.addRoute('GET', path, handler)
 
 		return this
 	}
 
 	post(path: string, handler: WobeHandler) {
-		this.routes.push({ path, handler, method: 'POST' })
+		this.router.addRoute('POST', path, handler)
 
 		return this
 	}
@@ -111,11 +113,10 @@ export class Wobe {
 	}
 
 	listen(port: number) {
-		const router = new Router()
-
-		router.compile(this.routes)
+		this.router.optimizeTree()
 
 		const middlewares = this.middlewares
+		const router = this.router
 
 		this.server = Bun.serve({
 			port,
@@ -131,10 +132,10 @@ export class Wobe {
 			async fetch(req) {
 				const { pathName } = extractPathnameAndSearchParams(req.url)
 
-				const route = router.find({
-					path: pathName || '/',
-					method: req.method as HttpMethod,
-				})
+				const route = router.findRoute(
+					req.method as HttpMethod,
+					pathName || '/',
+				)
 
 				if (route) {
 					const context: Context = {
@@ -151,11 +152,12 @@ export class Wobe {
 						const currentMiddleware = middlewares[i]
 
 						if (
-							router.isMiddlewarePathnameMatchWithRoute({
-								middlewarePathname:
-									currentMiddleware.pathname as string,
-								route: pathName as string, // A route has been founded so we are pretty sure
-							})
+							// router.isMiddlewarePathnameMatchWithRoute({
+							// 	middlewarePathname:
+							// 		currentMiddleware.pathname as string,
+							// 	route: pathName as string, // A route has been founded so we are pretty sure
+							// })
+							true
 						)
 							listOfMiddlewaresToExecute.push(currentMiddleware)
 					}

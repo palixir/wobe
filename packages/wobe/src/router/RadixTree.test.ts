@@ -411,18 +411,44 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
-		it('should find a route that is a simple root route', () => {
-			const radixTree = new RadixTree()
+		it.each([true, false])(
+			'should find a route that is a simple root route',
+			(withOptimizeTree) => {
+				const radixTree = new RadixTree()
 
-			radixTree.addRoute('GET', '/', () => Promise.resolve())
+				radixTree.addRoute('GET', '/', () => Promise.resolve())
 
-			radixTree.optimizeTree()
+				if (withOptimizeTree) radixTree.optimizeTree()
 
-			const route = radixTree.findRoute('GET', '/')
+				const route = radixTree.findRoute('GET', '/')
 
-			expect(route).not.toBeNull()
-			expect(route?.handler).toBeDefined()
-		})
+				expect(route).not.toBeNull()
+				expect(route?.handler).toBeDefined()
+			},
+		)
+
+		it.each([true, false])(
+			'should find a route that is a simple root route with another route',
+			(withOptimizeTree) => {
+				const radixTree = new RadixTree()
+
+				radixTree.addRoute('GET', '/', () => Promise.resolve())
+				radixTree.addRoute('GET', '/:id', () => Promise.resolve())
+
+				if (withOptimizeTree) radixTree.optimizeTree()
+
+				const route = radixTree.findRoute('GET', '/')
+				const route2 = radixTree.findRoute('GET', '/1')
+
+				expect(route).not.toBeNull()
+				expect(route?.name).toBe('/')
+				expect(route?.handler).toBeDefined()
+
+				expect(route2).not.toBeNull()
+				expect(route2?.name).toBe(':id')
+				expect(route2?.handler).toBeDefined()
+			},
+		)
 
 		it('should find a route with a part of another route', () => {
 			const radixTree = new RadixTree()
@@ -484,21 +510,27 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
-		it('should not find a route that not exist', () => {
-			const radixTree = new RadixTree()
+		it.each([true, false])(
+			'should not find a route that not exist',
+			(withOptimizeTree) => {
+				const radixTree = new RadixTree()
 
-			radixTree.addRoute('GET', '/a/simple/route', () =>
-				Promise.resolve(),
-			)
+				radixTree.addRoute('GET', '/a/simple/route', () =>
+					Promise.resolve(),
+				)
 
-			radixTree.optimizeTree()
+				if (withOptimizeTree) radixTree.optimizeTree()
 
-			const route = radixTree.findRoute('GET', '/a/simple')
-			const route2 = radixTree.findRoute('GET', '/a/simple/route/bigger')
+				const route = radixTree.findRoute('GET', '/a/simple')
+				const route2 = radixTree.findRoute(
+					'GET',
+					'/a/simple/route/bigger',
+				)
 
-			expect(route).toBeNull()
-			expect(route2).toBeNull()
-		})
+				expect(route).toBeNull()
+				expect(route2).toBeNull()
+			},
+		)
 
 		it('should find a route ending by a slash', () => {
 			const radixTree = new RadixTree()
@@ -543,77 +575,83 @@ describe('RadixTree', () => {
 			expect(route?.handler).toBeDefined()
 		})
 
-		it('should find a complex route by method', () => {
-			const radixTree = new RadixTree()
+		it.each([true, false])(
+			'should find a complex route by method',
+			(withOptimizeTree) => {
+				const radixTree = new RadixTree()
 
-			radixTree.addRoute(
-				'GET',
-				'/there/is/a/very/long/and/complex/route',
-				() => Promise.resolve(),
-			)
-			radixTree.addRoute(
-				'GET',
-				'/there/is/a/very/long/and/complex/route2',
-				() => Promise.resolve(),
-			)
-			radixTree.addRoute(
-				'POST',
-				'/there/is/a/very/long/and/complex/addRoute',
-				() => Promise.resolve(),
-			)
+				radixTree.addRoute(
+					'GET',
+					'/there/is/a/very/long/and/complex/route',
+					() => Promise.resolve(),
+				)
+				radixTree.addRoute(
+					'GET',
+					'/there/is/a/very/long/and/complex/route2',
+					() => Promise.resolve(),
+				)
+				radixTree.addRoute(
+					'POST',
+					'/there/is/a/very/long/and/complex/addRoute',
+					() => Promise.resolve(),
+				)
 
-			radixTree.optimizeTree()
+				if (withOptimizeTree) radixTree.optimizeTree()
 
-			const route = radixTree.findRoute(
-				'GET',
-				'/there/is/a/very/long/and/complex/route',
-			)
+				const route = radixTree.findRoute(
+					'GET',
+					'/there/is/a/very/long/and/complex/route',
+				)
 
-			const route2 = radixTree.findRoute(
-				'GET',
-				'/there/is/a/very/long/and/complex/route2',
-			)
+				const route2 = radixTree.findRoute(
+					'GET',
+					'/there/is/a/very/long/and/complex/route2',
+				)
 
-			const route3 = radixTree.findRoute(
-				'POST',
-				'/there/is/a/very/long/and/complex/addRoute',
-			)
+				const route3 = radixTree.findRoute(
+					'POST',
+					'/there/is/a/very/long/and/complex/addRoute',
+				)
 
-			const invalidRoute = radixTree.findRoute(
-				'POST',
-				'/there/is/a/very/long/and/complex/route',
-			)
+				const invalidRoute = radixTree.findRoute(
+					'POST',
+					'/there/is/a/very/long/and/complex/route',
+				)
 
-			expect(route).not.toBeNull()
-			expect(route?.name).toBe('/route')
-			expect(route?.method).toBe('GET')
-			expect(route?.handler).toBeDefined()
+				expect(route).not.toBeNull()
+				expect(route?.name).toBe('/route')
+				expect(route?.method).toBe('GET')
+				expect(route?.handler).toBeDefined()
 
-			expect(route2).not.toBeNull()
-			expect(route2?.name).toBe('/route2')
-			expect(route2?.method).toBe('GET')
-			expect(route2?.handler).toBeDefined()
+				expect(route2).not.toBeNull()
+				expect(route2?.name).toBe('/route2')
+				expect(route2?.method).toBe('GET')
+				expect(route2?.handler).toBeDefined()
 
-			expect(route3).not.toBeNull()
-			expect(route3?.method).toBe('POST')
-			expect(route3?.handler).toBeDefined()
+				expect(route3).not.toBeNull()
+				expect(route3?.method).toBe('POST')
+				expect(route3?.handler).toBeDefined()
 
-			expect(invalidRoute).toBeNull()
-		})
+				expect(invalidRoute).toBeNull()
+			},
+		)
 
-		it('should find a route with a parameter directly after the root', () => {
-			const radixTree = new RadixTree()
+		it.each([true, false])(
+			'should find a route with a parameter directly after the root',
+			(withOptimizeTree) => {
+				const radixTree = new RadixTree()
 
-			radixTree.addRoute('GET', '/:id', () => Promise.resolve())
+				radixTree.addRoute('GET', '/:id', () => Promise.resolve())
 
-			radixTree.optimizeTree()
+				if (withOptimizeTree) radixTree.optimizeTree()
 
-			const route = radixTree.findRoute('GET', '/1')
+				const route = radixTree.findRoute('GET', '/1')
 
-			expect(route).not.toBeNull()
-			expect(route?.name).toBe(':id')
-			expect(route?.handler).toBeDefined()
-		})
+				expect(route).not.toBeNull()
+				expect(route?.name).toBe(':id')
+				expect(route?.handler).toBeDefined()
+			},
+		)
 
 		it('should find a route with a parameter at the end of the route', () => {
 			const radixTree = new RadixTree()
@@ -631,6 +669,26 @@ describe('RadixTree', () => {
 
 			expect(route2).not.toBeNull()
 			expect(route2?.name).toBe('/:id')
+			expect(route2?.handler).toBeDefined()
+		})
+
+		it('should find a route with parameter that is a part of another route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/:id', () => Promise.resolve())
+			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/simple')
+			const route2 = radixTree.findRoute('GET', '/a/simple/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.name).toBe('/:id')
+			expect(route?.handler).toBeDefined()
+
+			expect(route2).not.toBeNull()
+			expect(route2?.name).toBe('/route')
 			expect(route2?.handler).toBeDefined()
 		})
 
@@ -903,7 +961,6 @@ describe('RadixTree', () => {
 			expect(radixTree.root.children[0].name).toBe('a/simple')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
-			expect(radixTree.root.children[0].maxChildLength).toEqual(6)
 
 			expect(radixTree.root.children[0].children[0].name).toBe('/route')
 			expect(radixTree.root.children[0].children[0].method).toBe('GET')
@@ -944,7 +1001,6 @@ describe('RadixTree', () => {
 			expect(radixTree.root.name).toBe('/')
 			expect(radixTree.root.method).toBeUndefined()
 			expect(radixTree.root.handler).toBeUndefined()
-			expect(radixTree.root.maxChildLength).toEqual(14)
 
 			expect(radixTree.root.children[0].name).toBe('a/simple/route')
 			expect(radixTree.root.children[0].method).toBe('GET')
@@ -961,12 +1017,10 @@ describe('RadixTree', () => {
 			expect(radixTree.root.name).toBe('/')
 			expect(radixTree.root.method).toBeUndefined()
 			expect(radixTree.root.handler).toBeUndefined()
-			expect(radixTree.root.maxChildLength).toEqual(1)
 
 			expect(radixTree.root.children[0].name).toBe('a')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
-			expect(radixTree.root.children[0].maxChildLength).toEqual(4)
 
 			expect(radixTree.root.children[0].children[0].name).toBe('/:id')
 			expect(
@@ -1000,12 +1054,10 @@ describe('RadixTree', () => {
 			expect(radixTree.root.name).toBe('/')
 			expect(radixTree.root.method).toBeUndefined()
 			expect(radixTree.root.handler).toBeUndefined()
-			expect(radixTree.root.maxChildLength).toEqual(8)
 
 			expect(radixTree.root.children[0].name).toBe('a/simple')
 			expect(radixTree.root.children[0].method).toBeUndefined()
 			expect(radixTree.root.children[0].handler).toBeUndefined()
-			expect(radixTree.root.children[0].maxChildLength).toEqual(2)
 
 			expect(radixTree.root.children[0].children[0].name).toBe('/*')
 			expect(
@@ -1071,52 +1123,6 @@ describe('RadixTree', () => {
 			expect(
 				radixTree.root.children[0].children[1].children[1].handler,
 			).toBeDefined()
-		})
-
-		it('should add maxChildLength on complex route', () => {
-			const radixTree = new RadixTree()
-
-			radixTree.addRoute('GET', '/there/is/a/complex/route/next2', () =>
-				Promise.resolve(),
-			)
-			radixTree.addRoute('POST', '/there/is/a/complex/route/next3', () =>
-				Promise.resolve(),
-			)
-			radixTree.addRoute(
-				'POST',
-				'/there/is/a/complex/route/next2++',
-				() => Promise.resolve(),
-			)
-
-			radixTree.optimizeTree()
-
-			expect(radixTree.root.maxChildLength).toEqual(24)
-			expect(radixTree.root.children[0].maxChildLength).toEqual(8)
-		})
-
-		it('should contain the hasAtLeastOneChildWildcardOrParameter if at least one child is a wildcard or a parametric node', () => {
-			const radixTree = new RadixTree()
-
-			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
-			radixTree.addRoute('GET', '/a/normal/route2', () =>
-				Promise.resolve(),
-			)
-			radixTree.addRoute('GET', '/a/normal/:route2', () =>
-				Promise.resolve(),
-			)
-
-			radixTree.optimizeTree()
-
-			expect(radixTree.root.indexOfChildWildcardOrParameterNode).toEqual(
-				-1,
-			)
-			expect(
-				radixTree.root.children[0].indexOfChildWildcardOrParameterNode,
-			).toEqual(0)
-			expect(
-				radixTree.root.children[0].children[1]
-					.indexOfChildWildcardOrParameterNode,
-			).toEqual(1)
 		})
 	})
 })
