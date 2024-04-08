@@ -6,7 +6,6 @@ export interface Node {
 	handler?: WobeHandler
 	beforeHandlerMiddleware?: Array<WobeHandler>
 	afterHandlerMiddleware?: Array<WobeHandler>
-	beforeAndAfterHandlerMiddleware?: Array<WobeHandler>
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
@@ -56,6 +55,7 @@ export class RadixTree {
 			case 'beforeHandler': {
 				if (!node.beforeHandlerMiddleware)
 					node.beforeHandlerMiddleware = []
+
 				node.beforeHandlerMiddleware.push(handler)
 				break
 			}
@@ -68,10 +68,14 @@ export class RadixTree {
 			}
 
 			case 'beforeAndAfterHandler': {
-				if (!node.beforeAndAfterHandlerMiddleware)
-					node.beforeAndAfterHandlerMiddleware = []
+				if (!node.beforeHandlerMiddleware)
+					node.beforeHandlerMiddleware = []
 
-				node.beforeAndAfterHandlerMiddleware.push(handler)
+				if (!node.afterHandlerMiddleware)
+					node.afterHandlerMiddleware = []
+
+				node.beforeHandlerMiddleware.push(handler)
+				node.afterHandlerMiddleware.push(handler)
 				break
 			}
 			default:

@@ -31,10 +31,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
 			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should add a middleware afterHandler to the radix tree', () => {
@@ -65,10 +61,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware?.length,
 			).toBe(1)
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should add a middleware beforeAndAfterHandler to the radix tree', () => {
@@ -95,15 +87,11 @@ describe('RadixTree', () => {
 
 			expect(
 				radixTree.root.children[0].children[0].children[0]
-					.beforeHandlerMiddleware,
-			).toBeUndefined()
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
 			expect(
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware?.length,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware?.length,
 			).toBe(1)
 		})
 
@@ -125,10 +113,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
 			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should add a middleware with a wildcard at the end', () => {
@@ -149,10 +133,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
 			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should add a middleware with a slash at the end', () => {
@@ -172,10 +152,6 @@ describe('RadixTree', () => {
 			expect(
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
 			).toBeUndefined()
 		})
 
@@ -221,15 +197,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[1]
 					.afterHandlerMiddleware?.[0],
 			).toBeFunction()
-
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[1]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should not add a middleware with a wildcard in the middle if the path not match', () => {
@@ -252,10 +219,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
 			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should not add a middleware if the route not match', () => {
@@ -276,10 +239,6 @@ describe('RadixTree', () => {
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
 			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
-			).toBeUndefined()
 		})
 
 		it('should not add a middleware if the middleware is shorter than the route', () => {
@@ -299,10 +258,6 @@ describe('RadixTree', () => {
 			expect(
 				radixTree.root.children[0].children[0].children[0]
 					.afterHandlerMiddleware,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0]
-					.beforeAndAfterHandlerMiddleware,
 			).toBeUndefined()
 		})
 	})

@@ -155,16 +155,8 @@ export class Wobe {
 
 				const wobeResponse = new WobeResponse(req)
 
-				const listOfMiddlewaresToExecute: Array<{
-					hook: Hook
-					handler: WobeHandler
-				}> = []
-
 				// We need to run middleware sequentially
-				await [
-					...(route.beforeHandlerMiddleware || []),
-					...(route.beforeAndAfterHandlerMiddleware || []),
-				].reduce(
+				await (route.beforeHandlerMiddleware || []).reduce(
 					async (acc, middleware) => {
 						await acc
 
@@ -186,10 +178,9 @@ export class Wobe {
 				context.state = 'afterHandler'
 
 				// We need to run middleware sequentially
-				const responseAfterMiddleware = await [
-					...(route.beforeAndAfterHandlerMiddleware || []),
-					...(route.afterHandlerMiddleware || []),
-				].reduce(
+				const responseAfterMiddleware = await (
+					route.afterHandlerMiddleware || []
+				).reduce(
 					async (acc, middleware) => {
 						await acc
 
