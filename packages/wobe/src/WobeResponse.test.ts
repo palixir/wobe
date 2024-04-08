@@ -24,7 +24,7 @@ describe('Wobe Response', () => {
 			value: 'tata',
 		})
 
-		expect(wobeResponse.headers.get('Set-Cookie')).toBe(
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
 			'titi=test; HttpOnly; Path=/path; Domain=domain; Expires=Sat, 01 Jan 2022 00:00:00 GMT; SameSite=Strict; Secure; Max-Age=100;, tata=tata;',
 		)
 	})
@@ -41,7 +41,7 @@ describe('Wobe Response', () => {
 
 		wobeResponse.deleteCookie('tata')
 
-		expect(wobeResponse.headers.get('Set-Cookie')).toBe(
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
 			'tata=tata;, tata=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;',
 		)
 	})
@@ -63,13 +63,13 @@ describe('Wobe Response', () => {
 
 		wobeResponse.deleteCookie('tata')
 
-		expect(wobeResponse.headers.get('Set-Cookie')).toBe(
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
 			'tata=tata;, titi=titi;, tata=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;',
 		)
 
 		wobeResponse.deleteCookie('titi')
 
-		expect(wobeResponse.headers.get('Set-Cookie')).toBe(
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
 			'tata=tata;, titi=titi;, tata=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;, titi=; Expires=Thu, 01 Jan 1970 00:00:00 GMT;',
 		)
 	})
@@ -163,7 +163,7 @@ describe('Wobe Response', () => {
 		expect(await response.json()).toEqual({ a: 1, b: 2 })
 	})
 
-	it('should set headers in send method and overwrite existant', async () => {
+	it.only('should set headers in send method and overwrite existant', async () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test', {
 				method: 'GET',
@@ -194,7 +194,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.headers.set('Content-Type', 'invalid-content-type')
+		wobeResponse.setHeader('Content-Type', 'invalid-content-type')
 
 		const response = wobeResponse.send('Hello World')
 

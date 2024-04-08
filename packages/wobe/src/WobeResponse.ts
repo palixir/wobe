@@ -12,12 +12,10 @@ export interface SetCookieOptions {
 
 export class WobeResponse {
 	public request: Request
-	public headers = new Headers({
-		'Content-Type': 'text/plain',
-	})
+	public headers: Headers | undefined = undefined
 	public body: string | null | ReadableStream = null
-	public status = 200
-	public statusText = 'OK'
+	public status: number | undefined = undefined
+	public statusText: string | undefined = undefined
 
 	constructor(request: Request) {
 		this.request = request
@@ -44,7 +42,7 @@ export class WobeResponse {
 		if (secure) cookie = `${cookie} Secure;`
 		if (maxAge) cookie = `${cookie} Max-Age=${maxAge};`
 
-		this.headers.append('Set-Cookie', cookie)
+		this.headers?.append('Set-Cookie', cookie)
 	}
 
 	getCookie(cookieName: string) {
@@ -64,10 +62,19 @@ export class WobeResponse {
 	}
 
 	copyResponse(response: Response) {
+		// @ts-expect-error
 		this.headers = response.headers
 		this.body = response.body
 		this.status = response.status
 		this.statusText = response.statusText
+	}
+
+	setHeader(key: string, value: string) {
+		if (!this.headers)
+			// @ts-expect-error
+			this.headers = new Headers({ 'Content-Type': 'text/plain' })
+
+		this.headers?.set(key, value)
 	}
 
 	send(
@@ -83,27 +90,28 @@ export class WobeResponse {
 		} = {},
 	) {
 		if (typeof content === 'object') {
-			this.headers.set('Content-Type', 'application/json')
+			this.setHeader('Content-Type', 'application/json')
 			this.body = JSON.stringify(content)
 		} else {
-			this.headers.set('charset', 'utf-8')
+			this.setHeader('charset', 'utf-8')
 			this.body = content
 		}
 
 		if (status) this.status = status
 		if (statusText) this.statusText = statusText
+
 		if (headers) {
 			const entries = Object.entries(headers)
 
 			for (const [key, value] of entries) {
-				this.headers.set(key, value)
+				this.headers?.set(key, value)
 			}
 		}
 
 		return new Response(this.body, {
 			headers: this.headers,
-			status: this.status,
-			statusText: this.statusText,
+			status: this.status || 200,
+			statusText: this.statusText || 'OK',
 		})
 	}
 
