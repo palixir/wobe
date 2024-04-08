@@ -1,7 +1,10 @@
 import type { Server } from 'bun'
 import { WobeResponse } from './WobeResponse'
-import { RadixTree, Router } from './router'
-import { extractPathnameAndSearchParams } from './utils'
+import { RadixTree } from './router'
+import {
+	extractPathnameAndSearchParams,
+	isMiddlewarePathnameMatchWithRoute,
+} from './utils'
 import { HttpException } from './HttpException'
 import type { Context } from './context'
 
@@ -137,90 +140,84 @@ export class Wobe {
 					pathName || '/',
 				)
 
-				if (route) {
-					const context: Context = {
-						ipAdress: this.requestIP(req)?.address || '',
-						request: req,
-						state: 'beforeHandler',
-					}
+				if (!route) return new Response(null, { status: 404 })
 
-					const wobeResponse = new WobeResponse(req)
-
-					const listOfMiddlewaresToExecute = []
-
-					for (let i = 0; i < middlewares.length; i++) {
-						const currentMiddleware = middlewares[i]
-
-						if (
-							// router.isMiddlewarePathnameMatchWithRoute({
-							// 	middlewarePathname:
-							// 		currentMiddleware.pathname as string,
-							// 	route: pathName as string, // A route has been founded so we are pretty sure
-							// })
-							true
-						)
-							listOfMiddlewaresToExecute.push(currentMiddleware)
-					}
-
-					// We need to run middleware sequentially
-					await listOfMiddlewaresToExecute
-						.filter(
-							(middleware) =>
-								middleware.hook === 'beforeHandler' ||
-								middleware.hook === 'beforeAndAfterHandler',
-						)
-						.reduce(
-							async (acc, middleware) => {
-								await acc
-
-								return middleware.handler(context, wobeResponse)
-							},
-							Promise.resolve({} as WobeHandlerOutput),
-						)
-
-					context.state = 'handler'
-
-					const handlerResult = await route.handler?.(
-						context,
-						wobeResponse,
-					)
-
-					if (handlerResult instanceof Response)
-						wobeResponse.copyResponse(handlerResult)
-
-					context.state = 'afterHandler'
-
-					// We need to run middleware sequentially
-					const responseAfterMiddleware =
-						await listOfMiddlewaresToExecute
-							.filter(
-								(middleware) =>
-									middleware.hook === 'afterHandler' ||
-									middleware.hook === 'beforeAndAfterHandler',
-							)
-							.reduce(
-								async (acc, middleware) => {
-									await acc
-
-									return middleware.handler(
-										context,
-										wobeResponse,
-									)
-								},
-								Promise.resolve({} as WobeHandlerOutput),
-							)
-
-					if (responseAfterMiddleware instanceof Response)
-						return responseAfterMiddleware
-
-					return new Response(wobeResponse.body, {
-						status: wobeResponse.status,
-						headers: wobeResponse.headers,
-						statusText: wobeResponse.statusText,
-					})
+				const context: Context = {
+					ipAdress: this.requestIP(req)?.address || '',
+					request: req,
+					state: 'beforeHandler',
 				}
 
-				return new Response(null, { status: 404 })
+				const wobeResponse = new WobeResponse(req)
+
+				const listOfMiddlewaresToExecute = []
+
+				// We compute all the middlewares
+				for (let i = 0; i < middlewares.length; i++) {
+					const currentMiddleware = middlewares[i]
+
+					if (
+						isMiddlewarePathnameMatchWithRoute({
+							middlewarePathname:
+								currentMiddleware.pathname as string,
+							route: pathName as string, // A route has been founded so we are pretty sure about the type
+						})
+					)
+						listOfMiddlewaresToExecute.push(currentMiddleware)
+				}
+
+				// We need to run middleware sequentially
+				await listOfMiddlewaresToExecute
+					.filter(
+						(middleware) =>
+							middleware.hook === 'beforeHandler' ||
+							middleware.hook === 'beforeAndAfterHandler',
+					)
+					.reduce(
+						async (acc, middleware) => {
+							await acc
+
+							return middleware.handler(context, wobeResponse)
+						},
+						Promise.resolve({} as WobeHandlerOutput),
+					)
+
+				context.state = 'handler'
+
+				const handlerResult = await route.handler?.(
+					context,
+					wobeResponse,
+				)
+
+				if (handlerResult instanceof Response)
+					wobeResponse.copyResponse(handlerResult)
+
+				context.state = 'afterHandler'
+
+				// We need to run middleware sequentially
+				const responseAfterMiddleware = await listOfMiddlewaresToExecute
+					.filter(
+						(middleware) =>
+							middleware.hook === 'afterHandler' ||
+							middleware.hook === 'beforeAndAfterHandler',
+					)
+					.reduce(
+						async (acc, middleware) => {
+							await acc
+
+							return middleware.handler(context, wobeResponse)
+						},
+						Promise.resolve({} as WobeHandlerOutput),
+					)
+
+				if (responseAfterMiddleware instanceof Response)
+					return responseAfterMiddleware
+
+				return new Response(wobeResponse.body, {
+					status: wobeResponse.status,
+					headers: wobeResponse.headers,
+					statusText: wobeResponse.statusText,
+				})
 			},
 		})
 	}

@@ -6,4 +6,4 @@ wobe.get('/hi', (_, res) => {
 	return res.send('hi')
 })
 
-wobe.listen(8080)
+wobe.listen(3000)

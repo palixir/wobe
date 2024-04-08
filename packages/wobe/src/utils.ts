@@ -22,3 +22,44 @@ export const extractPathnameAndSearchParams = (url: string) => {
 
 	return { pathName }
 }
+
+export const isMiddlewarePathnameMatchWithRoute = ({
+	route,
+	middlewarePathname,
+}: {
+	route: string
+	middlewarePathname: string
+}): boolean => {
+	if (middlewarePathname[middlewarePathname.length - 1] === '/')
+		middlewarePathname = middlewarePathname.slice(0, -1)
+
+	const isPathNameEndingByWildcard =
+		middlewarePathname[middlewarePathname.length - 1] === '*'
+
+	if (middlewarePathname.length > route.length && !isPathNameEndingByWildcard)
+		return false
+
+	let isWildcardEncountering = false
+
+	for (let i = 0; i < route.length; i++) {
+		const routeChar = route[i]
+		const middlewarePathnameChar = middlewarePathname[i]
+
+		if (middlewarePathnameChar === '*') {
+			isWildcardEncountering = true
+			continue
+		}
+
+		if (isWildcardEncountering) {
+			if (middlewarePathnameChar === '/') {
+				isWildcardEncountering = false
+			}
+
+			continue
+		}
+
+		if (routeChar !== middlewarePathnameChar) return false
+	}
+
+	return true
+}

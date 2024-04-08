@@ -394,7 +394,7 @@ describe('RadixTree', () => {
 		})
 	})
 
-	describe.only('findRoute', () => {
+	describe('findRoute', () => {
 		it('should find a route', () => {
 			const radixTree = new RadixTree()
 
