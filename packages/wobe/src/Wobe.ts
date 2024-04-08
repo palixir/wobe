@@ -1,10 +1,7 @@
 import type { Server } from 'bun'
 import { WobeResponse } from './WobeResponse'
 import { RadixTree } from './router'
-import {
-	extractPathnameAndSearchParams,
-	isMiddlewarePathnameMatchWithRoute,
-} from './utils'
+import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
 import type { Context } from './context'
 
@@ -36,15 +33,14 @@ export type WobeHandler = (
 
 export type WobePlugin = (wobe: Wobe) => void
 
-type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
+export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
 // TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options?: WobeOptions
 	private server: Server | null
-	private routes: Routes
 	private middlewares: Array<{
-		pathname: string | WobeHandler
+		pathname: string
 		handler: WobeHandler
 		hook: Hook
 	}>
@@ -52,7 +48,6 @@ export class Wobe {
 
 	constructor(options?: WobeOptions) {
 		this.options = options
-		this.routes = []
 		this.middlewares = []
 		this.server = null
 		this.router = new RadixTree()
@@ -81,7 +76,8 @@ export class Wobe {
 			}
 
 			handlers.map((handler) => {
-				this.middlewares.push({ pathname: path, handler, hook })
+				if (typeof path === 'string')
+					this.middlewares.push({ pathname: path, handler, hook })
 			})
 
 			return this
@@ -118,7 +114,16 @@ export class Wobe {
 	listen(port: number) {
 		this.router.optimizeTree()
 
-		const middlewares = this.middlewares
+		// We need to add all middlewares after the compilation
+		// because the tree need to be complete
+		for (const middleware of this.middlewares) {
+			this.router.addMiddleware(
+				middleware.hook,
+				middleware.pathname,
+				middleware.handler,
+			)
+		}
+
 		const router = this.router
 
 		this.server = Bun.serve({
@@ -133,7 +138,7 @@ export class Wobe {
 				})
 			},
 			async fetch(req) {
-				const { pathName } = extractPathnameAndSearchParams(req.url)
+				const { pathName } = extractPathnameAndSearchParams(req)
 
 				const route = router.findRoute(
 					req.method as HttpMethod,
@@ -150,37 +155,23 @@ export class Wobe {
 
 				const wobeResponse = new WobeResponse(req)
 
-				const listOfMiddlewaresToExecute = []
-
-				// We compute all the middlewares
-				for (let i = 0; i < middlewares.length; i++) {
-					const currentMiddleware = middlewares[i]
-
-					if (
-						isMiddlewarePathnameMatchWithRoute({
-							middlewarePathname:
-								currentMiddleware.pathname as string,
-							route: pathName as string, // A route has been founded so we are pretty sure about the type
-						})
-					)
-						listOfMiddlewaresToExecute.push(currentMiddleware)
-				}
+				const listOfMiddlewaresToExecute: Array<{
+					hook: Hook
+					handler: WobeHandler
+				}> = []
 
 				// We need to run middleware sequentially
-				await listOfMiddlewaresToExecute
-					.filter(
-						(middleware) =>
-							middleware.hook === 'beforeHandler' ||
-							middleware.hook === 'beforeAndAfterHandler',
-					)
-					.reduce(
-						async (acc, middleware) => {
-							await acc
+				await [
+					...(route.beforeHandlerMiddleware || []),
+					...(route.beforeAndAfterHandlerMiddleware || []),
+				].reduce(
+					async (acc, middleware) => {
+						await acc
 
-							return middleware.handler(context, wobeResponse)
-						},
-						Promise.resolve({} as WobeHandlerOutput),
-					)
+						return middleware(context, wobeResponse)
+					},
+					Promise.resolve({} as WobeHandlerOutput),
+				)
 
 				context.state = 'handler'
 
@@ -195,20 +186,17 @@ export class Wobe {
 				context.state = 'afterHandler'
 
 				// We need to run middleware sequentially
-				const responseAfterMiddleware = await listOfMiddlewaresToExecute
-					.filter(
-						(middleware) =>
-							middleware.hook === 'afterHandler' ||
-							middleware.hook === 'beforeAndAfterHandler',
-					)
-					.reduce(
-						async (acc, middleware) => {
-							await acc
+				const responseAfterMiddleware = await [
+					...(route.beforeAndAfterHandlerMiddleware || []),
+					...(route.afterHandlerMiddleware || []),
+				].reduce(
+					async (acc, middleware) => {
+						await acc
 
-							return middleware.handler(context, wobeResponse)
-						},
-						Promise.resolve({} as WobeHandlerOutput),
-					)
+						return middleware(context, wobeResponse)
+					},
+					Promise.resolve({} as WobeHandlerOutput),
+				)
 
 				if (responseAfterMiddleware instanceof Response)
 					return responseAfterMiddleware

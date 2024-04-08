@@ -2,6 +2,311 @@ import { describe, expect, it } from 'bun:test'
 import { RadixTree } from './RadixTree'
 
 describe('RadixTree', () => {
+	describe('addMiddleware', () => {
+		it('should add a middleware beforeHandler to the radix tree', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should add a middleware afterHandler to the radix tree', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('afterHandler', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should add a middleware beforeAndAfterHandler to the radix tree', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware(
+				'beforeAndAfterHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware?.length,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware?.length,
+			).toBe(1)
+		})
+
+		it('should add a middleware with a wildcard in the middle', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/*/route', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should add a middleware with a wildcard at the end', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple/*', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should add a middleware with a slash at the end', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple/route/', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should add two middlewares if there are two routes', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addRoute('GET', '/a/simple/route2', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('afterHandler', '/a/simple/route2', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware?.[0],
+			).toBeFunction()
+
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.afterHandlerMiddleware?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.afterHandlerMiddleware?.[0],
+			).toBeFunction()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should not add a middleware with a wildcard in the middle if the path not match', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware(
+				'beforeHandler',
+				'/a/simple/route/*/tata',
+				() => Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should not add a middleware if the route not match', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple/route2', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+
+		it('should not add a middleware if the middleware is shorter than the route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addMiddleware('beforeHandler', '/a/simple', () =>
+				Promise.resolve(),
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerMiddleware,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeAndAfterHandlerMiddleware,
+			).toBeUndefined()
+		})
+	})
+
 	describe('addRoute', () => {
 		it('should add a route to the radix tree', () => {
 			const radixTree = new RadixTree()

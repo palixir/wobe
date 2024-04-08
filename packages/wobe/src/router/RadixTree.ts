@@ -1,9 +1,12 @@
-import type { HttpMethod } from '../Wobe'
+import type { Hook, HttpMethod, WobeHandler } from '../Wobe'
 
 export interface Node {
 	name: string
 	children: Array<Node>
-	handler?: (...args: any[]) => Promise<any> | any
+	handler?: WobeHandler
+	beforeHandlerMiddleware?: Array<WobeHandler>
+	afterHandlerMiddleware?: Array<WobeHandler>
+	beforeAndAfterHandlerMiddleware?: Array<WobeHandler>
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
@@ -14,11 +17,7 @@ export class RadixTree {
 
 	constructor() {}
 
-	addRoute(
-		method: HttpMethod,
-		path: string,
-		handler: (...args: any[]) => Promise<any>,
-	) {
+	addRoute(method: HttpMethod, path: string, handler: WobeHandler) {
 		const pathParts = path.split('/').filter(Boolean)
 
 		let currentNode = this.root
@@ -50,6 +49,68 @@ export class RadixTree {
 
 		currentNode.handler = handler
 		currentNode.method = method
+	}
+
+	_addMiddlewareToNode(node: Node, hook: Hook, handler: WobeHandler) {
+		switch (hook) {
+			case 'beforeHandler': {
+				if (!node.beforeHandlerMiddleware)
+					node.beforeHandlerMiddleware = []
+				node.beforeHandlerMiddleware.push(handler)
+				break
+			}
+			case 'afterHandler': {
+				if (!node.afterHandlerMiddleware)
+					node.afterHandlerMiddleware = []
+
+				node.afterHandlerMiddleware.push(handler)
+				break
+			}
+
+			case 'beforeAndAfterHandler': {
+				if (!node.beforeAndAfterHandlerMiddleware)
+					node.beforeAndAfterHandlerMiddleware = []
+
+				node.beforeAndAfterHandlerMiddleware.push(handler)
+				break
+			}
+			default:
+				break
+		}
+	}
+
+	addMiddleware(hook: Hook, path: string, handler: WobeHandler, node?: Node) {
+		const pathParts = path.split('/').filter(Boolean)
+
+		let currentNode = node || this.root
+
+		for (let i = 0; i < pathParts.length; i++) {
+			const pathPart = pathParts[i]
+			const isWildcardNode = pathPart[0] === '*'
+
+			if (isWildcardNode) {
+				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
+
+				for (const child of currentNode.children) {
+					this.addMiddleware(hook, nextPathJoin, handler, child)
+				}
+				return
+			}
+
+			let foundNode = currentNode.children.find(
+				(node) =>
+					node.name ===
+					(currentNode.name === '/' ? '' : '/') + pathPart,
+			)
+
+			if (!foundNode) {
+				break
+			}
+
+			currentNode = foundNode
+		}
+
+		this._addMiddlewareToNode(currentNode, hook, handler)
 	}
 
 	// This function is used to find the route in the tree

@@ -4,14 +4,16 @@
   "main": "index.ts",
   "dependencies": {
     "hono": "4.1.4",
-    "koa-router": "^12.0.1",
+    "koa-router": "12.0.1",
+    "radix3": "1.1.2",
     "wobe": "workspace:*"
   },
   "devDependencies": {
-    "mitata": "0.1.11",
-    "radix3": "^1.1.2"
+    "mitata": "0.1.11"
   },
   "scripts": {
-    "bench:router": "bun run router/benchmark.ts"
+    "bench:router": "bun run router/benchmark.ts",
+    "bench:extracter": "bun run pathExtract/benchmark.ts",
+    "bench:findMiddleware": "bun run findMiddleware/benchmark.ts"
   }
 }

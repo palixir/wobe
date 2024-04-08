@@ -1,65 +1,41 @@
-export const extractPathnameAndSearchParams = (url: string) => {
-	// With host : /^(?:https?:\/\/)?(?:[^\/]+)?(.+?)(?:\?(.*))?$/
-	// The version with host is more accurate but slower (around 10% slower)
-	const matches = url.match(
-		/^https?:\/\/[^\/]+([^?#]+)(?:\?([^#]*))?(?:#.*)?$/,
+export const extractPathnameAndSearchParams = (request: Request) => {
+	const url = request.url
+	// 8 because this is the length of 'https://'
+	const queryIndex = url.indexOf('?', 8)
+
+	const path = url.slice(
+		url.indexOf('/', 8),
+		queryIndex === -1 ? url.length : queryIndex,
 	)
 
-	const pathName = matches?.[1]
+	if (queryIndex !== -1) {
+		let searchParams: Record<string, string> = {}
+		let indexOfLastParam = queryIndex + 1
 
-	if (matches?.[2]) {
-		const searchParams: Record<string, string> = {}
+		let currentKey = ''
+		let currentValue = ''
 
-		const allParams = matches[2].split('&')
+		for (let i = queryIndex + 1; i < url.length; i++) {
+			const char = url[i]
 
-		for (let i = 0; i < allParams.length; i++) {
-			const [key, value] = allParams[i].split('=')
-			searchParams[key] = value
-		}
-
-		return { pathName, searchParams }
-	}
-
-	return { pathName }
-}
-
-export const isMiddlewarePathnameMatchWithRoute = ({
-	route,
-	middlewarePathname,
-}: {
-	route: string
-	middlewarePathname: string
-}): boolean => {
-	if (middlewarePathname[middlewarePathname.length - 1] === '/')
-		middlewarePathname = middlewarePathname.slice(0, -1)
-
-	const isPathNameEndingByWildcard =
-		middlewarePathname[middlewarePathname.length - 1] === '*'
-
-	if (middlewarePathname.length > route.length && !isPathNameEndingByWildcard)
-		return false
-
-	let isWildcardEncountering = false
-
-	for (let i = 0; i < route.length; i++) {
-		const routeChar = route[i]
-		const middlewarePathnameChar = middlewarePathname[i]
-
-		if (middlewarePathnameChar === '*') {
-			isWildcardEncountering = true
-			continue
-		}
-
-		if (isWildcardEncountering) {
-			if (middlewarePathnameChar === '/') {
-				isWildcardEncountering = false
+			if (char === '=') {
+				currentKey = url.slice(indexOfLastParam, i)
+				indexOfLastParam = i + 1
 			}
 
-			continue
+			if (char === '&' || i === url.length - 1) {
+				currentValue = url.slice(
+					indexOfLastParam,
+					i === url.length - 1 ? i + 1 : i,
+				)
+
+				indexOfLastParam = i + 1
+				searchParams[currentKey] = currentValue
+			}
 		}
 
-		if (routeChar !== middlewarePathnameChar) return false
+		return { pathName: path, searchParams }
 	}
 
-	return true
+	return { pathName: path }
 }
