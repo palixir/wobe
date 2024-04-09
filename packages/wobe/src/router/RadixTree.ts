@@ -9,6 +9,7 @@ export interface Node {
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
+	params?: Record<string, string>
 }
 
 export class RadixTree {
@@ -128,6 +129,7 @@ export class RadixTree {
 		if (pathLength === 1 && path === '/') return this.root
 
 		let nextIndexToEnd = 0
+		let params: Record<string, string> | undefined = undefined
 
 		const isNodeMatch = (
 			node: Node,
@@ -138,6 +140,7 @@ export class RadixTree {
 
 			for (let i = 0; i < node.children.length; i++) {
 				const child = node.children[i]
+				const childName = child.name
 
 				const isChildWildcardOrParameterNode =
 					child.isWildcardNode || child.isParameterNode
@@ -147,7 +150,7 @@ export class RadixTree {
 					'/',
 					isChildWildcardOrParameterNode
 						? nextIndexToBegin + 1
-						: nextIndexToBegin + child.name.length - 1,
+						: nextIndexToBegin + childName.length - 1,
 				)
 
 				if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
@@ -159,14 +162,26 @@ export class RadixTree {
 				// and the length of the child name is different from the length of the path
 				if (
 					!isChildWildcardOrParameterNode &&
-					nextIndexToEnd - nextIndexToBegin !== child.name.length
+					nextIndexToEnd - nextIndexToBegin !== childName.length
 				)
 					continue
 
+				if (child.isParameterNode) {
+					if (!params) params = {}
+
+					const indexToAddIfFirstNode = indexToBegin === 0 ? 0 : 1
+
+					params[childName.slice(1 + indexToAddIfFirstNode)] =
+						path.slice(
+							nextIndexToBegin + indexToAddIfFirstNode,
+							nextIndexToEnd,
+						)
+				}
+
 				// If the child has no children and the node is a wildcard or parameter node
 				if (
-					child.children.length === 0 &&
-					isChildWildcardOrParameterNode
+					isChildWildcardOrParameterNode &&
+					child.children.length === 0
 				)
 					return child
 
@@ -176,12 +191,12 @@ export class RadixTree {
 				) {
 					if (isChildWildcardOrParameterNode) return child
 
-					const pathToCompute = path.substring(
+					const pathToCompute = path.slice(
 						nextIndexToBegin,
 						nextIndexToEnd,
 					)
 
-					if (pathToCompute === child.name) return child
+					if (pathToCompute === childName) return child
 				}
 
 				const foundNode = isNodeMatch(
@@ -196,7 +211,11 @@ export class RadixTree {
 			return null
 		}
 
-		return isNodeMatch(this.root, 0, this.root.name.length)
+		const route = isNodeMatch(this.root, 0, this.root.name.length)
+
+		if (params && route) route.params = params
+
+		return route
 	}
 
 	// This function optimize the tree by merging all the nodes that only have one child

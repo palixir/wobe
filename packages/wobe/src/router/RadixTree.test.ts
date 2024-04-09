@@ -1062,24 +1062,6 @@ describe('RadixTree', () => {
 			const invalidRoute = radixTree.findRoute('GET', '/a/1/john')
 
 			expect(route).not.toBeNull()
-			expect(route?.handler).toBeDefined()
-
-			expect(invalidRoute).toBeNull()
-		})
-
-		it('should find a route with many parameters after an optimizeTree', () => {
-			const radixTree = new RadixTree()
-
-			radixTree.addRoute('GET', '/a/:id/:name/:age', () =>
-				Promise.resolve(),
-			)
-
-			radixTree.optimizeTree()
-
-			const route = radixTree.findRoute('GET', '/a/1/john/30')
-			const invalidRoute = radixTree.findRoute('GET', '/a/1/john')
-
-			expect(route).not.toBeNull()
 			expect(route?.name).toBe('/:age')
 			expect(route?.handler).toBeDefined()
 
@@ -1198,6 +1180,83 @@ describe('RadixTree', () => {
 			const route = radixTree.findRoute('GET', '/a/simple/route/route')
 
 			expect(route).toBeNull()
+		})
+
+		it('should extract the parameter from a parameter route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/1/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.params).toEqual({ id: '1' })
+		})
+
+		it('should extract the parameter when the parameter is at the begin of the route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/:name/:id/route', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/1/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.params).toEqual({ id: '1', name: 'a' })
+		})
+
+		it('should extract the parameter when the parameter is at the end of the route', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/:name/:id/:route', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/1/route')
+
+			expect(route).not.toBeNull()
+			expect(route?.params).toEqual({
+				id: '1',
+				name: 'a',
+				route: 'route',
+			})
+		})
+
+		it('should extract the parameter when the parameter is at the end of the route with a slash', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/name/id/:route', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/name/id/route/')
+
+			expect(route).not.toBeNull()
+			expect(route?.params).toEqual({
+				route: 'route',
+			})
+		})
+
+		it('should not extract the parameter when there is not parameter', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/name/id/route', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/name/id/route/')
+
+			expect(route).not.toBeNull()
+			expect(route?.params).toBeUndefined()
 		})
 	})
 
