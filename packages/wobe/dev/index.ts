@@ -1,9 +1,14 @@
 import { Wobe } from '../src'
 
-const wobe = new Wobe()
+new Wobe()
+	.get('/', (ctx) => ctx.res.send('Hi'))
+	.post('/json', async (ctx) => {
+		await ctx.initializeBody()
+		// return ctx.res.send(ctx.request.body)
+	})
+	.get('/id/:id', (ctx) => {
+		ctx.res.headers.set('x-powered-by', 'benchmark')
 
-wobe.get('/', (ctx) => {
-	return ctx.res.send('hi')
-})
-
-wobe.listen(3000)
+		return ctx.res.send(1 + ' ' + 'bun')
+	})
+	.listen(3000)

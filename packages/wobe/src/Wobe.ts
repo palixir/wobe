@@ -141,7 +141,7 @@ export class Wobe {
 
 				const route = router.findRoute(
 					req.method as HttpMethod,
-					pathName || '/',
+					pathName,
 				)
 
 				if (!route) return new Response(null, { status: 404 })
