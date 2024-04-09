@@ -46,7 +46,7 @@ export const secureHeaders = ({
 	xContentTypeOptions = 'nosniff',
 	xDownloadOptions = 'noopen',
 }: SecureHeadersOptions): WobeHandler => {
-	return (_, res) => {
+	return (ctx) => {
 		if (contentSecurityPolicy) {
 			const formatContentSecurityPolicy = Object.entries(
 				contentSecurityPolicy,
@@ -59,42 +59,43 @@ export const secureHeaders = ({
 				)
 				.join('; ')
 
-			res.headers.set(
+			ctx.res.headers.set(
 				'Content-Security-Policy',
 				formatContentSecurityPolicy,
 			)
 		}
 
 		if (crossOriginEmbedderPolicy)
-			res.headers.set(
+			ctx.res.headers.set(
 				'Cross-Origin-Embedder-Policy',
 				crossOriginEmbedderPolicy,
 			)
 
 		if (crossOriginOpenerPolicy)
-			res.headers.set(
+			ctx.res.headers.set(
 				'Cross-Origin-Opener-Policy',
 				crossOriginOpenerPolicy,
 			)
 
 		if (crossOriginResourcePolicy)
-			res.headers.set(
+			ctx.res.headers.set(
 				'Cross-Origin-Resource-Policy',
 				crossOriginResourcePolicy,
 			)
 
-		if (referrerPolicy) res.headers.set('Referrer-Policy', referrerPolicy)
+		if (referrerPolicy)
+			ctx.res.headers.set('Referrer-Policy', referrerPolicy)
 
 		if (strictTransportSecurity)
-			res.headers.set(
+			ctx.res.headers.set(
 				'Strict-Transport-Security',
 				strictTransportSecurity.join('; '),
 			)
 
 		if (xContentTypeOptions)
-			res.headers.set('X-Content-Type-Options', xContentTypeOptions)
+			ctx.res.headers.set('X-Content-Type-Options', xContentTypeOptions)
 
 		if (xDownloadOptions)
-			res.headers.set('X-Download-Options', xDownloadOptions)
+			ctx.res.headers.set('X-Download-Options', xDownloadOptions)
 	}
 }

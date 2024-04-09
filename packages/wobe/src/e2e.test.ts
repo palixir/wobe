@@ -23,8 +23,8 @@ describe('Wobe e2e', async () => {
 
 	beforeAll(() => {
 		wobe = new Wobe()
-			.beforeHandler('/testMiddlewareLifecyce', (_, res) => {
-				res.headers.set('X-Test', 'Test')
+			.beforeHandler('/testMiddlewareLifecyce', (ctx) => {
+				ctx.res.headers.set('X-Test', 'Test')
 			})
 			.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
 			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
@@ -32,24 +32,24 @@ describe('Wobe e2e', async () => {
 
 		wobe.beforeAndAfterHandler(logger())
 
-		wobe.afterHandler('/testMiddlewareLifecyce', (_, res) => {
-			res.headers.set('X-Test-3', 'Test3')
-			return res.send('Test after handler')
+		wobe.afterHandler('/testMiddlewareLifecyce', (ctx) => {
+			ctx.res.headers.set('X-Test-3', 'Test3')
+			return ctx.res.send('Test after handler')
 		})
 
-		wobe.get('/testMiddlewareLifecyce', (_, res) => {
-			res.headers.set('X-Test-2', 'Test2')
+		wobe.get('/testMiddlewareLifecyce', (ctx) => {
+			ctx.res.headers.set('X-Test-2', 'Test2')
 
-			return res.send('Test')
+			return ctx.res.send('Test')
 		})
-			.get('/test/v1', (_, res) => {
-				return res.send('Test')
+			.get('/test/v1', (ctx) => {
+				return ctx.res.send('Test')
 			})
-			.get('/test', (_, res) => {
-				return res.send('Test')
+			.get('/test', (ctx) => {
+				return ctx.res.send('Test')
 			})
-			.get('/testBearer', (_, res) => {
-				return res.send('Test')
+			.get('/testBearer', (ctx) => {
+				return ctx.res.send('Test')
 			})
 			.get('/testReturnResponse', () => {
 				return new Response('Content', { status: 200 })

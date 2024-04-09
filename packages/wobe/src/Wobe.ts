@@ -1,9 +1,8 @@
 import type { Server } from 'bun'
-import { WobeResponse } from './WobeResponse'
 import { RadixTree } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
-import type { Context } from './context'
+import { Context } from './Context'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -26,10 +25,7 @@ export type WobeHandlerOutput =
 	| Response
 	| Promise<Response>
 
-export type WobeHandler = (
-	ctx: Context,
-	wobeResponse: WobeResponse,
-) => WobeHandlerOutput
+export type WobeHandler = (ctx: Context) => WobeHandlerOutput
 
 export type WobePlugin = (wobe: Wobe) => void
 
@@ -127,8 +123,8 @@ export class Wobe {
 		const router = this.router
 
 		// Benchmark:
-		// Full = 40 793 ns
-		// Empty = 33 597 ns
+		// Full = 43 000 ns
+		// Empty = 38 000 ns
 		this.server = Bun.serve({
 			port,
 			hostname: this.options?.hostname,
@@ -150,54 +146,45 @@ export class Wobe {
 
 				if (!route) return new Response(null, { status: 404 })
 
-				const context: Context = {
-					// TODO : Check if we add the requestIP to a middleware to avoid useless compute here
-					ipAdress: this.requestIP(req)?.address || '',
-					request: req,
-					state: 'beforeHandler',
-				}
-
-				const wobeResponse = new WobeResponse(req)
+				const context = new Context(req)
+				context.ipAdress = this.requestIP(req)?.address || ''
+				context.state = 'beforeHandler'
 
 				const middlewareBeforeHandler =
 					route.beforeHandlerMiddleware || []
+
 				// We need to run middleware sequentially
 				for (let i = 0; i < middlewareBeforeHandler.length; i++) {
 					const middleware = middlewareBeforeHandler[i]
 
-					await middleware(context, wobeResponse)
+					await middleware(context)
 				}
 
 				context.state = 'handler'
 
-				const resultHandler = await route.handler?.(
-					context,
-					wobeResponse,
-				)
+				const resultHandler = await route.handler?.(context)
 
-				if (resultHandler instanceof Response && !wobeResponse.response)
-					wobeResponse.response = resultHandler
+				if (!context.res.response && resultHandler instanceof Response)
+					context.res.response = resultHandler
 
 				context.state = 'afterHandler'
 
 				const middlewareAfterHandler =
 					route.afterHandlerMiddleware || []
+
 				// We need to run middleware sequentially
 				let responseAfterMiddleware = undefined
 				for (let i = 0; i < middlewareAfterHandler.length; i++) {
 					const middleware = middlewareAfterHandler[i]
 
-					responseAfterMiddleware = await middleware(
-						context,
-						wobeResponse,
-					)
+					responseAfterMiddleware = await middleware(context)
 				}
 
 				if (responseAfterMiddleware instanceof Response)
 					return responseAfterMiddleware
 
 				return (
-					wobeResponse.response || new Response(null, { status: 404 })
+					context.res.response || new Response(null, { status: 404 })
 				)
 			},
 		})

@@ -103,12 +103,4 @@ export class WobeResponse {
 
 		return this.response
 	}
-
-	setStatus(status: number) {
-		this.status = status
-	}
-
-	setStatusText(statusText: string) {
-		this.statusText = statusText
-	}
 }

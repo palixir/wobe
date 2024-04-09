@@ -11,6 +11,7 @@ import getPort from 'get-port'
 import { Wobe } from './Wobe'
 import type { WobeResponse } from './WobeResponse'
 import { HttpException } from './HttpException'
+import type { Context } from './Context'
 
 describe('Wobe', async () => {
 	let wobe: Wobe
@@ -26,13 +27,13 @@ describe('Wobe', async () => {
 	beforeAll(() => {
 		wobe = new Wobe()
 
-		wobe.get('/testGet', (_, res) => {
+		wobe.get('/testGet', (ctx) => {
 			mockTestGet()
-			return res.send('Test')
+			return ctx.res.send('Test')
 		})
 
-		wobe.post('/testPost', (_, res) => {
-			return res.send('Tata')
+		wobe.post('/testPost', (ctx) => {
+			return ctx.res.send('Tata')
 		})
 
 		wobe.beforeHandler(mockMiddleware)
@@ -119,20 +120,20 @@ describe('Wobe', async () => {
 
 	it('should handle middlewares sequentially', async () => {
 		// @ts-expect-error
-		mockMiddleware.mockImplementation((req: Request, res: WobeResponse) => {
+		mockMiddleware.mockImplementation((ctx: Context) => {
 			// Executed first
-			res.setStatus(205)
+			ctx.res.status = 205
 
-			return res
+			return ctx.res
 		})
 
 		mockSecondMiddleware.mockImplementation(
 			// @ts-expect-error
-			(req: Request, res: WobeResponse) => {
+			(ctx: Context) => {
 				// Executed second
-				res.setStatus(206)
+				ctx.res.status = 206
 
-				return res
+				return ctx.res
 			},
 		)
 

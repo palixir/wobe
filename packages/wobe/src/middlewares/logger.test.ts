@@ -1,7 +1,7 @@
 import { describe, expect, it, mock, beforeEach } from 'bun:test'
 import { logger } from './logger'
 import { WobeResponse } from '../WobeResponse'
-import type { Context } from '../context'
+import { Context } from '../context'
 
 describe('logger', () => {
 	const mockLoggerFunction = mock(() => {})
@@ -21,13 +21,10 @@ describe('logger', () => {
 			loggerFunction: mockLoggerFunction,
 		})
 
-		const context: Context = {
-			state: 'beforeHandler',
-			request,
-			ipAdress: 'ipAdress',
-		}
+		const context = new Context(request)
+		context.ipAdress = 'ipAdress'
 
-		handler(context, new WobeResponse(request))
+		handler(context)
 
 		expect(mockLoggerFunction).toHaveBeenCalledTimes(1)
 		expect(mockLoggerFunction).toHaveBeenCalledWith({
@@ -50,18 +47,15 @@ describe('logger', () => {
 			loggerFunction: mockLoggerFunction,
 		})
 
-		const context: Context = {
-			state: 'beforeHandler',
-			request,
-			ipAdress: 'ipAdress',
-		}
+		const context = new Context(request)
+		context.ipAdress = 'ipAdress'
 
 		// We begin to handle the beforeHandler to get the requestStartTimeInMs
-		handler(context, new WobeResponse(request))
+		handler(context)
 
 		context.state = 'afterHandler'
 
-		handler(context, new WobeResponse(request))
+		handler(context)
 
 		expect(mockLoggerFunction).toHaveBeenCalledTimes(2)
 		expect(mockLoggerFunction).toHaveBeenNthCalledWith(2, {

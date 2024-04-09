@@ -35,7 +35,7 @@ export const logger = (
 		loggerFunction: defaultLoggerFunction,
 	},
 ): WobeHandler => {
-	return (ctx, res) => {
+	return (ctx) => {
 		const { state, request } = ctx
 
 		if (state === 'beforeHandler') {
@@ -52,7 +52,7 @@ export const logger = (
 				beforeHandler: false,
 				method: request.method as HttpMethod,
 				url: request.url,
-				status: res.status,
+				status: ctx.res.status,
 				requestStartTimeInMs: ctx.requestStartTimeInMs,
 			})
 		}

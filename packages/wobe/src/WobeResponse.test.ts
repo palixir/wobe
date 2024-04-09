@@ -93,7 +93,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.setStatus(201)
+		wobeResponse.status = 201
 
 		const response = wobeResponse.send('Hello World')
 
@@ -107,7 +107,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.setStatusText('Created')
+		wobeResponse.statusText = 'Created'
 
 		const response = wobeResponse.send('Hello World')
 
