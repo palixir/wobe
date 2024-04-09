@@ -1,4 +1,4 @@
-import { getPath, getQueryParams, getQueryStrings } from 'hono/utils/url'
+import { getPath, getQueryParams } from 'hono/utils/url'
 import { run, bench, group } from 'mitata'
 import { extractPathnameAndSearchParams } from 'wobe'
 

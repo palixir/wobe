@@ -12,10 +12,13 @@ export interface SetCookieOptions {
 
 export class WobeResponse {
 	public request: Request
-	public headers: Headers | undefined = undefined
+	public response: Response | undefined = undefined
+	public headers = new Headers({
+		'Content-type': 'text/plain',
+	})
 	public body: string | null | ReadableStream = null
-	public status: number | undefined = undefined
-	public statusText: string | undefined = undefined
+	public status: number = 200
+	public statusText: string = 'OK'
 
 	constructor(request: Request) {
 		this.request = request
@@ -61,22 +64,6 @@ export class WobeResponse {
 		this.setCookie({ name, value: '', expires: new Date(0) })
 	}
 
-	copyResponse(response: Response) {
-		// @ts-expect-error
-		this.headers = response.headers
-		this.body = response.body
-		this.status = response.status
-		this.statusText = response.statusText
-	}
-
-	setHeader(key: string, value: string) {
-		if (!this.headers)
-			// @ts-expect-error
-			this.headers = new Headers({ 'Content-Type': 'text/plain' })
-
-		this.headers?.set(key, value)
-	}
-
 	send(
 		content: string | object,
 		{
@@ -90,10 +77,10 @@ export class WobeResponse {
 		} = {},
 	) {
 		if (typeof content === 'object') {
-			this.setHeader('Content-Type', 'application/json')
+			this.headers.set('Content-Type', 'application/json')
 			this.body = JSON.stringify(content)
 		} else {
-			this.setHeader('charset', 'utf-8')
+			this.headers.set('charset', 'utf-8')
 			this.body = content
 		}
 
@@ -108,11 +95,13 @@ export class WobeResponse {
 			}
 		}
 
-		return new Response(this.body, {
+		this.response = new Response(this.body, {
 			headers: this.headers,
-			status: this.status || 200,
-			statusText: this.statusText || 'OK',
+			status: this.status,
+			statusText: this.statusText,
 		})
+
+		return this.response
 	}
 
 	setStatus(status: number) {

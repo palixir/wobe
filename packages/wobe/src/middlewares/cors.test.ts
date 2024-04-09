@@ -309,8 +309,8 @@ describe('Cors middleware', () => {
 			origin: 'http://localhost:3000',
 		})
 
-		wobeResponse.setHeader('Content-Length', '100')
-		wobeResponse.setHeader('Content-Type', 'application/json')
+		wobeResponse.headers.set('Content-Length', '100')
+		wobeResponse.headers.set('Content-Type', 'application/json')
 
 		handlerWithAllowMethods(
 			{ request: optionsRequest, ipAdress: 'ipAdress' },

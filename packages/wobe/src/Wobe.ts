@@ -126,6 +126,9 @@ export class Wobe {
 
 		const router = this.router
 
+		// Benchmark:
+		// Full = 40 793 ns
+		// Empty = 33 597 ns
 		this.server = Bun.serve({
 			port,
 			hostname: this.options?.hostname,
@@ -148,6 +151,7 @@ export class Wobe {
 				if (!route) return new Response(null, { status: 404 })
 
 				const context: Context = {
+					// TODO : Check if we add the requestIP to a middleware to avoid useless compute here
 					ipAdress: this.requestIP(req)?.address || '',
 					request: req,
 					state: 'beforeHandler',
@@ -155,48 +159,46 @@ export class Wobe {
 
 				const wobeResponse = new WobeResponse(req)
 
+				const middlewareBeforeHandler =
+					route.beforeHandlerMiddleware || []
 				// We need to run middleware sequentially
-				await (route.beforeHandlerMiddleware || []).reduce(
-					async (acc, middleware) => {
-						await acc
+				for (let i = 0; i < middlewareBeforeHandler.length; i++) {
+					const middleware = middlewareBeforeHandler[i]
 
-						return middleware(context, wobeResponse)
-					},
-					Promise.resolve({} as WobeHandlerOutput),
-				)
+					await middleware(context, wobeResponse)
+				}
 
 				context.state = 'handler'
 
-				const handlerResult = await route.handler?.(
+				const resultHandler = await route.handler?.(
 					context,
 					wobeResponse,
 				)
 
-				if (handlerResult instanceof Response)
-					wobeResponse.copyResponse(handlerResult)
+				if (resultHandler instanceof Response && !wobeResponse.response)
+					wobeResponse.response = resultHandler
 
 				context.state = 'afterHandler'
 
-				// We need to run middleware sequentially
-				const responseAfterMiddleware = await (
+				const middlewareAfterHandler =
 					route.afterHandlerMiddleware || []
-				).reduce(
-					async (acc, middleware) => {
-						await acc
+				// We need to run middleware sequentially
+				let responseAfterMiddleware = undefined
+				for (let i = 0; i < middlewareAfterHandler.length; i++) {
+					const middleware = middlewareAfterHandler[i]
 
-						return middleware(context, wobeResponse)
-					},
-					Promise.resolve({} as WobeHandlerOutput),
-				)
+					responseAfterMiddleware = await middleware(
+						context,
+						wobeResponse,
+					)
+				}
 
 				if (responseAfterMiddleware instanceof Response)
 					return responseAfterMiddleware
 
-				return new Response(wobeResponse.body, {
-					status: wobeResponse.status,
-					headers: wobeResponse.headers,
-					statusText: wobeResponse.statusText,
-				})
+				return (
+					wobeResponse.response || new Response(null, { status: 404 })
+				)
 			},
 		})
 	}

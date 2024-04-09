@@ -24,7 +24,7 @@ describe('Wobe e2e', async () => {
 	beforeAll(() => {
 		wobe = new Wobe()
 			.beforeHandler('/testMiddlewareLifecyce', (_, res) => {
-				res.setHeader('X-Test', 'Test')
+				res.headers.set('X-Test', 'Test')
 			})
 			.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
 			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
@@ -33,12 +33,12 @@ describe('Wobe e2e', async () => {
 		wobe.beforeAndAfterHandler(logger())
 
 		wobe.afterHandler('/testMiddlewareLifecyce', (_, res) => {
-			res.setHeader('X-Test-3', 'Test3')
+			res.headers.set('X-Test-3', 'Test3')
 			return res.send('Test after handler')
 		})
 
 		wobe.get('/testMiddlewareLifecyce', (_, res) => {
-			res.setHeader('X-Test-2', 'Test2')
+			res.headers.set('X-Test-2', 'Test2')
 
 			return res.send('Test')
 		})

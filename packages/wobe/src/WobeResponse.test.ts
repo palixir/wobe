@@ -163,7 +163,7 @@ describe('Wobe Response', () => {
 		expect(await response.json()).toEqual({ a: 1, b: 2 })
 	})
 
-	it.only('should set headers in send method and overwrite existant', async () => {
+	it('should set headers in send method and overwrite existant', async () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test', {
 				method: 'GET',
@@ -194,7 +194,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.setHeader('Content-Type', 'invalid-content-type')
+		wobeResponse.headers.set('Content-Type', 'invalid-content-type')
 
 		const response = wobeResponse.send('Hello World')
 

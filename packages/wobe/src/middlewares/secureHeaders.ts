@@ -59,39 +59,42 @@ export const secureHeaders = ({
 				)
 				.join('; ')
 
-			res.setHeader(
+			res.headers.set(
 				'Content-Security-Policy',
 				formatContentSecurityPolicy,
 			)
 		}
 
 		if (crossOriginEmbedderPolicy)
-			res.setHeader(
+			res.headers.set(
 				'Cross-Origin-Embedder-Policy',
 				crossOriginEmbedderPolicy,
 			)
 
 		if (crossOriginOpenerPolicy)
-			res.setHeader('Cross-Origin-Opener-Policy', crossOriginOpenerPolicy)
+			res.headers.set(
+				'Cross-Origin-Opener-Policy',
+				crossOriginOpenerPolicy,
+			)
 
 		if (crossOriginResourcePolicy)
-			res.setHeader(
+			res.headers.set(
 				'Cross-Origin-Resource-Policy',
 				crossOriginResourcePolicy,
 			)
 
-		if (referrerPolicy) res.setHeader('Referrer-Policy', referrerPolicy)
+		if (referrerPolicy) res.headers.set('Referrer-Policy', referrerPolicy)
 
 		if (strictTransportSecurity)
-			res.setHeader(
+			res.headers.set(
 				'Strict-Transport-Security',
 				strictTransportSecurity.join('; '),
 			)
 
 		if (xContentTypeOptions)
-			res.setHeader('X-Content-Type-Options', xContentTypeOptions)
+			res.headers.set('X-Content-Type-Options', xContentTypeOptions)
 
 		if (xDownloadOptions)
-			res.setHeader('X-Download-Options', xDownloadOptions)
+			res.headers.set('X-Download-Options', xDownloadOptions)
 	}
 }
