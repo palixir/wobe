@@ -123,8 +123,8 @@ export class Wobe {
 		const router = this.router
 
 		// Benchmark:
-		// Full = 43 000 ns
-		// Empty = 38 000 ns
+		// Full = 46 000 ns
+		// Empty = 41 000 ns
 		this.server = Bun.serve({
 			port,
 			hostname: this.options?.hostname,
@@ -147,6 +147,7 @@ export class Wobe {
 				if (!route) return new Response(null, { status: 404 })
 
 				const context = new Context(req)
+
 				context.ipAdress = this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
 

@@ -13,17 +13,11 @@ export class Context {
 		this.res = new WobeResponse(request)
 	}
 
-	async initializeBody() {
-		if (!this.request.body) return
+	json() {
+		return this.request.json() as Promise<object>
+	}
 
-		console.log(await this.request.text())
-
-		if (this.request.headers.get('content-type') === 'application/json') {
-			this.body = await this.request.json()
-		} else {
-			this.body = await this.request.text()
-		}
-
-		// console.log(this.body)
+	text() {
+		return this.request.text() as Promise<string>
 	}
 }
