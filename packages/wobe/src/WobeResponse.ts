@@ -64,6 +64,33 @@ export class WobeResponse {
 		this.setCookie({ name, value: '', expires: new Date(0) })
 	}
 
+	sendJson(content: object) {
+		this.headers.set('Content-Type', 'application/json')
+		this.body = JSON.stringify(content)
+
+		this.response = new Response(this.body, {
+			headers: this.headers,
+			status: this.status,
+			statusText: this.statusText,
+		})
+
+		return this.response
+	}
+
+	sendText(content: string) {
+		this.headers.set('Content-Type', 'text/plain')
+		this.headers.set('charset', 'utf-8')
+		this.body = content
+
+		this.response = new Response(this.body, {
+			headers: this.headers,
+			status: this.status,
+			statusText: this.statusText,
+		})
+
+		return this.response
+	}
+
 	send(
 		content: string | object,
 		{

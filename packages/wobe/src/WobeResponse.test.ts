@@ -114,7 +114,23 @@ describe('Wobe Response', () => {
 		expect(response.statusText).toBe('Created')
 	})
 
-	it('should send a text body', async () => {
+	it('should send text content (with sendText function)', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+
+		const response = wobeResponse.sendText('Hello World')
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe('text/plain')
+		expect(response.headers.get('charset')).toBe('utf-8')
+		expect(await response.text()).toBe('Hello World')
+	})
+
+	it('should send a text body (with send function)', async () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test', {
 				method: 'GET',
@@ -130,7 +146,22 @@ describe('Wobe Response', () => {
 		expect(await response.text()).toBe('Hello World')
 	})
 
-	it('should send a json body', async () => {
+	it('should send json content (with sendJson function)', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+
+		const response = wobeResponse.sendJson({ hello: 'world' })
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe('application/json')
+		expect(await response.json()).toEqual({ hello: 'world' })
+	})
+
+	it('should send a json body (with send function)', async () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test', {
 				method: 'GET',
