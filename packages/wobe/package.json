@@ -6,6 +6,7 @@
 		"get-port": "7.0.0"
 	},
 	"scripts": {
+		"format": "biome format --write .",
 		"lint": "biome lint ./**/*.ts --no-errors-on-unmatched --config-path=../../",
 		"build": "tsc --project tsconfig.json",
 		"dev": "bun run --watch dev/index.ts"
