@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test'
 import { rateLimit } from './rateLimit'
-import { WobeResponse } from '../WobeResponse'
+import { Context } from '../Context'
 
 // @ts-expect-error
 const mockHttpExceptionConstructor = mock((response: Response) => {})
@@ -17,118 +17,109 @@ describe('rateLimit', () => {
 	it('should authorize the number of request - 1 by second', () => {
 		const request = new Request('http://localhost:3000/test')
 
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = rateLimit({
 			interval: 1000,
 			numberOfRequests: 100,
 		})
 
-		for (let i = 0; i < 100; i++)
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		for (let i = 0; i < 100; i++) handler(context)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should limit the number of request by second', () => {
 		const request = new Request('http://localhost:3000/test')
-
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = rateLimit({
 			interval: 100,
 			numberOfRequests: 2,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		handler(context)
+		handler(context)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should limit the number of request by second', () => {
 		const request = new Request('http://localhost:3000/test')
-
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = rateLimit({
 			interval: 100,
 			numberOfRequests: 2,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		handler(context)
+		handler(context)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should clear the number of request each interval', async () => {
 		const request = new Request('http://localhost:3000/test')
 
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = rateLimit({
 			interval: 100,
 			numberOfRequests: 2,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		handler(context)
+		handler(context)
 
 		await new Promise((resolve) => setTimeout(resolve, 100))
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).not.toThrow()
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should authorize 2 requests by user', () => {
 		const request = new Request('http://localhost:3000/test')
 
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = rateLimit({
 			interval: 1000,
 			numberOfRequests: 2,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		handler(context)
+		handler(context)
 
-		handler({ request, ipAdress: 'ipAdress2' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress2' }, wobeResponse)
+		expect(() => handler(context)).toThrow()
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress2' }, wobeResponse),
-		).toThrow()
+		context.getIpAdress = () => 'ipAdress2'
+
+		handler(context)
+		handler(context)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should throw the correct http error', async () => {
 		const request = new Request('http://localhost:3000/test')
 
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = rateLimit({
 			interval: 1000,
 			numberOfRequests: 2,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		handler(context)
+		handler(context)
+
+		expect(() => handler(context)).toThrow()
 
 		const responseFromHttpException = mockHttpExceptionConstructor.mock
 			.calls[0][0] as Response

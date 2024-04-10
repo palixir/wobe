@@ -123,8 +123,8 @@ export class Wobe {
 		const router = this.router
 
 		// Benchmark:
-		// Full = 46 000 ns
-		// Empty = 41 000 ns
+		// Full = 36 000 ns
+		// Empty = 32 500 ns
 		this.server = Bun.serve({
 			port,
 			hostname: this.options?.hostname,
@@ -148,7 +148,7 @@ export class Wobe {
 
 				const context = new Context(req)
 
-				context.ipAdress = this.requestIP(req)?.address || ''
+				context.getIpAdress = () => this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
 
 				const middlewareBeforeHandler =

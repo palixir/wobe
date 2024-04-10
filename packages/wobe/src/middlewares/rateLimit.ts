@@ -16,7 +16,7 @@ export const rateLimit = ({
 	})
 
 	return (ctx) => {
-		const ipAdress = ctx.ipAdress
+		const ipAdress = ctx.getIpAdress(ctx.request)
 
 		const userRequests = store.get(ipAdress) || 0
 
