@@ -54,6 +54,12 @@ describe('Wobe e2e', async () => {
 			.get('/testReturnResponse', () => {
 				return new Response('Content', { status: 200 })
 			})
+			.get('/route/:id/name', (ctx) => {
+				if (ctx.queryParams['test'])
+					return ctx.res.sendText(ctx.queryParams['test'])
+
+				return ctx.res.sendText(ctx.routeParams['id'])
+			})
 
 		wobe.listen(port)
 	})
@@ -65,6 +71,18 @@ describe('Wobe e2e', async () => {
 	beforeEach(() => {
 		spyConsoleLog.mockClear()
 		mockMiddlewareWithWildcardRoute.mockClear()
+	})
+
+	it('should get the route params on a route with parameters', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/route/1/name`)
+
+		expect(await res.text()).toEqual('1')
+
+		const res2 = await fetch(
+			`http://127.0.0.1:${port}/route/1/name?test=bun`,
+		)
+
+		expect(await res2.text()).toEqual('bun')
 	})
 
 	it('should execute middlewares with a route name like /test/* for any route begin by /test/', async () => {

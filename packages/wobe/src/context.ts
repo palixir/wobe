@@ -3,6 +3,8 @@ import { WobeResponse } from './WobeResponse'
 export class Context {
 	public res: WobeResponse
 	public request: Request
+	public routeParams: Record<string, string> = {}
+	public queryParams: Record<string, string> = {}
 	public ipAdress: string | undefined = undefined
 	public state: 'beforeHandler' | 'handler' | 'afterHandler' = 'beforeHandler'
 	public requestStartTimeInMs: number | undefined = undefined

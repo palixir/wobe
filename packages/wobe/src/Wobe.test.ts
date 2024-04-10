@@ -9,7 +9,6 @@ import {
 } from 'bun:test'
 import getPort from 'get-port'
 import { Wobe } from './Wobe'
-import type { WobeResponse } from './WobeResponse'
 import { HttpException } from './HttpException'
 import type { Context } from './Context'
 

@@ -137,7 +137,8 @@ export class Wobe {
 				})
 			},
 			async fetch(req) {
-				const { pathName } = extractPathnameAndSearchParams(req)
+				const { pathName, searchParams } =
+					extractPathnameAndSearchParams(req)
 
 				const route = router.findRoute(
 					req.method as HttpMethod,
@@ -150,6 +151,8 @@ export class Wobe {
 
 				context.getIpAdress = () => this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
+				context.routeParams = route.params || {}
+				context.queryParams = searchParams || {}
 
 				const middlewareBeforeHandler =
 					route.beforeHandlerMiddleware || []
