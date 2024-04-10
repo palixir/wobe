@@ -56,12 +56,12 @@ describe('Wobe e2e', async () => {
 			})
 			.get('/route/:id/name', (ctx) => {
 				// @ts-expect-error
-				if (ctx.queryParams.test)
+				if (ctx.query.searchParams.test)
 					// @ts-expect-error
-					return ctx.res.sendText(ctx.queryParams.test)
+					return ctx.res.sendText(ctx.query.searchParams.test)
 
 				// @ts-expect-error
-				return ctx.res.sendText(ctx.routeParams.id)
+				return ctx.res.sendText(ctx.query.params.id)
 			})
 
 		wobe.listen(port)

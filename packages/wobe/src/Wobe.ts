@@ -1,5 +1,5 @@
 import type { Server } from 'bun'
-import { RadixTree } from './router'
+import { RadixTree, type Node } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
 import { Context } from './Context'
@@ -123,7 +123,7 @@ export class Wobe {
 		const router = this.router
 
 		// Benchmark:
-		// Full = 36 000 ns
+		// Full = 44 000 ns
 		// Empty = 32 500 ns
 		this.server = Bun.serve({
 			port,
@@ -137,13 +137,12 @@ export class Wobe {
 				})
 			},
 			async fetch(req) {
+				let route = undefined
+
 				const { pathName, searchParams } =
 					extractPathnameAndSearchParams(req)
 
-				const route = router.findRoute(
-					req.method as HttpMethod,
-					pathName,
-				)
+				route = router.findRoute(req.method as HttpMethod, pathName)
 
 				if (!route) return new Response(null, { status: 404 })
 
@@ -151,8 +150,10 @@ export class Wobe {
 
 				context.getIpAdress = () => this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
-				context.routeParams = route.params || {}
-				context.queryParams = searchParams || {}
+				context.query = {
+					params: route.params || {},
+					searchParams: searchParams || {},
+				}
 
 				const middlewareBeforeHandler =
 					route.beforeHandlerMiddleware || []
