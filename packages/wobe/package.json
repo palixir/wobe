@@ -8,6 +8,7 @@
 	"scripts": {
 		"format": "biome format --write .",
 		"lint": "biome lint ./**/*.ts --no-errors-on-unmatched --config-path=../../",
+		"ci": "bun test && bun lint",
 		"build": "tsc --project tsconfig.json",
 		"dev": "bun run --watch dev/index.ts"
 	}
