@@ -17,8 +17,8 @@ export class WobeResponse {
 		'Content-type': 'text/plain',
 	})
 	public body: string | null | ReadableStream = null
-	public status: number = 200
-	public statusText: string = 'OK'
+	public status = 200
+	public statusText = 'OK'
 
 	constructor(request: Request) {
 		this.request = request

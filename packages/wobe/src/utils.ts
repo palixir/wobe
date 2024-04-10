@@ -9,7 +9,7 @@ export const extractPathnameAndSearchParams = (request: Request) => {
 	)
 
 	if (queryIndex !== -1) {
-		let searchParams: Record<string, string> = {}
+		const searchParams: Record<string, string> = {}
 		let indexOfLastParam = queryIndex + 1
 
 		let currentKey = ''
