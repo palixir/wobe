@@ -1,5 +1,5 @@
 import type { Server } from 'bun'
-import { RadixTree, type Node } from './router'
+import { RadixTree } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 import { HttpException } from './HttpException'
 import { Context } from './Context'
@@ -150,10 +150,9 @@ export class Wobe {
 
 				context.getIpAdress = () => this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
-				context.query = {
-					params: route.params || {},
-					searchParams: searchParams || {},
-				}
+				context.params = route.params || {}
+
+				context.query = searchParams || {}
 
 				const middlewareBeforeHandler =
 					route.beforeHandlerMiddleware || []

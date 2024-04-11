@@ -3,10 +3,8 @@ import { WobeResponse } from './WobeResponse'
 export class Context {
 	public res: WobeResponse
 	public request: Request
-	public query: {
-		params: Record<string, string>
-		searchParams: Record<string, string>
-	} = { params: {}, searchParams: {} }
+	public params: Record<string, string> = {}
+	public query: Record<string, string> = {}
 
 	public ipAdress: string | undefined = undefined
 	public state: 'beforeHandler' | 'handler' | 'afterHandler' = 'beforeHandler'
