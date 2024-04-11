@@ -151,7 +151,6 @@ export class Wobe {
 				context.getIpAdress = () => this.requestIP(req)?.address || ''
 				context.state = 'beforeHandler'
 				context.params = route.params || {}
-
 				context.query = searchParams || {}
 
 				const middlewareBeforeHandler =

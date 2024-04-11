@@ -10,7 +10,7 @@ export class Context {
 	public state: 'beforeHandler' | 'handler' | 'afterHandler' = 'beforeHandler'
 	public requestStartTimeInMs: number | undefined = undefined
 	public body: string | object | undefined = undefined
-	public getIpAdress: (req: Request) => string = () => ''
+	public getIpAdress: () => string = () => ''
 
 	constructor(request: Request) {
 		this.request = request
