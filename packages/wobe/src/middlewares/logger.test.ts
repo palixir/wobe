@@ -21,7 +21,6 @@ describe('logger', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -47,7 +46,6 @@ describe('logger', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		// We begin to handle the beforeHandler to get the requestStartTimeInMs
 		handler(context)
