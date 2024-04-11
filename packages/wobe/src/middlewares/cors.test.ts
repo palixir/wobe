@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { WobeResponse } from '../WobeResponse'
 import { cors } from './cors'
+import { Context } from '../Context'
 
 describe('Cors middleware', () => {
 	const request = new Request('http://localhost:3000/test')
@@ -9,89 +9,85 @@ describe('Cors middleware', () => {
 	})
 
 	it('should allow origin to * when to origin is specifid', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors()
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		handler(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'*',
 		)
-		expect(wobeResponse.headers?.get('Vary')).toBeNull()
+		expect(context.res.headers?.get('Vary')).toBeNull()
 	})
 
 	it('should set origin to Vary if the origin is !== *', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Vary')).toBe('Origin')
+		handler(context)
+
+		expect(context.res.headers?.get('Vary')).toBe('Origin')
 	})
 
 	it('should not set origin to Vary if the origin is === *', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors()
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Vary')).toBeNull()
+		handler(context)
+
+		expect(context.res.headers?.get('Vary')).toBeNull()
 	})
 
 	it('should correctly allow origin with simple string', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		handler(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3000',
 		)
 	})
 
 	it('should correctly allow origin with an array', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: ['http://localhost:3000', 'http://localhost:3001'],
 		})
 
 		// With no origin header
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		handler(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3000',
 		)
 
-		// With an origin header
-		handler(
-			{
-				request: new Request('http://localhost:3000/test', {
-					headers: {
-						origin: 'http://localhost:3001',
-					},
-				}),
-				ipAdress: 'ipAdress',
-			},
-			wobeResponse,
+		const context2 = new Context(
+			new Request('http://localhost:3000/test', {
+				headers: {
+					origin: 'http://localhost:3001',
+				},
+			}),
 		)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		// With an origin header
+		handler(context2)
+
+		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3001',
 		)
 	})
 
 	it('should correctly allow origin with a function', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: (origin) => {
 				if (origin === 'http://localhost:3000')
@@ -102,174 +98,159 @@ describe('Cors middleware', () => {
 		})
 
 		// With no origin header
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		handler(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3001',
 		)
 
-		// With an origin header
-		handler(
-			{
-				request: new Request('http://localhost:3000/test', {
-					headers: {
-						origin: 'http://localhost:3000',
-					},
-				}),
-				ipAdress: 'ipAdress',
-			},
-			wobeResponse,
+		const context2 = new Context(
+			new Request('http://localhost:3000/test', {
+				headers: {
+					origin: 'http://localhost:3000',
+				},
+			}),
 		)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Origin')).toBe(
+		// With an origin header
+		handler(context2)
+
+		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe(
 			'http://localhost:3000',
 		)
 	})
 
 	it('should allow credentials', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: 'http://localhost:3000',
 			credentials: true,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+
+		handler(context)
 
 		expect(
-			wobeResponse.headers?.get('Access-Control-Allow-Credentials'),
+			context.res.headers?.get('Access-Control-Allow-Credentials'),
 		).toBe('true')
 	})
 
 	it('should not allow credentials', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handler = cors({
 			origin: 'http://localhost:3000',
 			credentials: false,
 		})
 
-		handler({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+
+		handler(context)
 
 		expect(
-			wobeResponse.headers?.get('Access-Control-Allow-Credentials'),
+			context.res.headers?.get('Access-Control-Allow-Credentials'),
 		).toBeNull()
 	})
 
 	it('should control expose headers', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handlerWithExposeHeaders = cors({
 			origin: 'http://localhost:3000',
 			exposeHeaders: ['X-Test'],
 		})
 
-		handlerWithExposeHeaders(
-			{ request, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Expose-Headers')).toBe(
+		handlerWithExposeHeaders(context)
+
+		expect(context.res.headers?.get('Access-Control-Expose-Headers')).toBe(
 			'X-Test',
 		)
 	})
 
 	it('should have expose headers to null when no expose headers is defined', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handlerWithoutExposeHeaders = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		handlerWithoutExposeHeaders(
-			{ request, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(request)
+
+		handlerWithoutExposeHeaders(context)
 
 		expect(
-			wobeResponse.headers?.get('Access-Control-Expose-Headers'),
+			context.res.headers?.get('Access-Control-Expose-Headers'),
 		).toBeNull()
 	})
 
 	it('should not set max age for others request than OPTIONS', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handlerWithMaxAge = cors({
 			origin: 'http://localhost:3000',
 			maxAge: 100,
 		})
 
-		handlerWithMaxAge({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
 
-		expect(wobeResponse.headers?.get('Access-Control-Max-Age')).toBeNull()
+		handlerWithMaxAge(context)
+
+		expect(context.res.headers?.get('Access-Control-Max-Age')).toBeNull()
 	})
 
 	it('should set max age for OPTIONS request if defined', async () => {
-		const wobeResponse = new WobeResponse(optionsRequest)
-
 		const handlerWithMaxAge = cors({
 			origin: 'http://localhost:3000',
 			maxAge: 100,
 		})
 
-		handlerWithMaxAge(
-			{ request: optionsRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(optionsRequest)
 
-		expect(wobeResponse.headers?.get('Access-Control-Max-Age')).toBe('100')
+		handlerWithMaxAge(context)
+
+		expect(context.res.headers?.get('Access-Control-Max-Age')).toBe('100')
 	})
 
 	it('should not set allow methods for others requests than OPTIONS', async () => {
-		const wobeResponse = new WobeResponse(request)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 			allowMethods: ['GET', 'POST'],
 		})
 
-		handlerWithAllowMethods({ request, ipAdress: 'ipAdress' }, wobeResponse)
+		const context = new Context(request)
+
+		handlerWithAllowMethods(context)
 
 		expect(
-			wobeResponse.headers?.get('Access-Control-Allow-Methods'),
+			context.res.headers?.get('Access-Control-Allow-Methods'),
 		).toBeNull()
 	})
 
 	it('should set allow methods for OPTIONS requests', async () => {
-		const wobeResponse = new WobeResponse(optionsRequest)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 			allowMethods: ['GET', 'POST'],
 		})
 
-		handlerWithAllowMethods(
-			{ request: optionsRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(optionsRequest)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Methods')).toBe(
+		handlerWithAllowMethods(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Methods')).toBe(
 			'GET,POST',
 		)
 	})
 
 	it('should set allow headers with an allow headers on OPTIONS requests', async () => {
-		const wobeResponse = new WobeResponse(optionsRequest)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 			allowHeaders: ['X-Test'],
 		})
 
-		handlerWithAllowMethods(
-			{ request: optionsRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(optionsRequest)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Headers')).toBe(
+		handlerWithAllowMethods(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe(
 			'X-Test',
 		)
-		expect(wobeResponse.headers?.get('Vary')).toBe(
+		expect(context.res.headers?.get('Vary')).toBe(
 			'Origin, Access-Control-Request-Headers',
 		)
 	})
@@ -282,58 +263,49 @@ describe('Cors middleware', () => {
 			},
 		})
 
-		const wobeResponse = new WobeResponse(customRequest)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		handlerWithAllowMethods(
-			{ request: customRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(customRequest)
 
-		expect(wobeResponse.headers?.get('Access-Control-Allow-Headers')).toBe(
+		handlerWithAllowMethods(context)
+
+		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe(
 			'X-Test',
 		)
 
-		expect(wobeResponse.headers?.get('Vary')).toBe(
+		expect(context.res.headers?.get('Vary')).toBe(
 			'Origin, Access-Control-Request-Headers',
 		)
 	})
 
 	it('should delete Content-Lenght and Content-type on OPTIONS request', async () => {
-		const wobeResponse = new WobeResponse(optionsRequest)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		wobeResponse.headers.set('Content-Length', '100')
-		wobeResponse.headers.set('Content-Type', 'application/json')
+		const context = new Context(optionsRequest)
 
-		handlerWithAllowMethods(
-			{ request: optionsRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		context.res.headers.set('Content-Length', '100')
+		context.res.headers.set('Content-Type', 'application/json')
 
-		expect(wobeResponse.headers?.get('Content-Length')).toBeNull()
-		expect(wobeResponse.headers?.get('Content-Type')).toBeNull()
+		handlerWithAllowMethods(context)
+
+		expect(context.res.headers?.get('Content-Length')).toBeNull()
+		expect(context.res.headers?.get('Content-Type')).toBeNull()
 	})
 
 	it('should return response on requests OPTIONS', async () => {
-		const wobeResponse = new WobeResponse(optionsRequest)
-
 		const handlerWithAllowMethods = cors({
 			origin: 'http://localhost:3000',
 		})
 
-		await handlerWithAllowMethods(
-			{ request: optionsRequest, ipAdress: 'ipAdress' },
-			wobeResponse,
-		)
+		const context = new Context(optionsRequest)
 
-		expect(wobeResponse.status).toBe(204)
-		expect(wobeResponse.statusText).toBe('OK')
+		await handlerWithAllowMethods(context)
+
+		expect(context.res.status).toBe(204)
+		expect(context.res.statusText).toBe('OK')
 	})
 })

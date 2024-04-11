@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { WobeResponse } from '../WobeResponse'
 import { bodyLimit } from './bodyLimit'
+import { Context } from '../Context'
 
 describe('bodyLimit', () => {
 	const invalidRequest = new Request('http://localhost:3000/test', {
@@ -16,32 +16,22 @@ describe('bodyLimit', () => {
 	})
 
 	it('should not throw an error if the body is not too large', async () => {
-		const wobeResponse = new WobeResponse(validRequest)
-
 		const handler = bodyLimit({
 			maxSize: 500, // 500 bytes
 		})
 
-		expect(() =>
-			handler(
-				{ request: validRequest, ipAdress: 'ipAdress' },
-				wobeResponse,
-			),
-		).not.toThrow()
+		const context = new Context(validRequest)
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should throw an error if the body is too large', async () => {
-		const wobeResponse = new WobeResponse(invalidRequest)
-
 		const handler = bodyLimit({
 			maxSize: 500, // 500 bytes
 		})
 
-		expect(() =>
-			handler(
-				{ request: invalidRequest, ipAdress: 'ipAdress' },
-				wobeResponse,
-			),
-		).toThrow()
+		const context = new Context(invalidRequest)
+
+		expect(() => handler(context)).toThrow()
 	})
 })

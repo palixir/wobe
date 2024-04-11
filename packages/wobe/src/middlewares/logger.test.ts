@@ -1,7 +1,6 @@
 import { describe, expect, it, mock, beforeEach } from 'bun:test'
 import { logger } from './logger'
-import { WobeResponse } from '../WobeResponse'
-import { Context } from '../context'
+import { Context } from '../Context'
 
 describe('logger', () => {
 	const mockLoggerFunction = mock(() => {})

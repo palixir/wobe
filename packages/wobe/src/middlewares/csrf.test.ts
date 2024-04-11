@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { csrf } from './csrf'
-import { WobeResponse } from '../WobeResponse'
+import { Context } from '../Context'
 
 describe('Csrf middleware', () => {
 	it('should not block requests with a valid origin (string)', () => {
@@ -9,13 +9,13 @@ describe('Csrf middleware', () => {
 				origin: 'http://localhost:3000',
 			},
 		})
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = csrf({ origin: 'http://localhost:3000' })
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).not.toThrow()
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should not block requests with a valid origin (array)', () => {
@@ -24,15 +24,15 @@ describe('Csrf middleware', () => {
 				origin: 'http://localhost:3000',
 			},
 		})
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = csrf({
 			origin: ['http://localhost:3001', 'http://localhost:3000'],
 		})
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).not.toThrow('CSRF: Invalid origin')
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		expect(() => handler(context)).not.toThrow('CSRF: Invalid origin')
 	})
 
 	it('should not block requests with a valid origin (function)', () => {
@@ -41,26 +41,26 @@ describe('Csrf middleware', () => {
 				origin: 'http://localhost:3000',
 			},
 		})
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = csrf({
 			origin: (origin) => origin === 'http://localhost:3000',
 		})
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).not.toThrow()
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should block requests with an invalid origin (string)', async () => {
 		const request = new Request('http://localhost:3000/test', {})
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = csrf({ origin: 'http://localhost:3000' })
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should block requests with an invalid origin (array)', () => {
@@ -69,15 +69,15 @@ describe('Csrf middleware', () => {
 				origin: 'http://localhost:3001',
 			},
 		})
-		const wobeResponse = new WobeResponse(request)
 
 		const handler = csrf({
 			origin: ['http://localhost:3000', 'http://localhost:3002'],
 		})
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should block requests with an invalid origin (function)', () => {
@@ -86,14 +86,14 @@ describe('Csrf middleware', () => {
 				origin: 'http://localhost:3001',
 			},
 		})
-		const wobeResponse = new WobeResponse(request)
+
+		const context = new Context(request)
+		context.getIpAdress = () => 'ipAdress'
 
 		const handler = csrf({
 			origin: (origin) => origin === 'http://localhost:3000',
 		})
 
-		expect(() =>
-			handler({ request, ipAdress: 'ipAdress' }, wobeResponse),
-		).toThrow()
+		expect(() => handler(context)).toThrow()
 	})
 })

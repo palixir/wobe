@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'bun:test'
-import { WobeResponse } from '../WobeResponse'
 import { secureHeaders } from './secureHeaders'
-import { Context } from '../context'
+import { Context } from '../Context'
 
 describe('Secure headers', () => {
 	it('should set Content-Security-Policy', () => {

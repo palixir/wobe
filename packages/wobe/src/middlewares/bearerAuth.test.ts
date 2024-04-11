@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { bearerAuth } from './bearerAuth'
-import { WobeResponse } from '../WobeResponse'
+import { Context } from '../Context'
 
 describe('BearerAuth', () => {
 	it('should authorize the request if the token is valid', () => {
@@ -14,12 +14,9 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).not.toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should authorize the request if there is not space between prefix and token', () => {
@@ -33,12 +30,9 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).not.toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should authorize the request if there is a custom hash function', () => {
@@ -54,12 +48,9 @@ describe('BearerAuth', () => {
 			hashFunction: (token) => token,
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).not.toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).not.toThrow()
 	})
 
 	it('should not authorize the request if the token is invalid', () => {
@@ -73,12 +64,9 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should not authorize the request if the authorization is missing', () => {
@@ -88,12 +76,9 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).toThrow()
 	})
 
 	it('should not authorize the request if the prefix is bad', () => {
@@ -107,11 +92,8 @@ describe('BearerAuth', () => {
 			token: '123',
 		})
 
-		expect(() =>
-			handler(
-				{ request, ipAdress: 'ipAdress' },
-				new WobeResponse(request),
-			),
-		).toThrow()
+		const context = new Context(request)
+
+		expect(() => handler(context)).toThrow()
 	})
 })

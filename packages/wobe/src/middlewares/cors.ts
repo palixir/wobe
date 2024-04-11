@@ -27,7 +27,7 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 		...options,
 	}
 
-	return (ctx, res) => {
+	return (ctx) => {
 		const requestOrigin = ctx.request.headers.get('origin') || ''
 
 		const getAllowOrigin = (origin: Origin) => {
@@ -41,29 +41,29 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 		const allowOrigin = getAllowOrigin(opts.origin)
 
 		if (allowOrigin)
-			res.headers.set('Access-Control-Allow-Origin', allowOrigin)
+			ctx.res.headers.set('Access-Control-Allow-Origin', allowOrigin)
 
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
-		if (opts.origin !== '*') res.headers.set('Vary', 'Origin')
+		if (opts.origin !== '*') ctx.res.headers.set('Vary', 'Origin')
 
 		if (opts.credentials)
-			res.headers.set('Access-Control-Allow-Credentials', 'true')
+			ctx.res.headers.set('Access-Control-Allow-Credentials', 'true')
 
 		if (opts.exposeHeaders?.length)
-			res.headers.set(
+			ctx.res.headers.set(
 				'Access-Control-Expose-Headers',
 				opts.exposeHeaders.join(','),
 			)
 
 		if (ctx.request.method === 'OPTIONS') {
 			if (opts.maxAge)
-				res.headers.set(
+				ctx.res.headers.set(
 					'Access-Control-Max-Age',
 					opts.maxAge.toString(),
 				)
 
 			if (opts.allowMethods?.length)
-				res.headers.set(
+				ctx.res.headers.set(
 					'Access-Control-Allow-Methods',
 					opts.allowMethods.join(','),
 				)
@@ -75,18 +75,21 @@ export const cors = (options?: CorsOptions): WobeHandler => {
 						?.split(/\s*,\s*/)
 
 			if (headers?.length) {
-				res.headers.set(
+				ctx.res.headers.set(
 					'Access-Control-Allow-Headers',
 					headers.join(','),
 				)
-				res.headers?.append('Vary', 'Access-Control-Request-Headers')
+				ctx.res.headers?.append(
+					'Vary',
+					'Access-Control-Request-Headers',
+				)
 			}
 
-			res.headers?.delete('Content-Length')
-			res.headers?.delete('Content-Type')
+			ctx.res.headers?.delete('Content-Length')
+			ctx.res.headers?.delete('Content-Type')
 
-			res.status = 204
-			res.statusText = 'OK'
+			ctx.res.status = 204
+			ctx.res.statusText = 'OK'
 		}
 	}
 }
