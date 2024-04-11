@@ -20,11 +20,14 @@ describe('Wobe', async () => {
 	const mockMiddlewareOnlyBeforeHandler = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
 	const mockTestGet = mock(() => {})
+	const mockOnError = mock(() => {})
 
 	const port = await getPort()
 
 	beforeAll(() => {
-		wobe = new Wobe()
+		wobe = new Wobe({
+			onError: mockOnError,
+		})
 
 		wobe.get('/testGet', (ctx) => {
 			mockTestGet()
@@ -55,6 +58,7 @@ describe('Wobe', async () => {
 		mockMiddlewareOnlyBeforeHandler.mockClear()
 		mockOnlyOnTestGet.mockClear()
 		mockTestGet.mockClear()
+		mockOnError.mockClear()
 	})
 
 	it('should return 404 if the url is not found', async () => {
@@ -69,6 +73,7 @@ describe('Wobe', async () => {
 
 		expect(mockTestGet).toHaveBeenCalledTimes(1)
 		expect(res.status).toBe(200)
+		expect(mockOnError).toHaveBeenCalledTimes(0)
 	})
 
 	it('should return 200 on successfull post request', async () => {
@@ -177,5 +182,17 @@ describe('Wobe', async () => {
 		})
 
 		expect(mockMiddlewareBeforeAndAfterHandler).toHaveBeenCalledTimes(2)
+	})
+
+	it('should handle onError if the handler has an error', async () => {
+		mockTestGet.mockImplementation(() => {
+			throw new Error('Test error')
+		})
+
+		await fetch(`http://127.0.0.1:${port}/testGet`)
+
+		expect(mockOnError).toHaveBeenCalledTimes(1)
+
+		mockTestGet.mockRestore()
 	})
 })

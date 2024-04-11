@@ -14,6 +14,7 @@ export type Routes = Array<{
 
 export interface WobeOptions {
 	hostname?: string
+	onError?: (error: Error) => void
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
@@ -121,6 +122,7 @@ export class Wobe {
 		}
 
 		const router = this.router
+		const options = this.options
 
 		// Benchmark:
 		// Full = 44 000 ns
@@ -129,20 +131,14 @@ export class Wobe {
 			port,
 			hostname: this.options?.hostname,
 			development: false,
-			error: (err) => {
-				if (err instanceof HttpException) return err.response
-
-				return new Response(err.message, {
-					status: Number(err.code) || 500,
-				})
-			},
 			async fetch(req) {
-				let route = undefined
-
 				const { pathName, searchParams } =
 					extractPathnameAndSearchParams(req)
 
-				route = router.findRoute(req.method as HttpMethod, pathName)
+				const route = router.findRoute(
+					req.method as HttpMethod,
+					pathName,
+				)
 
 				if (!route) return new Response(null, { status: 404 })
 
@@ -153,42 +149,56 @@ export class Wobe {
 				context.params = route.params || {}
 				context.query = searchParams || {}
 
-				const middlewareBeforeHandler =
-					route.beforeHandlerMiddleware || []
+				try {
+					const middlewareBeforeHandler =
+						route.beforeHandlerMiddleware || []
 
-				// We need to run middleware sequentially
-				for (let i = 0; i < middlewareBeforeHandler.length; i++) {
-					const middleware = middlewareBeforeHandler[i]
+					// We need to run middleware sequentially
+					for (let i = 0; i < middlewareBeforeHandler.length; i++) {
+						const middleware = middlewareBeforeHandler[i]
 
-					await middleware(context)
+						await middleware(context)
+					}
+
+					context.state = 'handler'
+
+					const resultHandler = await route.handler?.(context)
+
+					if (
+						!context.res.response &&
+						resultHandler instanceof Response
+					)
+						context.res.response = resultHandler
+
+					context.state = 'afterHandler'
+
+					const middlewareAfterHandler =
+						route.afterHandlerMiddleware || []
+
+					// We need to run middleware sequentially
+					let responseAfterMiddleware = undefined
+					for (let i = 0; i < middlewareAfterHandler.length; i++) {
+						const middleware = middlewareAfterHandler[i]
+
+						responseAfterMiddleware = await middleware(context)
+					}
+
+					if (responseAfterMiddleware instanceof Response)
+						return responseAfterMiddleware
+
+					return (
+						context.res.response ||
+						new Response(null, { status: 404 })
+					)
+				} catch (err: any) {
+					if (err instanceof Error) options?.onError?.(err)
+
+					if (err instanceof HttpException) return err.response
+
+					return new Response(err.message, {
+						status: Number(err.code) || 500,
+					})
 				}
-
-				context.state = 'handler'
-
-				const resultHandler = await route.handler?.(context)
-
-				if (!context.res.response && resultHandler instanceof Response)
-					context.res.response = resultHandler
-
-				context.state = 'afterHandler'
-
-				const middlewareAfterHandler =
-					route.afterHandlerMiddleware || []
-
-				// We need to run middleware sequentially
-				let responseAfterMiddleware = undefined
-				for (let i = 0; i < middlewareAfterHandler.length; i++) {
-					const middleware = middlewareAfterHandler[i]
-
-					responseAfterMiddleware = await middleware(context)
-				}
-
-				if (responseAfterMiddleware instanceof Response)
-					return responseAfterMiddleware
-
-				return (
-					context.res.response || new Response(null, { status: 404 })
-				)
 			},
 		})
 	}

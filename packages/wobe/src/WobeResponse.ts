@@ -16,7 +16,6 @@ export class WobeResponse {
 	public headers = new Headers({
 		'Content-type': 'text/plain',
 	})
-	public body: string | null | ReadableStream = null
 	public status = 200
 	public statusText = 'OK'
 
@@ -66,9 +65,8 @@ export class WobeResponse {
 
 	sendJson(content: object) {
 		this.headers.set('Content-Type', 'application/json')
-		this.body = JSON.stringify(content)
 
-		this.response = new Response(this.body, {
+		this.response = new Response(JSON.stringify(content), {
 			headers: this.headers,
 			status: this.status,
 			statusText: this.statusText,
@@ -80,9 +78,8 @@ export class WobeResponse {
 	sendText(content: string) {
 		this.headers.set('Content-Type', 'text/plain')
 		this.headers.set('charset', 'utf-8')
-		this.body = content
 
-		this.response = new Response(this.body, {
+		this.response = new Response(content, {
 			headers: this.headers,
 			status: this.status,
 			statusText: this.statusText,
@@ -103,12 +100,13 @@ export class WobeResponse {
 			headers?: Record<string, any>
 		} = {},
 	) {
+		let body: string
 		if (typeof content === 'object') {
 			this.headers.set('Content-Type', 'application/json')
-			this.body = JSON.stringify(content)
+			body = JSON.stringify(content)
 		} else {
 			this.headers.set('charset', 'utf-8')
-			this.body = content
+			body = content
 		}
 
 		if (status) this.status = status
@@ -122,7 +120,7 @@ export class WobeResponse {
 			}
 		}
 
-		this.response = new Response(this.body, {
+		this.response = new Response(body, {
 			headers: this.headers,
 			status: this.status,
 			statusText: this.statusText,
