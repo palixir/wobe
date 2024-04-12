@@ -1,13 +1,13 @@
 import { run, bench, group } from 'mitata'
 import { routes, type RouterInterface } from './tools'
-import { regExpRouter, trieRouter } from './hono'
+import { smartRouter, trieRouter } from './hono'
 import { wobeRouter } from './wobe'
 import { findMyWayRouter } from './findMyWay'
 import { koaRouter } from './koaRouter'
 import { radix3Router } from './radix3'
 
 const routers: RouterInterface[] = [
-	regExpRouter,
+	smartRouter,
 	trieRouter,
 	findMyWayRouter,
 	koaRouter,

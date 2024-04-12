@@ -8,10 +8,10 @@ hero:
     tagline:
     actions:
         - theme: brand
-          text: Markdown Examples
+          text: Docs
           link: /markdown-examples
         - theme: alt
-          text: API Examples
+          text: GitHub
           link: /api-examples
 
 features:

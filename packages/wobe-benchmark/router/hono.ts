@@ -2,6 +2,7 @@ import type { Router } from 'hono/router'
 import { handler, routes, type RouterInterface } from './tools'
 import { RegExpRouter } from 'hono/router/reg-exp-router'
 import { TrieRouter } from 'hono/router/trie-router'
+import { SmartRouter } from 'hono/router/smart-router'
 
 const createHonoRouter = (
 	name: string,
@@ -19,5 +20,10 @@ const createHonoRouter = (
 	}
 }
 
-export const regExpRouter = createHonoRouter('RegExpRouter', new RegExpRouter())
+export const smartRouter = createHonoRouter(
+	'SmartRouter (RegExp + Trie)',
+	new SmartRouter({
+		routers: [new RegExpRouter(), new TrieRouter()],
+	}),
+)
 export const trieRouter = createHonoRouter('TrieRouter', new TrieRouter())
