@@ -75,10 +75,7 @@ export class Wobe {
 	}
 
 	all(path: string, handler: WobeHandler) {
-		this.router.addRoute('GET', path, handler)
-		this.router.addRoute('POST', path, handler)
-		this.router.addRoute('PUT', path, handler)
-		this.router.addRoute('DELETE', path, handler)
+		this.router.addRoute('ALL', path, handler)
 
 		return this
 	}
@@ -116,10 +113,9 @@ export class Wobe {
 		return this._addMiddleware('afterHandler')(arg1, ...handlers)
 	}
 
-	async usePlugin(plugin: MaybePromise<WobePlugin>) {
-		// TODO : Maybe throw an error if the usePlugin is not await and the plugin is a promise
+	usePlugin(plugin: MaybePromise<WobePlugin>) {
 		if (plugin instanceof Promise) {
-			await plugin.then((p) => {
+			plugin.then((p) => {
 				return p(this)
 			})
 
@@ -127,6 +123,8 @@ export class Wobe {
 		}
 
 		plugin(this)
+
+		return this
 	}
 
 	listen(port: number) {

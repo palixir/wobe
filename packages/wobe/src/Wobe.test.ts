@@ -24,6 +24,17 @@ describe('Wobe', async () => {
 	const mockTestPut = mock(() => {})
 	const mockTestDelete = mock(() => {})
 	const mockAllMethod = mock(() => {})
+	const mockPluginRoute = mock(() => {})
+	const mockUsePlugin = mock(() => {
+		return (wobe: any) => {
+			console.log('taat')
+
+			wobe.get('/routeCreatedByPlugin', (ctx: any) => {
+				mockPluginRoute()
+				return ctx.res.send('routeCreatedByPlugin')
+			})
+		}
+	})
 	const mockOnError = mock(() => {})
 
 	const port = await getPort()
@@ -58,6 +69,8 @@ describe('Wobe', async () => {
 			return ctx.res.send('All')
 		})
 
+		wobe.usePlugin(mockUsePlugin())
+
 		wobe.beforeHandler(mockMiddleware)
 		wobe.beforeHandler(mockSecondMiddleware)
 		wobe.beforeHandler(mockMiddlewareOnlyBeforeHandler)
@@ -72,6 +85,8 @@ describe('Wobe', async () => {
 	})
 
 	afterEach(() => {
+		mockUsePlugin.mockClear()
+		mockPluginRoute.mockClear()
 		mockMiddleware.mockClear()
 		mockSecondMiddleware.mockClear()
 		mockMiddlewareBeforeAndAfterHandler.mockClear()
@@ -83,6 +98,14 @@ describe('Wobe', async () => {
 		mockTestPut.mockClear()
 		mockTestDelete.mockClear()
 		mockOnError.mockClear()
+	})
+
+	it('should call the route create by the plugin', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/routeCreatedByPlugin`)
+
+		expect(res.status).toBe(200)
+		expect(await res.text()).toBe('routeCreatedByPlugin')
+		expect(mockPluginRoute).toHaveBeenCalledTimes(1)
 	})
 
 	it('should return 404 if the url is not found', async () => {

@@ -9,8 +9,8 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		await wobe.usePlugin(
-			WobeGraphqlApolloPlugin({
+		wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
             type Query {
