@@ -15,8 +15,17 @@ export default defineConfig({
 			{
 				text: 'Wobe',
 				items: [
-					{ text: 'Motivations', link: '/doc/wobe/why' },
+					{ text: 'Motivations', link: '/doc/wobe/motivations' },
 					{ text: 'Benchmark', link: '/doc/wobe/benchmark' },
+				],
+			},
+			{
+				text: 'Concepts',
+				items: [
+					{ text: 'Routes', link: '/doc/concepts/route' },
+					{ text: 'Context', link: '/doc/concepts/context' },
+					{ text: 'Hooks', link: '/doc/concepts/hook' },
+					{ text: 'Plugins', link: '/doc/concepts/plugin' },
 				],
 			},
 		],

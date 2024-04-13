@@ -1,6 +1,6 @@
 # Benchmarks
 
-While performance isn't the primary focus of Wobe, it remains a significant factor in selecting a web framework. Let's explore how Wobe compares to other frameworks in terms of performance.
+Although performance is not the main focus of Wobe, it is still an important factor when choosing a web framework. To show you that Wobe is not lagging behind despite its philosophy of not being solely focused on performance, we will show you some benchmarks.
 
 ## Router
 
@@ -47,3 +47,16 @@ _Execute on a M1 Pro 10 CPU - 16 Gb Ram - 12/04/2024_
 ## HTTP Server benchmark
 
 Now we will present the more meaningful benchmark, the HTTP server benchmark. We will compare Wobe with other popular web frameworks. The benchmark is based on the number of requests per second that the server can handle.
+
+For the HTTP benchmark, we used [this benchmark](https://github.com/SaltyAom/bun-http-framework-benchmark) which we just add the Wobe framework to it. Indeed, this benchmark is complete and already contains a lot of frameworks.
+
+| Web framework | Number of requests per second (avg) |
+| ------------- | :---------------------------------: |
+| Bun           |               92 251                |
+| Elysia        |               91 986                |
+| Wobe          |               80 664                |
+| Hono          |               79 916                |
+| Fastify       |               50 440                |
+| Express       |               31 308                |
+
+_Execute on a M1 Pro 10 CPU - 16 Gb Ram - 12/04/2024_
