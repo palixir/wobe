@@ -19,6 +19,14 @@ export default defineConfig({
 					{ text: 'Benchmark', link: '/doc/wobe/benchmark' },
 				],
 			},
+			{
+				text: 'Concepts',
+				items: [
+					{ text: 'Routes', link: '/doc/concepts/route' },
+					{ text: 'Hooks', link: '/doc/concepts/hook' },
+					{ text: 'Plugins', link: '/doc/concepts/plugin' },
+				],
+			},
 		],
 
 		socialLinks: [
