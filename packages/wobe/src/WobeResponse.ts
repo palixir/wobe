@@ -1,6 +1,4 @@
 export interface SetCookieOptions {
-	name: string
-	value: string
 	path?: string
 	domain?: string
 	expires?: Date
@@ -23,26 +21,28 @@ export class WobeResponse {
 		this.request = request
 	}
 
-	setCookie({
-		name,
-		value,
-		httpOnly,
-		path,
-		domain,
-		expires,
-		sameSite,
-		secure,
-		maxAge,
-	}: SetCookieOptions) {
+	setCookie(name: string, value: string, options?: SetCookieOptions) {
 		let cookie = `${name}=${value};`
 
-		if (httpOnly) cookie = `${cookie} HttpOnly;`
-		if (path) cookie = `${cookie} Path=${path};`
-		if (domain) cookie = `${cookie} Domain=${domain};`
-		if (expires) cookie = `${cookie} Expires=${expires.toUTCString()};`
-		if (sameSite) cookie = `${cookie} SameSite=${sameSite};`
-		if (secure) cookie = `${cookie} Secure;`
-		if (maxAge) cookie = `${cookie} Max-Age=${maxAge};`
+		if (options) {
+			const {
+				httpOnly,
+				path,
+				domain,
+				expires,
+				sameSite,
+				maxAge,
+				secure,
+			} = options
+
+			if (httpOnly) cookie = `${cookie} HttpOnly;`
+			if (path) cookie = `${cookie} Path=${path};`
+			if (domain) cookie = `${cookie} Domain=${domain};`
+			if (expires) cookie = `${cookie} Expires=${expires.toUTCString()};`
+			if (sameSite) cookie = `${cookie} SameSite=${sameSite};`
+			if (secure) cookie = `${cookie} Secure;`
+			if (maxAge) cookie = `${cookie} Max-Age=${maxAge};`
+		}
 
 		this.headers?.append('Set-Cookie', cookie)
 	}
@@ -60,7 +60,7 @@ export class WobeResponse {
 	}
 
 	deleteCookie(name: string) {
-		this.setCookie({ name, value: '', expires: new Date(0) })
+		this.setCookie(name, '', { expires: new Date(0) })
 	}
 
 	sendJson(content: object) {

@@ -7,9 +7,7 @@ describe('Wobe Response', () => {
 			new Request('http://localhost:3000/test'),
 		)
 
-		wobeResponse.setCookie({
-			name: 'titi',
-			value: 'test',
+		wobeResponse.setCookie('titi', 'test', {
 			httpOnly: true,
 			domain: 'domain',
 			secure: true,
@@ -19,10 +17,7 @@ describe('Wobe Response', () => {
 			sameSite: 'Strict',
 		})
 
-		wobeResponse.setCookie({
-			name: 'tata',
-			value: 'tata',
-		})
+		wobeResponse.setCookie('tata', 'tata')
 
 		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
 			'titi=test; HttpOnly; Path=/path; Domain=domain; Expires=Sat, 01 Jan 2022 00:00:00 GMT; SameSite=Strict; Secure; Max-Age=100;, tata=tata;',
@@ -34,10 +29,7 @@ describe('Wobe Response', () => {
 			new Request('http://localhost:3000/test'),
 		)
 
-		wobeResponse.setCookie({
-			name: 'tata',
-			value: 'tata',
-		})
+		wobeResponse.setCookie('tata', 'tata')
 
 		wobeResponse.deleteCookie('tata')
 
@@ -51,15 +43,8 @@ describe('Wobe Response', () => {
 			new Request('http://localhost:3000/test'),
 		)
 
-		wobeResponse.setCookie({
-			name: 'tata',
-			value: 'tata',
-		})
-
-		wobeResponse.setCookie({
-			name: 'titi',
-			value: 'titi',
-		})
+		wobeResponse.setCookie('tata', 'tata')
+		wobeResponse.setCookie('titi', 'titi')
 
 		wobeResponse.deleteCookie('tata')
 
@@ -201,7 +186,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.setCookie({ name: 'tata', value: 'tata' })
+		wobeResponse.setCookie('tata', 'tata')
 
 		const response = wobeResponse.send('Hello World', {
 			headers: {
