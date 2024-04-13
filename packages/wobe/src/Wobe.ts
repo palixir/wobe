@@ -62,6 +62,18 @@ export class Wobe {
 		return this
 	}
 
+	put(path: string, handler: WobeHandler) {
+		this.router.addRoute('PUT', path, handler)
+
+		return this
+	}
+
+	delete(path: string, handler: WobeHandler) {
+		this.router.addRoute('DELETE', path, handler)
+
+		return this
+	}
+
 	private _addMiddleware =
 		(hook: Hook) =>
 		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {

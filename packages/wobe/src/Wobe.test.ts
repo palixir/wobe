@@ -20,6 +20,9 @@ describe('Wobe', async () => {
 	const mockMiddlewareOnlyBeforeHandler = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
 	const mockTestGet = mock(() => {})
+	const mockTestPost = mock(() => {})
+	const mockTestPut = mock(() => {})
+	const mockTestDelete = mock(() => {})
 	const mockOnError = mock(() => {})
 
 	const port = await getPort()
@@ -35,7 +38,18 @@ describe('Wobe', async () => {
 		})
 
 		wobe.post('/testPost', (ctx) => {
+			mockTestPost()
 			return ctx.res.send('Tata')
+		})
+
+		wobe.put('/testPut', (ctx) => {
+			mockTestPut()
+			return ctx.res.send('Put')
+		})
+
+		wobe.delete('/testDelete', (ctx) => {
+			mockTestDelete()
+			return ctx.res.send('Delete')
 		})
 
 		wobe.beforeHandler(mockMiddleware)
@@ -58,6 +72,9 @@ describe('Wobe', async () => {
 		mockMiddlewareOnlyBeforeHandler.mockClear()
 		mockOnlyOnTestGet.mockClear()
 		mockTestGet.mockClear()
+		mockTestPost.mockClear()
+		mockTestPut.mockClear()
+		mockTestDelete.mockClear()
 		mockOnError.mockClear()
 	})
 
@@ -81,7 +98,29 @@ describe('Wobe', async () => {
 			method: 'POST',
 		})
 
+		expect(mockTestPost).toHaveBeenCalledTimes(1)
 		expect(res.status).toBe(200)
+		expect(mockOnError).toHaveBeenCalledTimes(0)
+	})
+
+	it('should return 200 on successfull put request', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testPut`, {
+			method: 'PUT',
+		})
+
+		expect(mockTestPut).toHaveBeenCalledTimes(1)
+		expect(res.status).toBe(200)
+		expect(mockOnError).toHaveBeenCalledTimes(0)
+	})
+
+	it('should return 200 on successfull delete request', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testDelete`, {
+			method: 'DELETE',
+		})
+
+		expect(mockTestDelete).toHaveBeenCalledTimes(1)
+		expect(res.status).toBe(200)
+		expect(mockOnError).toHaveBeenCalledTimes(0)
 	})
 
 	it('should handle middlewares before any request', async () => {

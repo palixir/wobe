@@ -9,9 +9,15 @@ import { Wobe } from 'wobe'
 
 const app = new Wobe()
 	// GET HTTP method
-	.get('/hello', (context) => context.res.sendText('Hello world'))
+	.get('/hello', (context) => context.res.sendText('Hello GET world'))
 	// POST HTTP method
-	.post('/post/hello', (context) => context.res.sendText('Hello world'))
+	.post('/post/hello', (context) => context.res.sendText('Hello POST world'))
+	// PUT HTTP method
+	.put('/put/hello', (context) => context.res.sendText('Hello PUT world'))
+	// DELETE HTTP method
+	.delete('/delete/hello', (context) =>
+		context.res.sendText('Hello DELETE world'),
+	)
 	.listen(3000)
 ```
 
