@@ -15,8 +15,6 @@ export interface Node {
 export class RadixTree {
 	public root: Node = { name: '/', children: [] }
 
-	constructor() {}
-
 	addRoute(method: HttpMethod, path: string, handler: WobeHandler) {
 		const pathParts = path.split('/').filter(Boolean)
 
@@ -102,15 +100,13 @@ export class RadixTree {
 				return
 			}
 
-			let foundNode = currentNode.children.find(
+			const foundNode = currentNode.children.find(
 				(node) =>
 					node.name ===
 					(currentNode.name === '/' ? '' : '/') + pathPart,
 			)
 
-			if (!foundNode) {
-				break
-			}
+			if (!foundNode) break
 
 			currentNode = foundNode
 		}
@@ -122,11 +118,12 @@ export class RadixTree {
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
 	findRoute(method: HttpMethod, path: string) {
-		if (path[0] !== '/') path = '/' + path
+		let localPath = path
+		if (path[0] !== '/') localPath = '/' + path
 
-		const { length: pathLength } = path
+		const { length: pathLength } = localPath
 
-		if (pathLength === 1 && path === '/') return this.root
+		if (pathLength === 1 && localPath === '/') return this.root
 
 		let nextIndexToEnd = 0
 		let params: Record<string, string> | undefined = undefined
@@ -146,7 +143,7 @@ export class RadixTree {
 					child.isWildcardNode || child.isParameterNode
 
 				// We get the next end index
-				nextIndexToEnd = path.indexOf(
+				nextIndexToEnd = localPath.indexOf(
 					'/',
 					isChildWildcardOrParameterNode
 						? nextIndexToBegin + 1
@@ -172,7 +169,7 @@ export class RadixTree {
 					const indexToAddIfFirstNode = indexToBegin === 0 ? 0 : 1
 
 					params[childName.slice(1 + indexToAddIfFirstNode)] =
-						path.slice(
+						localPath.slice(
 							nextIndexToBegin + indexToAddIfFirstNode,
 							nextIndexToEnd,
 						)
@@ -187,11 +184,11 @@ export class RadixTree {
 
 				if (
 					nextIndexToEnd >= pathLength - 1 &&
-					child.method === method
+					(child.method === method || child.method === 'ALL')
 				) {
 					if (isChildWildcardOrParameterNode) return child
 
-					const pathToCompute = path.slice(
+					const pathToCompute = localPath.slice(
 						nextIndexToBegin,
 						nextIndexToEnd,
 					)

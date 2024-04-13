@@ -23,6 +23,7 @@ describe('Wobe', async () => {
 	const mockTestPost = mock(() => {})
 	const mockTestPut = mock(() => {})
 	const mockTestDelete = mock(() => {})
+	const mockAllMethod = mock(() => {})
 	const mockOnError = mock(() => {})
 
 	const port = await getPort()
@@ -52,6 +53,11 @@ describe('Wobe', async () => {
 			return ctx.res.send('Delete')
 		})
 
+		wobe.all('/allMethod', (ctx) => {
+			mockAllMethod()
+			return ctx.res.send('All')
+		})
+
 		wobe.beforeHandler(mockMiddleware)
 		wobe.beforeHandler(mockSecondMiddleware)
 		wobe.beforeHandler(mockMiddlewareOnlyBeforeHandler)
@@ -71,6 +77,7 @@ describe('Wobe', async () => {
 		mockMiddlewareBeforeAndAfterHandler.mockClear()
 		mockMiddlewareOnlyBeforeHandler.mockClear()
 		mockOnlyOnTestGet.mockClear()
+		mockAllMethod.mockClear()
 		mockTestGet.mockClear()
 		mockTestPost.mockClear()
 		mockTestPut.mockClear()
@@ -121,6 +128,23 @@ describe('Wobe', async () => {
 		expect(mockTestDelete).toHaveBeenCalledTimes(1)
 		expect(res.status).toBe(200)
 		expect(mockOnError).toHaveBeenCalledTimes(0)
+	})
+
+	it('should return 200 on successfull ALL method request', async () => {
+		await fetch(`http://127.0.0.1:${port}/allMethod`, {
+			method: 'GET',
+		})
+		await fetch(`http://127.0.0.1:${port}/allMethod`, {
+			method: 'POST',
+		})
+		await fetch(`http://127.0.0.1:${port}/allMethod`, {
+			method: 'PUT',
+		})
+		await fetch(`http://127.0.0.1:${port}/allMethod`, {
+			method: 'DELETE',
+		})
+
+		expect(mockAllMethod).toHaveBeenCalledTimes(4)
 	})
 
 	it('should handle middlewares before any request', async () => {

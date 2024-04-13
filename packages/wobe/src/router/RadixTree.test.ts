@@ -291,6 +291,34 @@ describe('RadixTree', () => {
 			).toBeDefined()
 		})
 
+		it('should add a route with HTTP method equal to ALL', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('ALL', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+
+			expect(radixTree.root.children[0].name).toBe('a')
+			expect(radixTree.root.children[0].method).toBeUndefined()
+			expect(radixTree.root.children[0].handler).toBeUndefined()
+			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
+			expect(
+				radixTree.root.children[0].children[0].method,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].handler,
+			).toBeUndefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('ALL')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+		})
+
 		it('should add a route to the radix tree that is a part of another route', () => {
 			const radixTree = new RadixTree()
 
@@ -669,6 +697,44 @@ describe('RadixTree', () => {
 			expect(route).not.toBeNull()
 			expect(route?.name).toBe('a/simple/route-2')
 			expect(route?.handler).toBeDefined()
+		})
+
+		it("should find a route with any HTTP method when the route's method is ALL", () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('ALL', '/a/simple/route-2', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.optimizeTree()
+
+			const route = radixTree.findRoute('GET', '/a/simple/route-2')
+
+			expect(route).not.toBeNull()
+			expect(route?.name).toBe('a/simple/route-2')
+			expect(route?.method).toBe('ALL')
+			expect(route?.handler).toBeDefined()
+
+			const route2 = radixTree.findRoute('POST', '/a/simple/route-2')
+
+			expect(route2).not.toBeNull()
+			expect(route2?.name).toBe('a/simple/route-2')
+			expect(route2?.method).toBe('ALL')
+			expect(route2?.handler).toBeDefined()
+
+			const route3 = radixTree.findRoute('PUT', '/a/simple/route-2')
+
+			expect(route3).not.toBeNull()
+			expect(route3?.name).toBe('a/simple/route-2')
+			expect(route3?.method).toBe('ALL')
+			expect(route3?.handler).toBeDefined()
+
+			const route4 = radixTree.findRoute('DELETE', '/a/simple/route-2')
+
+			expect(route4).not.toBeNull()
+			expect(route4?.name).toBe('a/simple/route-2')
+			expect(route4?.method).toBe('ALL')
+			expect(route4?.handler).toBeDefined()
 		})
 
 		it.each([true, false])(

@@ -17,7 +17,7 @@ export interface WobeOptions {
 	onError?: (error: Error) => void
 }
 
-export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT'
+export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL'
 
 export type WobeHandlerOutput =
 	| void
@@ -69,6 +69,15 @@ export class Wobe {
 	}
 
 	delete(path: string, handler: WobeHandler) {
+		this.router.addRoute('DELETE', path, handler)
+
+		return this
+	}
+
+	all(path: string, handler: WobeHandler) {
+		this.router.addRoute('GET', path, handler)
+		this.router.addRoute('POST', path, handler)
+		this.router.addRoute('PUT', path, handler)
 		this.router.addRoute('DELETE', path, handler)
 
 		return this
