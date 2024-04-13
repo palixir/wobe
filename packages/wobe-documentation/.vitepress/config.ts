@@ -23,6 +23,7 @@ export default defineConfig({
 				text: 'Concepts',
 				items: [
 					{ text: 'Routes', link: '/doc/concepts/route' },
+					{ text: 'Context', link: '/doc/concepts/context' },
 					{ text: 'Hooks', link: '/doc/concepts/hook' },
 					{ text: 'Plugins', link: '/doc/concepts/plugin' },
 				],

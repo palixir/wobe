@@ -4,8 +4,6 @@ Wobe route system follows the standards so on this is very simple to use.
 
 ## Simplest example
 
-Each route handler receives a context object that contains some information about the request like the params, the ipAdress, the headers, the body, etc. It also contains the response object that you can use to send the response to the client.
-
 ```ts
 import { Wobe } from 'wobe'
 
