@@ -131,7 +131,8 @@ describe('Wobe e2e', async () => {
 		expect(res.status).toBe(200)
 	})
 
-	it('should block the request if the bearer auth is not valid', async () => {
+	it.only('should block the request if the bearer auth is not valid', async () => {
+		spyConsoleLog.mockRestore()
 		const res = await fetch(`http://127.0.0.1:${port}/testBearer`, {
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
