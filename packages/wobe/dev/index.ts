@@ -5,8 +5,7 @@ new Wobe()
 	.get('/', (ctx) => ctx.res.send('Hi'))
 	.post('/json', async (ctx) => {
 		console.log('handler')
-		const tata = await ctx.json()
-		return ctx.res.send(tata)
+		return ctx.res.send(await ctx.json())
 	})
 	.get('/id/:id', (ctx) => {
 		ctx.res.headers.set('x-powered-by', 'benchmark')

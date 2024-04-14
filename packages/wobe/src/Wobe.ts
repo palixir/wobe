@@ -1,7 +1,8 @@
 import type { Server } from 'bun'
 import { RadixTree } from './router'
-import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
-import type { Context } from './Context'
+import { extractPathnameAndSearchParams } from './utils'
+import { HttpException } from './HttpException'
+import { Context } from './Context'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -31,13 +32,7 @@ export type WobePlugin = (wobe: Wobe) => void
 
 export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
-const factoryOfRuntime = (): RuntimeAdapter => {
-	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST)
-		return BunAdapter()
-
-	return NodeAdapter()
-}
-
+// TODO : Create assert before hook if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options?: WobeOptions
 	private server: Server | null
@@ -47,7 +42,6 @@ export class Wobe {
 		hook: Hook
 	}>
 	private router: RadixTree
-	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
 
 	constructor(options?: WobeOptions) {
 		this.options = options
@@ -142,14 +136,87 @@ export class Wobe {
 			this.router.addHook(hook.hook, hook.pathname, hook.handler)
 		}
 
-		this.server = this.runtimeAdapter.createServer(
+		const router = this.router
+		const options = this.options
+
+		// Benchmark:
+		// Full = 44 000 ns
+		// Empty = 32 500 ns
+		this.server = Bun.serve({
 			port,
-			this.router,
-			this.options,
-		)
+			hostname: this.options?.hostname,
+			development: false,
+			async fetch(req) {
+				const { pathName, searchParams } =
+					extractPathnameAndSearchParams(req)
+
+				const route = router.findRoute(
+					req.method as HttpMethod,
+					pathName,
+				)
+
+				if (!route) return new Response(null, { status: 404 })
+
+				const context = new Context(req)
+
+				context.getIpAdress = () => this.requestIP(req)?.address || ''
+				context.state = 'beforeHandler'
+				context.params = route.params || {}
+				context.query = searchParams || {}
+
+				try {
+					const hookBeforeHandler = route.beforeHandlerHook || []
+
+					// We need to run hook sequentially
+					for (let i = 0; i < hookBeforeHandler.length; i++) {
+						const hook = hookBeforeHandler[i]
+
+						await hook(context)
+					}
+
+					context.state = 'handler'
+
+					const resultHandler = await route.handler?.(context)
+
+					if (
+						!context.res.response &&
+						resultHandler instanceof Response
+					)
+						context.res.response = resultHandler
+
+					context.state = 'afterHandler'
+
+					const hookAfterHandler = route.afterHandlerHook || []
+
+					// We need to run hook sequentially
+					let responseAfterHook = undefined
+					for (let i = 0; i < hookAfterHandler.length; i++) {
+						const hook = hookAfterHandler[i]
+
+						responseAfterHook = await hook(context)
+					}
+
+					if (responseAfterHook instanceof Response)
+						return responseAfterHook
+
+					return (
+						context.res.response ||
+						new Response(null, { status: 404 })
+					)
+				} catch (err: any) {
+					if (err instanceof Error) options?.onError?.(err)
+
+					if (err instanceof HttpException) return err.response
+
+					return new Response(err.message, {
+						status: Number(err.code) || 500,
+					})
+				}
+			},
+		})
 	}
 
 	stop() {
-		this.runtimeAdapter.stopServer(this.server)
+		this.server?.stop()
 	}
 }
