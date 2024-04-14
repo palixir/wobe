@@ -1,5 +1,4 @@
-export const extractPathnameAndSearchParams = (request: Request) => {
-	const url = request.url
+export const extractPathnameAndSearchParams = (url: string) => {
 	// 8 because this is the length of 'https://'
 	const queryIndex = url.indexOf('?', 8)
 	const urlLength = url.length

@@ -27,8 +27,6 @@ describe('Wobe', async () => {
 	const mockPluginRoute = mock(() => {})
 	const mockUsePlugin = mock(() => {
 		return (wobe: any) => {
-			console.log('taat')
-
 			wobe.get('/routeCreatedByPlugin', (ctx: any) => {
 				mockPluginRoute()
 				return ctx.res.send('routeCreatedByPlugin')

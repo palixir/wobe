@@ -42,6 +42,9 @@ describe('Wobe e2e', async () => {
 
 			return ctx.res.send('Test')
 		})
+			.get('/ipAdress', (ctx) => {
+				ctx.res.send(ctx.getIpAdress())
+			})
 			.get('/test/v1', (ctx) => {
 				return ctx.res.send('Test')
 			})
@@ -55,13 +58,14 @@ describe('Wobe e2e', async () => {
 				return new Response('Content', { status: 200 })
 			})
 			.get('/route/:id/name', (ctx) => {
-				// @ts-expect-error
-				if (ctx.query.test)
-					// @ts-expect-error
-					return ctx.res.sendText(ctx.query.test)
+				if (ctx.query.test) return ctx.res.sendText(ctx.query.test)
 
-				// @ts-expect-error
 				return ctx.res.sendText(ctx.params.id)
+			})
+			.get('/testStatusText', (ctx) => {
+				ctx.res.statusText = 'Test'
+
+				return ctx.res.send('Test')
 			})
 
 		wobe.listen(port)
@@ -74,6 +78,29 @@ describe('Wobe e2e', async () => {
 	beforeEach(() => {
 		spyConsoleLog.mockClear()
 		mockHookWithWildcardRoute.mockClear()
+	})
+
+	it('should return the ip adress of the client', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/ipAdress`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
+			},
+		})
+
+		expect(await res.text()).toBe('::ffff:127.0.0.1')
+	})
+
+	// Waiting https://github.com/oven-sh/bun/pull/10266
+	it.skip('should return the good statusText of the response', async () => {
+		spyConsoleLog.mockRestore()
+
+		const res = await fetch(`http://127.0.0.1:${port}/testStatusText`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
+			},
+		})
+
+		expect(res.statusText).toBe('Test')
 	})
 
 	it('should get the route params on a route with parameters', async () => {
