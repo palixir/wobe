@@ -24,4 +24,9 @@ export class Context {
 	text() {
 		return this.request.text() as Promise<string>
 	}
+
+	redirect(url: string, status = 302) {
+		this.res.headers.set('Location', url)
+		this.res.status = status
+	}
 }

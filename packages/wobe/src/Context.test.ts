@@ -35,4 +35,24 @@ describe('Context', () => {
 
 		expect(text).toEqual('Hello, World!')
 	})
+
+	it('should redirect client to a specific url', () => {
+		const request = new Request('https://example.com')
+		const context = new Context(request)
+
+		context.redirect('https://example.com/test')
+
+		expect(context.res.headers.get('Location')).toEqual(
+			'https://example.com/test',
+		)
+		expect(context.res.status).toEqual(302)
+
+		// Redirect permanently
+		context.redirect('https://example.com/test2', 301)
+
+		expect(context.res.headers.get('Location')).toEqual(
+			'https://example.com/test2',
+		)
+		expect(context.res.status).toEqual(301)
+	})
 })
