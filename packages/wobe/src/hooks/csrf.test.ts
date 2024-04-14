@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { csrf } from './csrf'
 import { Context } from '../Context'
 
-describe('Csrf middleware', () => {
+describe('Csrf hook', () => {
 	it('should not block requests with a valid origin (string)', () => {
 		const request = new Request('http://localhost:3000/test', {
 			headers: {

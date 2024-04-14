@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { cors } from './cors'
 import { Context } from '../Context'
 
-describe('Cors middleware', () => {
+describe('Cors hook', () => {
 	const request = new Request('http://localhost:3000/test')
 	const optionsRequest = new Request('http://localhost:3000/test', {
 		method: 'OPTIONS',

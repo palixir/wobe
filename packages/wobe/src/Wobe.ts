@@ -37,11 +37,11 @@ const factoryOfRuntime = (): RuntimeAdapter => {
 	return NodeAdapter()
 }
 
-// TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
+// TODO : Create assert before hook if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options?: WobeOptions
 	private server: Server | null
-	private middlewares: Array<{
+	private hooks: Array<{
 		pathname: string
 		handler: WobeHandler
 		hook: Hook
@@ -51,7 +51,7 @@ export class Wobe {
 
 	constructor(options?: WobeOptions) {
 		this.options = options
-		this.middlewares = []
+		this.hooks = []
 		this.server = null
 		this.router = new RadixTree()
 	}
@@ -86,7 +86,7 @@ export class Wobe {
 		return this
 	}
 
-	private _addMiddleware =
+	private _addHook =
 		(hook: Hook) =>
 		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {
 			let path = arg1
@@ -98,7 +98,7 @@ export class Wobe {
 
 			handlers.map((handler) => {
 				if (typeof path === 'string')
-					this.middlewares.push({ pathname: path, handler, hook })
+					this.hooks.push({ pathname: path, handler, hook })
 			})
 
 			return this
@@ -108,15 +108,15 @@ export class Wobe {
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		return this._addMiddleware('beforeAndAfterHandler')(arg1, ...handlers)
+		return this._addHook('beforeAndAfterHandler')(arg1, ...handlers)
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addMiddleware('beforeHandler')(arg1, ...handlers)
+		return this._addHook('beforeHandler')(arg1, ...handlers)
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addMiddleware('afterHandler')(arg1, ...handlers)
+		return this._addHook('afterHandler')(arg1, ...handlers)
 	}
 
 	usePlugin(plugin: MaybePromise<WobePlugin>) {
@@ -136,14 +136,10 @@ export class Wobe {
 	listen(port: number) {
 		this.router.optimizeTree()
 
-		// We need to add all middlewares after the compilation
+		// We need to add all hooks after the compilation
 		// because the tree need to be complete
-		for (const middleware of this.middlewares) {
-			this.router.addMiddleware(
-				middleware.hook,
-				middleware.pathname,
-				middleware.handler,
-			)
+		for (const hook of this.hooks) {
+			this.router.addHook(hook.hook, hook.pathname, hook.handler)
 		}
 
 		this.server = this.runtimeAdapter.createServer(

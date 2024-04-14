@@ -10,34 +10,34 @@ import {
 } from 'bun:test'
 import { Wobe } from './Wobe'
 import getPort from 'get-port'
-import { csrf } from './middlewares'
-import { bearerAuth } from './middlewares/bearerAuth'
-import { logger } from './middlewares/logger'
+import { csrf } from './hooks'
+import { bearerAuth } from './hooks/bearerAuth'
+import { logger } from './hooks/logger'
 
 describe('Wobe e2e', async () => {
 	let wobe: Wobe
 	const port = await getPort()
 
 	const spyConsoleLog = spyOn(console, 'log')
-	const mockMiddlewareWithWildcardRoute = mock(() => {})
+	const mockHookWithWildcardRoute = mock(() => {})
 
 	beforeAll(() => {
 		wobe = new Wobe()
-			.beforeHandler('/testMiddlewareLifecyce', (ctx) => {
+			.beforeHandler('/testHookLifecyce', (ctx) => {
 				ctx.res.headers.set('X-Test', 'Test')
 			})
 			.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
 			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
-			.beforeHandler('/test/*', mockMiddlewareWithWildcardRoute)
+			.beforeHandler('/test/*', mockHookWithWildcardRoute)
 
 		wobe.beforeAndAfterHandler(logger())
 
-		wobe.afterHandler('/testMiddlewareLifecyce', (ctx) => {
+		wobe.afterHandler('/testHookLifecyce', (ctx) => {
 			ctx.res.headers.set('X-Test-3', 'Test3')
 			return ctx.res.send('Test after handler')
 		})
 
-		wobe.get('/testMiddlewareLifecyce', (ctx) => {
+		wobe.get('/testHookLifecyce', (ctx) => {
 			ctx.res.headers.set('X-Test-2', 'Test2')
 
 			return ctx.res.send('Test')
@@ -77,7 +77,7 @@ describe('Wobe e2e', async () => {
 
 	beforeEach(() => {
 		spyConsoleLog.mockClear()
-		mockMiddlewareWithWildcardRoute.mockClear()
+		mockHookWithWildcardRoute.mockClear()
 	})
 
 	it('should return the ip adress of the client', async () => {
@@ -115,14 +115,14 @@ describe('Wobe e2e', async () => {
 		expect(await res2.text()).toEqual('bun')
 	})
 
-	it('should execute middlewares with a route name like /test/* for any route begin by /test/', async () => {
+	it('should execute hooks with a route name like /test/* for any route begin by /test/', async () => {
 		await fetch(`http://127.0.0.1:${port}/test/v1`, {
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
 			},
 		})
 
-		expect(mockMiddlewareWithWildcardRoute).toHaveBeenCalledTimes(1)
+		expect(mockHookWithWildcardRoute).toHaveBeenCalledTimes(1)
 	})
 
 	it('should return a response directly from a route', async () => {
@@ -173,7 +173,7 @@ describe('Wobe e2e', async () => {
 		)
 	})
 
-	it('should log with logger middleware', async () => {
+	it('should log with logger hook', async () => {
 		await fetch(`http://127.0.0.1:${port}/test`, {
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
@@ -193,15 +193,12 @@ describe('Wobe e2e', async () => {
 		expect(spyConsoleLog.mock.calls[1][0]).toContain('ms]')
 	})
 
-	it('should have a beforeHandler and afterHandler middleware and a route that update response', async () => {
-		const res = await fetch(
-			`http://127.0.0.1:${port}/testMiddlewareLifecyce`,
-			{
-				headers: {
-					origin: `http://127.0.0.1:${port}`,
-				},
+	it('should have a beforeHandler and afterHandler hook and a route that update response', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testHookLifecyce`, {
+			headers: {
+				origin: `http://127.0.0.1:${port}`,
 			},
-		)
+		})
 
 		expect(res.status).toBe(200)
 		expect(res.headers.get('X-Test')).toBe('Test')

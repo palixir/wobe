@@ -14,6 +14,6 @@
 	"scripts": {
 		"bench:router": "bun run router/benchmark.ts",
 		"bench:extracter": "bun run pathExtract/benchmark.ts",
-		"bench:findMiddleware": "bun run findMiddleware/benchmark.ts"
+		"bench:findHook": "bun run findHook/benchmark.ts"
 	}
 }

@@ -4,8 +4,8 @@ export interface Node {
 	name: string
 	children: Array<Node>
 	handler?: WobeHandler
-	beforeHandlerMiddleware?: Array<WobeHandler>
-	afterHandlerMiddleware?: Array<WobeHandler>
+	beforeHandlerHook?: Array<WobeHandler>
+	afterHandlerHook?: Array<WobeHandler>
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
@@ -49,32 +49,28 @@ export class RadixTree {
 		currentNode.method = method
 	}
 
-	_addMiddlewareToNode(node: Node, hook: Hook, handler: WobeHandler) {
+	_addHookToNode(node: Node, hook: Hook, handler: WobeHandler) {
 		switch (hook) {
 			case 'beforeHandler': {
-				if (!node.beforeHandlerMiddleware)
-					node.beforeHandlerMiddleware = []
+				if (!node.beforeHandlerHook) node.beforeHandlerHook = []
 
-				node.beforeHandlerMiddleware.push(handler)
+				node.beforeHandlerHook.push(handler)
 				break
 			}
 			case 'afterHandler': {
-				if (!node.afterHandlerMiddleware)
-					node.afterHandlerMiddleware = []
+				if (!node.afterHandlerHook) node.afterHandlerHook = []
 
-				node.afterHandlerMiddleware.push(handler)
+				node.afterHandlerHook.push(handler)
 				break
 			}
 
 			case 'beforeAndAfterHandler': {
-				if (!node.beforeHandlerMiddleware)
-					node.beforeHandlerMiddleware = []
+				if (!node.beforeHandlerHook) node.beforeHandlerHook = []
 
-				if (!node.afterHandlerMiddleware)
-					node.afterHandlerMiddleware = []
+				if (!node.afterHandlerHook) node.afterHandlerHook = []
 
-				node.beforeHandlerMiddleware.push(handler)
-				node.afterHandlerMiddleware.push(handler)
+				node.beforeHandlerHook.push(handler)
+				node.afterHandlerHook.push(handler)
 				break
 			}
 			default:
@@ -82,7 +78,7 @@ export class RadixTree {
 		}
 	}
 
-	addMiddleware(hook: Hook, path: string, handler: WobeHandler, node?: Node) {
+	addHook(hook: Hook, path: string, handler: WobeHandler, node?: Node) {
 		const pathParts = path.split('/').filter(Boolean)
 
 		let currentNode = node || this.root
@@ -95,7 +91,7 @@ export class RadixTree {
 				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
 
 				for (const child of currentNode.children) {
-					this.addMiddleware(hook, nextPathJoin, handler, child)
+					this.addHook(hook, nextPathJoin, handler, child)
 				}
 				return
 			}
@@ -111,7 +107,7 @@ export class RadixTree {
 			currentNode = foundNode
 		}
 
-		this._addMiddlewareToNode(currentNode, hook, handler)
+		this._addHookToNode(currentNode, hook, handler)
 	}
 
 	// This function is used to find the route in the tree

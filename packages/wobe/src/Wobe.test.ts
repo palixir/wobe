@@ -14,10 +14,10 @@ import type { Context } from './Context'
 
 describe('Wobe', async () => {
 	let wobe: Wobe
-	const mockMiddleware = mock(() => {})
-	const mockSecondMiddleware = mock(() => {})
-	const mockMiddlewareBeforeAndAfterHandler = mock(() => {})
-	const mockMiddlewareOnlyBeforeHandler = mock(() => {})
+	const mockHook = mock(() => {})
+	const mockSecondHook = mock(() => {})
+	const mockHookBeforeAndAfterHandler = mock(() => {})
+	const mockHookOnlyBeforeHandler = mock(() => {})
 	const mockOnlyOnTestGet = mock(() => {})
 	const mockTestGet = mock(() => {})
 	const mockTestPost = mock(() => {})
@@ -69,11 +69,11 @@ describe('Wobe', async () => {
 
 		wobe.usePlugin(mockUsePlugin())
 
-		wobe.beforeHandler(mockMiddleware)
-		wobe.beforeHandler(mockSecondMiddleware)
-		wobe.beforeHandler(mockMiddlewareOnlyBeforeHandler)
+		wobe.beforeHandler(mockHook)
+		wobe.beforeHandler(mockSecondHook)
+		wobe.beforeHandler(mockHookOnlyBeforeHandler)
 		wobe.beforeHandler('/testGet', mockOnlyOnTestGet)
-		wobe.beforeAndAfterHandler(mockMiddlewareBeforeAndAfterHandler)
+		wobe.beforeAndAfterHandler(mockHookBeforeAndAfterHandler)
 
 		wobe.listen(port)
 	})
@@ -85,10 +85,10 @@ describe('Wobe', async () => {
 	afterEach(() => {
 		mockUsePlugin.mockClear()
 		mockPluginRoute.mockClear()
-		mockMiddleware.mockClear()
-		mockSecondMiddleware.mockClear()
-		mockMiddlewareBeforeAndAfterHandler.mockClear()
-		mockMiddlewareOnlyBeforeHandler.mockClear()
+		mockHook.mockClear()
+		mockSecondHook.mockClear()
+		mockHookBeforeAndAfterHandler.mockClear()
+		mockHookOnlyBeforeHandler.mockClear()
 		mockOnlyOnTestGet.mockClear()
 		mockAllMethod.mockClear()
 		mockTestGet.mockClear()
@@ -168,54 +168,54 @@ describe('Wobe', async () => {
 		expect(mockAllMethod).toHaveBeenCalledTimes(4)
 	})
 
-	it('should handle middlewares before any request', async () => {
+	it('should handle hooks before any request', async () => {
 		await fetch(`http://127.0.0.1:${port}/testGet`)
 
-		expect(mockMiddleware).toHaveBeenCalledTimes(1)
+		expect(mockHook).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
-		expect(mockMiddleware.mock.calls[0][0].request.method).toBe('GET')
+		expect(mockHook.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockMiddleware.mock.calls[0][0].request.url).toBe(
+		expect(mockHook.mock.calls[0][0].request.url).toBe(
 			`http://127.0.0.1:${port}/testGet`,
 		)
 
-		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
+		expect(mockSecondHook).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
-		expect(mockSecondMiddleware.mock.calls[0][0].request.method).toBe('GET')
+		expect(mockSecondHook.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockSecondMiddleware.mock.calls[0][0].request.url).toBe(
+		expect(mockSecondHook.mock.calls[0][0].request.url).toBe(
 			`http://127.0.0.1:${port}/testGet`,
 		)
 
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 	})
 
-	it('should handle middlewares only on specific path', async () => {
+	it('should handle hooks only on specific path', async () => {
 		await fetch(`http://127.0.0.1:${port}/testGet`)
 
-		expect(mockMiddleware).toHaveBeenCalledTimes(1)
-		expect(mockSecondMiddleware).toHaveBeenCalledTimes(1)
+		expect(mockHook).toHaveBeenCalledTimes(1)
+		expect(mockSecondHook).toHaveBeenCalledTimes(1)
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 
 		await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 
-		expect(mockMiddleware).toHaveBeenCalledTimes(2)
-		expect(mockSecondMiddleware).toHaveBeenCalledTimes(2)
+		expect(mockHook).toHaveBeenCalledTimes(2)
+		expect(mockSecondHook).toHaveBeenCalledTimes(2)
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 	})
 
-	it('should handle middlewares sequentially', async () => {
+	it('should handle hooks sequentially', async () => {
 		// @ts-expect-error
-		mockMiddleware.mockImplementation((ctx: Context) => {
+		mockHook.mockImplementation((ctx: Context) => {
 			// Executed first
 			ctx.res.status = 205
 
 			return ctx.res
 		})
 
-		mockSecondMiddleware.mockImplementation(
+		mockSecondHook.mockImplementation(
 			// @ts-expect-error
 			(ctx: Context) => {
 				// Executed second
@@ -231,41 +231,39 @@ describe('Wobe', async () => {
 
 		expect(res.status).toBe(206)
 
-		mockMiddleware.mockRestore()
-		mockSecondMiddleware.mockRestore()
+		mockHook.mockRestore()
+		mockSecondHook.mockRestore()
 	})
 
-	it('should skip handler if one of middleware throw an error', async () => {
-		mockMiddleware.mockImplementation(() => {
-			throw new HttpException(
-				new Response('Middleware error', { status: 200 }),
-			)
+	it('should skip handler if one of hook throw an error', async () => {
+		mockHook.mockImplementation(() => {
+			throw new HttpException(new Response('Hook error', { status: 200 }))
 		})
 
 		const res = await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 
-		expect(await res.text()).toEqual('Middleware error')
+		expect(await res.text()).toEqual('Hook error')
 		expect(mockTestGet).toHaveBeenCalledTimes(0)
 
-		mockMiddleware.mockRestore()
+		mockHook.mockRestore()
 	})
 
-	it('should handle a middleware only before handler', async () => {
+	it('should handle a hook only before handler', async () => {
 		await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 
-		expect(mockMiddlewareOnlyBeforeHandler).toHaveBeenCalledTimes(1)
+		expect(mockHookOnlyBeforeHandler).toHaveBeenCalledTimes(1)
 	})
 
-	it('should handle a middleware before and after handler', async () => {
+	it('should handle a hook before and after handler', async () => {
 		await fetch(`http://127.0.0.1:${port}/testPost`, {
 			method: 'POST',
 		})
 
-		expect(mockMiddlewareBeforeAndAfterHandler).toHaveBeenCalledTimes(2)
+		expect(mockHookBeforeAndAfterHandler).toHaveBeenCalledTimes(2)
 	})
 
 	it('should handle onError if the handler has an error', async () => {

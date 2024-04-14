@@ -57,14 +57,13 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 				context.query = searchParams || {}
 
 				try {
-					const middlewareBeforeHandler =
-						route.beforeHandlerMiddleware || []
+					const hookBeforeHandler = route.beforeHandlerHook || []
 
-					// We need to run middleware sequentially
-					for (let i = 0; i < middlewareBeforeHandler.length; i++) {
-						const middleware = middlewareBeforeHandler[i]
+					// We need to run hook sequentially
+					for (let i = 0; i < hookBeforeHandler.length; i++) {
+						const hook = hookBeforeHandler[i]
 
-						await middleware(context)
+						await hook(context)
 					}
 
 					context.state = 'handler'
@@ -79,20 +78,19 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 					context.state = 'afterHandler'
 
-					const middlewareAfterHandler =
-						route.afterHandlerMiddleware || []
+					const hookAfterHandler = route.afterHandlerHook || []
 
-					// We need to run middleware sequentially
-					let responseAfterMiddleware = undefined
-					for (let i = 0; i < middlewareAfterHandler.length; i++) {
-						const middleware = middlewareAfterHandler[i]
+					// We need to run hook sequentially
+					let responseAfterHook = undefined
+					for (let i = 0; i < hookAfterHandler.length; i++) {
+						const hook = hookAfterHandler[i]
 
-						responseAfterMiddleware = await middleware(context)
+						responseAfterHook = await hook(context)
 					}
 
 					const response =
-						responseAfterMiddleware instanceof Response
-							? responseAfterMiddleware
+						responseAfterHook instanceof Response
+							? responseAfterHook
 							: context.res.response ||
 								new Response(null, { status: 404 })
 
