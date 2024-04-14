@@ -33,6 +33,14 @@ You can also directly access to some properties of the response object:
 -   `statusText`: Set the status text of the response.
 -   `header`: Set a header of the response.
 
+## Methods of the context object
+
+Context object contains multiple methods to allow you to interact with the request and the response. Here is the list of the methods:
+
+-   `text`: Get the text of the body of the request.
+-   `json`: Get the JSON object of the body of the request.
+-   `redirect`: Redirect the client to another url.
+
 ## Examples
 
 Here is an example of a route handler that sends a text response:
