@@ -1,5 +1,5 @@
 import { Wobe } from '../src'
-import { logger } from '../src/hooks'
+import { logger } from '../src/middlewares'
 
 new Wobe()
 	.get('/', (ctx) => ctx.res.send('Hi'))

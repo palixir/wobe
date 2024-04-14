@@ -1,6 +1,6 @@
 # Hook
 
-Wobe has a hook system that allows you to execute some code before or after a route handler (or both). This is useful when you want to execute some code for every request, like logging, rate limit, bearerAuth, secured headers, csrf etc. This concept is similar to the hook concept in other frameworks at the difference a hook is only executed before the route handler while a hook can executed before or after the route handler.
+Wobe has a hook system that allows you to execute some code before or after a route handler (or both). This is useful when you want to execute some code for every request, like logging, rate limit, bearerAuth, secured headers, csrf etc. This concept is similar to the middleware concept in other frameworks at the difference a middleware is only executed before the route handler while a hook can executed before or after the route handler.
 
 ## Simplest example
 

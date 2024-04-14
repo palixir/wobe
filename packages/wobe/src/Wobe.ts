@@ -32,11 +32,11 @@ export type WobePlugin = (wobe: Wobe) => void
 
 export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
-// TODO : Create assert before hook if it's specific to a type of hook (before, after, beforeAndAfter)
+// TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options?: WobeOptions
 	private server: Server | null
-	private hooks: Array<{
+	private middlewares: Array<{
 		pathname: string
 		handler: WobeHandler
 		hook: Hook
@@ -45,7 +45,7 @@ export class Wobe {
 
 	constructor(options?: WobeOptions) {
 		this.options = options
-		this.hooks = []
+		this.middlewares = []
 		this.server = null
 		this.router = new RadixTree()
 	}
@@ -80,7 +80,7 @@ export class Wobe {
 		return this
 	}
 
-	private _addHook =
+	private _addMiddleware =
 		(hook: Hook) =>
 		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {
 			let path = arg1
@@ -92,7 +92,7 @@ export class Wobe {
 
 			handlers.map((handler) => {
 				if (typeof path === 'string')
-					this.hooks.push({ pathname: path, handler, hook })
+					this.middlewares.push({ pathname: path, handler, hook })
 			})
 
 			return this
@@ -102,15 +102,15 @@ export class Wobe {
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		return this._addHook('beforeAndAfterHandler')(arg1, ...handlers)
+		return this._addMiddleware('beforeAndAfterHandler')(arg1, ...handlers)
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('beforeHandler')(arg1, ...handlers)
+		return this._addMiddleware('beforeHandler')(arg1, ...handlers)
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('afterHandler')(arg1, ...handlers)
+		return this._addMiddleware('afterHandler')(arg1, ...handlers)
 	}
 
 	usePlugin(plugin: MaybePromise<WobePlugin>) {
@@ -130,10 +130,14 @@ export class Wobe {
 	listen(port: number) {
 		this.router.optimizeTree()
 
-		// We need to add all hooks after the compilation
+		// We need to add all middlewares after the compilation
 		// because the tree need to be complete
-		for (const hook of this.hooks) {
-			this.router.addHook(hook.hook, hook.pathname, hook.handler)
+		for (const middleware of this.middlewares) {
+			this.router.addMiddleware(
+				middleware.hook,
+				middleware.pathname,
+				middleware.handler,
+			)
 		}
 
 		const router = this.router
@@ -165,13 +169,14 @@ export class Wobe {
 				context.query = searchParams || {}
 
 				try {
-					const hookBeforeHandler = route.beforeHandlerHook || []
+					const middlewareBeforeHandler =
+						route.beforeHandlerMiddleware || []
 
-					// We need to run hook sequentially
-					for (let i = 0; i < hookBeforeHandler.length; i++) {
-						const hook = hookBeforeHandler[i]
+					// We need to run middleware sequentially
+					for (let i = 0; i < middlewareBeforeHandler.length; i++) {
+						const middleware = middlewareBeforeHandler[i]
 
-						await hook(context)
+						await middleware(context)
 					}
 
 					context.state = 'handler'
@@ -186,18 +191,19 @@ export class Wobe {
 
 					context.state = 'afterHandler'
 
-					const hookAfterHandler = route.afterHandlerHook || []
+					const middlewareAfterHandler =
+						route.afterHandlerMiddleware || []
 
-					// We need to run hook sequentially
-					let responseAfterHook = undefined
-					for (let i = 0; i < hookAfterHandler.length; i++) {
-						const hook = hookAfterHandler[i]
+					// We need to run middleware sequentially
+					let responseAfterMiddleware = undefined
+					for (let i = 0; i < middlewareAfterHandler.length; i++) {
+						const middleware = middlewareAfterHandler[i]
 
-						responseAfterHook = await hook(context)
+						responseAfterMiddleware = await middleware(context)
 					}
 
-					if (responseAfterHook instanceof Response)
-						return responseAfterHook
+					if (responseAfterMiddleware instanceof Response)
+						return responseAfterMiddleware
 
 					return (
 						context.res.response ||
