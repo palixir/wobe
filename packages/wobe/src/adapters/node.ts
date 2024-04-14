@@ -1,15 +1,20 @@
-import { createServer } from 'http'
+import { createServer } from 'node:http'
 import type { RadixTree } from '../router'
 import type { HttpMethod, WobeOptions } from '../Wobe'
 import { HttpException } from '../HttpException'
 import { extractPathnameAndSearchParams } from '../utils'
 import { Context } from '../Context'
 
-const transformResponseInstanceToStringBody = (response: Response) => {
-	if (response.headers.get('content-type') === 'appplication/json')
-		return response.json()
+const transformResponseInstanceToValidResponse = async (response: Response) => {
+	const headers: Record<string, string> = {}
+	response.headers.forEach((value, name) => {
+		headers[name] = value
+	})
 
-	return response.text()
+	if (response.headers.get('content-type') === 'appplication/json')
+		return { headers, body: await response.json() }
+
+	return { headers, body: await response.text() }
 }
 
 export const nodeServe = (
@@ -85,15 +90,18 @@ export const nodeServe = (
 				}
 
 				if (responseAfterMiddleware instanceof Response) {
+					const { headers, body } =
+						await transformResponseInstanceToValidResponse(
+							responseAfterMiddleware,
+						)
+
 					res.writeHead(
 						responseAfterMiddleware.status || 404,
-						responseAfterMiddleware.headers as any,
+						responseAfterMiddleware.statusText,
+						headers,
 					)
-					res.write(
-						await transformResponseInstanceToStringBody(
-							responseAfterMiddleware,
-						),
-					)
+
+					res.write(body)
 					res.end()
 					return
 				}
@@ -101,27 +109,37 @@ export const nodeServe = (
 				const response =
 					context.res.response || new Response(null, { status: 404 })
 
-				res.writeHead(response.status || 404, response.headers as any)
+				const { headers, body } =
+					await transformResponseInstanceToValidResponse(response)
 
-				res.write(await transformResponseInstanceToStringBody(response))
+				res.writeHead(
+					response.status || 404,
+					response.statusText,
+					headers as any,
+				)
+
+				res.write(body)
 
 				res.end()
 			} catch (err: any) {
 				if (err instanceof Error) options?.onError?.(err)
 
 				if (err instanceof HttpException) {
+					const { headers, body } =
+						await transformResponseInstanceToValidResponse(
+							err.response,
+						)
+
 					res.writeHead(
 						err.response.status || 500,
 						err.response.statusText,
-						Object.entries(err.response.headers),
-					)
-
-					const body = await transformResponseInstanceToStringBody(
-						err.response,
+						headers,
 					)
 
 					res.write(body)
 					res.end()
+
+					return
 				}
 
 				res.writeHead(Number(err.code) || 500)
