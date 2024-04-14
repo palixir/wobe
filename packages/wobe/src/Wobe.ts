@@ -1,10 +1,7 @@
 import type { Server } from 'bun'
 import { RadixTree } from './router'
-import { extractPathnameAndSearchParams } from './utils'
-import { HttpException } from './HttpException'
 import { Context } from './Context'
-import { bunServe } from './adapters/bun'
-import { nodeServe } from './adapters'
+import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -34,6 +31,13 @@ export type WobePlugin = (wobe: Wobe) => void
 
 export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
+const factoryOfRuntime = (): RuntimeAdapter => {
+	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST)
+		return BunAdapter()
+
+	return NodeAdapter()
+}
+
 // TODO : Create assert before middleware if it's specific to a type of hook (before, after, beforeAndAfter)
 export class Wobe {
 	private options?: WobeOptions
@@ -44,6 +48,7 @@ export class Wobe {
 		hook: Hook
 	}>
 	private router: RadixTree
+	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
 
 	constructor(options?: WobeOptions) {
 		this.options = options
@@ -142,12 +147,14 @@ export class Wobe {
 			)
 		}
 
-		this.server = nodeServe(port, this.router, this.options)
-		// this.server = bunServe(port, this.router, this.options)
+		this.server = this.runtimeAdapter.createServer(
+			port,
+			this.router,
+			this.options,
+		)
 	}
 
 	stop() {
-		this.server.close()
-		// this.server?.stop()
+		this.runtimeAdapter.stopServer(this.server)
 	}
 }
