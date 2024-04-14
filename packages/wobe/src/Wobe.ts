@@ -1,6 +1,7 @@
 import type { Server } from 'bun'
 import { RadixTree } from './router'
 import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
+import type { Context } from './Context'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -13,6 +14,7 @@ export type Routes = Array<{
 export interface WobeOptions {
 	hostname?: string
 	onError?: (error: Error) => void
+	onNotFound?: (request: Request) => void
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL'

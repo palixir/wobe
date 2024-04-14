@@ -34,12 +34,14 @@ describe('Wobe', async () => {
 		}
 	})
 	const mockOnError = mock(() => {})
+	const mockOnNotFound = mock(() => {})
 
 	const port = await getPort()
 
 	beforeAll(() => {
 		wobe = new Wobe({
 			onError: mockOnError,
+			onNotFound: mockOnNotFound,
 		})
 
 		wobe.get('/testGet', (ctx) => {
@@ -96,6 +98,7 @@ describe('Wobe', async () => {
 		mockTestPut.mockClear()
 		mockTestDelete.mockClear()
 		mockOnError.mockClear()
+		mockOnNotFound.mockClear()
 	})
 
 	it('should call the route create by the plugin', async () => {
@@ -111,6 +114,8 @@ describe('Wobe', async () => {
 
 		expect(res.status).toBe(404)
 		expect(await res.text()).toBe('')
+		expect(mockOnNotFound).toHaveBeenCalledTimes(1)
+		expect(mockOnNotFound).toHaveBeenCalledWith(expect.any(Request))
 	})
 
 	it('should return 200 on successfull get request', async () => {

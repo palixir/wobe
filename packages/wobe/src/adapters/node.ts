@@ -19,9 +19,8 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 }
 
 export const NodeAdapter = (): RuntimeAdapter => ({
-	createServer: (port: number, router: RadixTree, options?: WobeOptions) => {
-		console.log('NodeAdapter')
-		return createServer(async (req, res) => {
+	createServer: (port: number, router: RadixTree, options?: WobeOptions) =>
+		createServer(async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
 
 			const body: Array<any> = []
@@ -30,6 +29,12 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 			})
 
 			req.on('end', async () => {
+				const request = new Request(url, {
+					method: req.method,
+					headers: req.headers as any,
+					body,
+				})
+
 				const { pathName, searchParams } =
 					extractPathnameAndSearchParams(url)
 
@@ -39,16 +44,12 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 				)
 
 				if (!route) {
+					options?.onNotFound?.(request)
+
 					res.writeHead(404)
 					res.end()
 					return
 				}
-
-				const request = new Request(url, {
-					method: req.method,
-					headers: req.headers as any,
-					body,
-				})
 
 				const context = new Context(request)
 
@@ -131,7 +132,6 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 				res.end()
 			})
-		}).listen(port)
-	},
+		}).listen(port),
 	stopServer: (server: any) => server.close(),
 })

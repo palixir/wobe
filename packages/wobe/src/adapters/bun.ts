@@ -20,7 +20,11 @@ export const BunAdapter = (): RuntimeAdapter => ({
 					pathName,
 				)
 
-				if (!route) return new Response(null, { status: 404 })
+				if (!route) {
+					options?.onNotFound?.(req)
+
+					return new Response(null, { status: 404 })
+				}
 
 				const context = new Context(req)
 
