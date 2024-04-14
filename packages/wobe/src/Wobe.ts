@@ -1,6 +1,5 @@
 import type { Server } from 'bun'
 import { RadixTree } from './router'
-import { Context } from './Context'
 import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
 
 export type MaybePromise<T> = T | Promise<T>
