@@ -5,12 +5,14 @@ import {
 	beforeAll,
 	afterAll,
 	mock,
+	spyOn,
 	afterEach,
 } from 'bun:test'
 import getPort from 'get-port'
 import { Wobe } from './Wobe'
 import { HttpException } from './HttpException'
 import type { Context } from './Context'
+import * as nodeAdapter from './adapters/node'
 
 describe('Wobe', async () => {
 	let wobe: Wobe
@@ -99,6 +101,15 @@ describe('Wobe', async () => {
 		mockTestDelete.mockClear()
 		mockOnError.mockClear()
 		mockOnNotFound.mockClear()
+	})
+
+	it('should call the good runtime adapter', async () => {
+		const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
+
+		process.env.NODE_TEST = 'true'
+		new Wobe().listen(5555)
+
+		expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
 	})
 
 	it('should call the route create by the plugin', async () => {
