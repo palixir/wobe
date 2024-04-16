@@ -16,4 +16,10 @@ new Wobe()
 	.beforeHandler('/json', logger())
 	.afterHandler(() => console.log('After handler'))
 	.beforeAndAfterHandler(() => console.log('Before and after handler'))
+	.useWebSocket({
+		path: '/ws',
+		onOpen(ws) {
+			console.log('onOpen')
+		},
+	})
 	.listen(3000)

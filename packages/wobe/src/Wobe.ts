@@ -1,4 +1,4 @@
-import type { Server } from 'bun'
+import type { Server, ServerWebSocket } from 'bun'
 import { RadixTree } from './router'
 import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
 import type { Context } from './Context'
@@ -32,6 +32,18 @@ export type WobePlugin = (wobe: Wobe) => void
 
 export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
+export interface WobeWebSocket {
+	path: string
+	onOpen?(ws: ServerWebSocket<any>): void
+	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
+	onClose?(
+		ws: ServerWebSocket<any>,
+		code: number,
+		message: string | Buffer,
+	): void
+	onDrain?(ws: ServerWebSocket<any>): void
+}
+
 const factoryOfRuntime = (): RuntimeAdapter => {
 	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST)
 		return BunAdapter()
@@ -50,6 +62,8 @@ export class Wobe {
 	}>
 	private router: RadixTree
 	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
+
+	private webSocket: WobeWebSocket | undefined = undefined
 
 	constructor(options?: WobeOptions) {
 		this.options = options
@@ -121,6 +135,12 @@ export class Wobe {
 		return this._addHook('afterHandler')(arg1, ...handlers)
 	}
 
+	useWebSocket(webSocketHandler: WobeWebSocket) {
+		this.webSocket = webSocketHandler
+
+		return this
+	}
+
 	usePlugin(plugin: MaybePromise<WobePlugin>) {
 		if (plugin instanceof Promise) {
 			plugin.then((p) => {
@@ -148,7 +168,10 @@ export class Wobe {
 			port,
 			this.router,
 			this.options,
+			this.webSocket,
 		)
+
+		return this
 	}
 
 	stop() {

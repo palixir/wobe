@@ -1,4 +1,4 @@
-import type { WobeOptions } from '../Wobe'
+import type { WobeOptions, WobeWebSocket } from '../Wobe'
 import type { RadixTree } from '../router'
 
 export * from './bun'
@@ -9,6 +9,7 @@ export interface RuntimeAdapter {
 		port: number,
 		router: RadixTree,
 		options?: WobeOptions,
+		webSocket?: WobeWebSocket,
 	) => any
 
 	stopServer: (server: any) => void

@@ -14,7 +14,7 @@ import { HttpException } from './HttpException'
 import type { Context } from './Context'
 import * as nodeAdapter from './adapters/node'
 
-describe('Wobe', async () => {
+describe('Wobe', () => {
 	let wobe: Wobe
 	const mockHook = mock(() => {})
 	const mockSecondHook = mock(() => {})
@@ -38,9 +38,11 @@ describe('Wobe', async () => {
 	const mockOnError = mock(() => {})
 	const mockOnNotFound = mock(() => {})
 
-	const port = await getPort()
+	let port: number
 
-	beforeAll(() => {
+	beforeAll(async () => {
+		port = await getPort()
+
 		wobe = new Wobe({
 			onError: mockOnError,
 			onNotFound: mockOnNotFound,
@@ -107,9 +109,13 @@ describe('Wobe', async () => {
 		const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
 
 		process.env.NODE_TEST = 'true'
-		new Wobe().listen(5555)
+		const wobe = new Wobe().listen(5555)
 
 		expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
+
+		wobe.stop()
+
+		process.env.NODE_TEST = undefined
 	})
 
 	it('should call the route create by the plugin', async () => {

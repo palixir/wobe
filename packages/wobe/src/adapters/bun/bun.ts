@@ -1,19 +1,33 @@
 import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
-import type { HttpMethod, WobeOptions } from '../../Wobe'
+import type { HttpMethod, WobeOptions, WobeWebSocket } from '../../Wobe'
 import type { RadixTree } from '../../router'
 import { extractPathnameAndSearchParams } from '../../utils'
+import { bunWebSocket } from './websocket'
 
 export const BunAdapter = (): RuntimeAdapter => ({
-	createServer: (port: number, router: RadixTree, options?: WobeOptions) => {
+	createServer: (
+		port: number,
+		router: RadixTree,
+		options?: WobeOptions,
+		webSocket?: WobeWebSocket,
+	) => {
 		return Bun.serve({
 			port,
 			hostname: options?.hostname,
 			development: process.env.NODE_ENV !== 'production',
-			async fetch(req) {
+			websocket: bunWebSocket(webSocket),
+			async fetch(req, server) {
 				const { pathName, searchParams } =
 					extractPathnameAndSearchParams(req.url)
+
+				if (
+					webSocket &&
+					webSocket.path === pathName &&
+					server.upgrade(req)
+				)
+					return
 
 				const route = router.findRoute(
 					req.method as HttpMethod,
