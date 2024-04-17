@@ -50,7 +50,11 @@ describe('Wobe', () => {
 			onNotFound: mockOnNotFound,
 		})
 
-		wobe.get('/testRouteWithHook', () => {}, mockHookOnSpecificRoute as any)
+		wobe.get('/testRouteWithHook', () => {}, mockHookOnSpecificRoute)
+		wobe.post('/testRouteWithHook', () => {}, mockHookOnSpecificRoute)
+		wobe.put('/testRouteWithHook', () => {}, mockHookOnSpecificRoute)
+		wobe.delete('/testRouteWithHook', () => {}, mockHookOnSpecificRoute)
+		wobe.all('/testRouteWithHook', () => {}, mockHookOnSpecificRoute)
 
 		wobe.get('/testGet', (ctx) => {
 			mockTestGet()
@@ -139,10 +143,34 @@ describe('Wobe', () => {
 		},
 	)
 
-	it.only('should call a hook on a specific route', async () => {
-		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`)
+	it('should call a hook on a specific route', async () => {
+		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`, {
+			method: 'GET',
+		})
 
-		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(1)
+		// +1 because we have the ALL request
+		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(2)
+
+		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`, {
+			method: 'POST',
+		})
+
+		// +1 because we have the ALL request
+		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(4)
+
+		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`, {
+			method: 'PUT',
+		})
+
+		// +1 because we have the ALL request
+		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(6)
+
+		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`, {
+			method: 'DELETE',
+		})
+
+		// +1 because we have the ALL request
+		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(8)
 	})
 
 	it('should call the route create by the plugin', async () => {

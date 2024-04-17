@@ -65,6 +65,7 @@ export class Wobe {
 		pathname: string
 		handler: WobeHandler
 		hook: Hook
+		method: HttpMethod
 	}>
 	private router: RadixTree
 	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
@@ -79,37 +80,47 @@ export class Wobe {
 	}
 
 	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		if (hook) this._addHook('beforeHandler', 'GET')(path, hook)
+
 		this.router.addRoute('GET', path, handler)
 
 		return this
 	}
 
-	post(path: string, handler: WobeHandler) {
+	post(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		if (hook) this._addHook('beforeHandler', 'POST')(path, hook)
+
 		this.router.addRoute('POST', path, handler)
 
 		return this
 	}
 
-	put(path: string, handler: WobeHandler) {
+	put(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		if (hook) this._addHook('beforeHandler', 'PUT')(path, hook)
+
 		this.router.addRoute('PUT', path, handler)
 
 		return this
 	}
 
-	delete(path: string, handler: WobeHandler) {
+	delete(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		if (hook) this._addHook('beforeHandler', 'DELETE')(path, hook)
+
 		this.router.addRoute('DELETE', path, handler)
 
 		return this
 	}
 
-	all(path: string, handler: WobeHandler) {
+	all(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		if (hook) this._addHook('beforeHandler', 'ALL')(path, hook)
+
 		this.router.addRoute('ALL', path, handler)
 
 		return this
 	}
 
 	private _addHook =
-		(hook: Hook) =>
+		(hook: Hook, method: HttpMethod) =>
 		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {
 			let path = arg1
 
@@ -120,7 +131,12 @@ export class Wobe {
 
 			handlers.map((handler) => {
 				if (typeof path === 'string')
-					this.hooks.push({ pathname: path, handler, hook })
+					this.hooks.push({
+						pathname: path,
+						handler,
+						hook,
+						method,
+					})
 			})
 
 			return this
@@ -130,15 +146,15 @@ export class Wobe {
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		return this._addHook('beforeAndAfterHandler')(arg1, ...handlers)
+		return this._addHook('beforeAndAfterHandler', 'ALL')(arg1, ...handlers)
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('beforeHandler')(arg1, ...handlers)
+		return this._addHook('beforeHandler', 'ALL')(arg1, ...handlers)
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('afterHandler')(arg1, ...handlers)
+		return this._addHook('afterHandler', 'ALL')(arg1, ...handlers)
 	}
 
 	useWebSocket(webSocketHandler: WobeWebSocket) {
@@ -167,7 +183,12 @@ export class Wobe {
 		// We need to add all hooks after the compilation
 		// because the tree need to be complete
 		for (const hook of this.hooks) {
-			this.router.addHook(hook.hook, hook.pathname, hook.handler)
+			this.router.addHook(
+				hook.hook,
+				hook.pathname,
+				hook.handler,
+				hook.method,
+			)
 		}
 
 		this.server = this.runtimeAdapter.createServer(

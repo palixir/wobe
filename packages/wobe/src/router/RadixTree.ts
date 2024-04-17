@@ -78,7 +78,13 @@ export class RadixTree {
 		}
 	}
 
-	addHook(hook: Hook, path: string, handler: WobeHandler, node?: Node) {
+	addHook(
+		hook: Hook,
+		path: string,
+		handler: WobeHandler,
+		method: HttpMethod,
+		node?: Node,
+	) {
 		const pathParts = path.split('/').filter(Boolean)
 
 		let currentNode = node || this.root
@@ -87,11 +93,12 @@ export class RadixTree {
 			const pathPart = pathParts[i]
 			const isWildcardNode = pathPart[0] === '*'
 
+			console.log(currentNode)
 			if (isWildcardNode) {
 				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
 
 				for (const child of currentNode.children) {
-					this.addHook(hook, nextPathJoin, handler, child)
+					this.addHook(hook, nextPathJoin, handler, method, child)
 				}
 				return
 			}
@@ -99,10 +106,28 @@ export class RadixTree {
 			const foundNode = currentNode.children.find(
 				(node) =>
 					node.name ===
-					(currentNode.name === '/' ? '' : '/') + pathPart,
+						(currentNode.name === '/' ? '' : '/') + pathPart &&
+					(node.method === method ||
+						!node.method ||
+						(node.method && method === 'ALL')),
 			)
 
 			if (!foundNode) break
+
+			// If we have ALL method we can have multiple path with the same name but differents methods
+			// if (foundNode.method && method === 'ALL') {
+			// 	currentNode.children
+			// 		.filter(
+			// 			(child) =>
+			// 				child.method &&
+			// 				child.name ===
+			// 					(currentNode.name === '/' ? '' : '/') +
+			// 						pathPart,
+			// 		)
+			// 		.map((child) => this._addHookToNode(child, hook, handler))
+
+			// 	return
+			// }
 
 			currentNode = foundNode
 		}

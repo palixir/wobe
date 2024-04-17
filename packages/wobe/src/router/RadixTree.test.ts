@@ -3,14 +3,153 @@ import { RadixTree } from './RadixTree'
 
 describe('RadixTree', () => {
 	describe('addHook', () => {
+		it('should add a hook with method ALL on a route with wildcard at the end', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/test/*', () => Promise.resolve())
+
+			radixTree.addHook(
+				'beforeHandler',
+				'/test/*',
+				() => Promise.resolve(),
+				'ALL',
+			)
+
+			expect(radixTree.root.children[0].children[0].name).toBe('/*')
+			expect(radixTree.root.children[0].children[0].method).toBe('GET')
+			expect(radixTree.root.children[0].children[0].handler).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].beforeHandlerHook
+					?.length,
+			).toBe(1)
+		})
+
+		it('should add a hook with method ALL for all type of method', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addRoute('POST', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addRoute('POST', '/a/simple/route2', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'ALL',
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerHook?.length,
+			).toBe(1)
+
+			expect(
+				radixTree.root.children[0].children[0].children[1].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[1].method,
+			).toBe('POST')
+			expect(
+				radixTree.root.children[0].children[0].children[1].handler,
+			).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.beforeHandlerHook?.length,
+			).toBe(1)
+
+			expect(
+				radixTree.root.children[0].children[0].children[2].name,
+			).toBe('/route2')
+			expect(
+				radixTree.root.children[0].children[0].children[2].method,
+			).toBe('POST')
+			expect(
+				radixTree.root.children[0].children[0].children[2].handler,
+			).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].children[2]
+					.beforeHandlerHook?.length,
+			).toBeUndefined()
+		})
+
+		it('should add a single hook based on the method of the request', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addRoute('POST', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'GET',
+			)
+
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'POST',
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerHook?.length,
+			).toBe(1)
+
+			expect(
+				radixTree.root.children[0].children[0].children[1].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[1].method,
+			).toBe('POST')
+			expect(
+				radixTree.root.children[0].children[0].children[1].handler,
+			).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].children[1]
+					.beforeHandlerHook?.length,
+			).toBe(1)
+		})
+
 		it('should add a hook beforeHandler to the radix tree', () => {
 			const radixTree = new RadixTree()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/route', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -39,8 +178,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('afterHandler', '/a/simple/route', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'afterHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -69,8 +211,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeAndAfterHandler', '/a/simple/route', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeAndAfterHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -99,8 +244,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/*/route', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/*/route',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -119,8 +267,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/*', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/*',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -139,8 +290,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/route/', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route/',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -162,11 +316,17 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route2', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/route', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route',
+				() => Promise.resolve(),
+				'GET',
 			)
-			radixTree.addHook('afterHandler', '/a/simple/route2', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'afterHandler',
+				'/a/simple/route2',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -203,8 +363,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/route/*/tata', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route/*/tata',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -223,8 +386,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple/route2', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple/route2',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
@@ -243,8 +409,11 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
-			radixTree.addHook('beforeHandler', '/a/simple', () =>
-				Promise.resolve(),
+			radixTree.addHook(
+				'beforeHandler',
+				'/a/simple',
+				() => Promise.resolve(),
+				'GET',
 			)
 
 			expect(
