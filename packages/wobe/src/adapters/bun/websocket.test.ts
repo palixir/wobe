@@ -21,7 +21,8 @@ const waitWebsocketClosed = (ws: WebSocket) =>
 		ws.onclose = resolve
 	})
 
-describe('Bun - websocket', () => {
+describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
+	4
 	const mockOnOpen = mock(() => {})
 	const mockOnMessage = mock(() => {})
 	const mockOnClose = mock(() => {})

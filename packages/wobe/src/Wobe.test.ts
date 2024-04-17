@@ -13,6 +13,7 @@ import { Wobe } from './Wobe'
 import { HttpException } from './HttpException'
 import type { Context } from './Context'
 import * as nodeAdapter from './adapters/node'
+import * as bunAdapter from './adapters/bun'
 
 describe('Wobe', () => {
 	let wobe: Wobe
@@ -105,18 +106,31 @@ describe('Wobe', () => {
 		mockOnNotFound.mockClear()
 	})
 
-	it('should call the good runtime adapter', async () => {
-		const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
+	it.skipIf(process.env.NODE_TEST !== 'true')(
+		'should call Node runtime adapter',
+		async () => {
+			const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
 
-		process.env.NODE_TEST = 'true'
-		const wobe = new Wobe().listen(5555)
+			const wobe = new Wobe().listen(5555)
 
-		expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
+			expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
 
-		wobe.stop()
+			wobe.stop()
+		},
+	)
 
-		process.env.NODE_TEST = undefined
-	})
+	it.skipIf(process.env.NODE_TEST === 'true')(
+		'should call Bun runtime adapter',
+		async () => {
+			const spyBunAdapter = spyOn(bunAdapter, 'BunAdapter')
+
+			const wobe = new Wobe().listen(5555)
+
+			expect(spyBunAdapter).toHaveBeenCalledTimes(1)
+
+			wobe.stop()
+		},
+	)
 
 	it('should call the route create by the plugin', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/routeCreatedByPlugin`)

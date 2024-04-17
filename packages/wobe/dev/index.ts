@@ -19,7 +19,13 @@ new Wobe()
 	.useWebSocket({
 		path: '/ws',
 		onOpen(ws) {
-			console.log('onOpen')
+			ws.send('Hello new connection')
+		},
+		onMessage: (ws, message) => {
+			ws.send(`You said: ${message}`)
+		},
+		onClose(ws) {
+			ws.send('Goodbye')
 		},
 	})
 	.listen(3000)
