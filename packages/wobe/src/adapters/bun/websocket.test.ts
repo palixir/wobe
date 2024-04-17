@@ -9,6 +9,7 @@ import {
 } from 'bun:test'
 import { Wobe } from '../../Wobe'
 import getPort from 'get-port'
+import { bunWebSocket } from './websocket'
 
 const waitWebsocketOpened = (ws: WebSocket) =>
 	new Promise((resolve) => {
@@ -51,7 +52,7 @@ describe('Bun - websocket', () => {
 		mockOnDrain.mockClear()
 	})
 
-	it.only('should call onOpen when the websocket connection is opened', async () => {
+	it('should call onOpen when the websocket connection is opened', async () => {
 		const ws = new WebSocket(`ws://localhost:${port}/ws`)
 
 		await waitWebsocketOpened(ws)
@@ -86,5 +87,25 @@ describe('Bun - websocket', () => {
 
 		expect(mockOnOpen).toHaveBeenCalledTimes(1)
 		expect(mockOnClose).toHaveBeenCalledTimes(1)
+	})
+
+	it('should have all wobe websockets options', async () => {
+		const websocket = bunWebSocket({
+			backpressureLimit: 1024,
+			closeOnBackpressureLimit: true,
+			idleTimeout: 1000,
+			maxPayloadLength: 1024,
+			compression: true,
+		} as any)
+
+		expect(websocket.perMessageDeflate).toBe(true)
+		expect(websocket.maxPayloadLength).toBe(1024)
+		expect(websocket.idleTimeout).toBe(1000)
+		expect(websocket.backpressureLimit).toBe(1024)
+		expect(websocket.closeOnBackpressureLimit).toBe(true)
+		expect(websocket.message).toBeDefined()
+		expect(websocket.open).toBeDefined()
+		expect(websocket.close).toBeDefined()
+		expect(websocket.drain).toBeDefined()
 	})
 })

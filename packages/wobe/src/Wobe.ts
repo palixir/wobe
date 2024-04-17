@@ -34,6 +34,11 @@ export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
 export interface WobeWebSocket {
 	path: string
+	compression?: boolean
+	maxPayloadLength?: number
+	idleTimeout?: number
+	backpressureLimit?: number
+	closeOnBackpressureLimit?: boolean
 	onOpen?(ws: ServerWebSocket<any>): void
 	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
 	onClose?(
