@@ -9,7 +9,7 @@ export class Context {
 	public ipAdress: string | undefined = undefined
 	public state: 'beforeHandler' | 'handler' | 'afterHandler' = 'beforeHandler'
 	public requestStartTimeInMs: number | undefined = undefined
-	public body: string | object | undefined = undefined
+	public body: string | object = {}
 	public getIpAdress: () => string = () => ''
 
 	constructor(request: Request) {
@@ -17,12 +17,10 @@ export class Context {
 		this.res = new WobeResponse(request)
 	}
 
-	json() {
-		return this.request.json() as Promise<object>
-	}
-
-	text() {
-		return this.request.text() as Promise<string>
+	async extractBody() {
+		if (this.request.headers.get('content-type') === 'application/json')
+			this.body = (await this.request.json()) as object
+		else this.body = (await this.request.text()) as string
 	}
 
 	redirect(url: string, status = 302) {

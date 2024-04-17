@@ -54,6 +54,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						return new Response(null, { status: 404 })
 					}
 
+					await context.extractBody()
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
 					context.params = route.params || {}

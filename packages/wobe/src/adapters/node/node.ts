@@ -53,6 +53,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 				const context = new Context(request)
 
+				await context.extractBody()
 				context.getIpAdress = () => req.socket.remoteAddress || ''
 				context.params = route.params || {}
 				context.query = searchParams || {}

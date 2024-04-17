@@ -17,6 +17,7 @@ import * as bunAdapter from './adapters/bun'
 
 describe('Wobe', () => {
 	let wobe: Wobe
+	const mockHookOnSpecificRoute = mock(() => {})
 	const mockHook = mock(() => {})
 	const mockSecondHook = mock(() => {})
 	const mockHookBeforeAndAfterHandler = mock(() => {})
@@ -49,6 +50,8 @@ describe('Wobe', () => {
 			onNotFound: mockOnNotFound,
 		})
 
+		wobe.get('/testRouteWithHook', () => {}, mockHookOnSpecificRoute as any)
+
 		wobe.get('/testGet', (ctx) => {
 			mockTestGet()
 			return ctx.res.send('Test')
@@ -67,6 +70,10 @@ describe('Wobe', () => {
 		wobe.delete('/testDelete', (ctx) => {
 			mockTestDelete()
 			return ctx.res.send('Delete')
+		})
+
+		wobe.post('/testPostWithBody', (ctx) => {
+			return ctx.res.send(ctx.body)
 		})
 
 		wobe.all('/allMethod', (ctx) => {
@@ -131,6 +138,12 @@ describe('Wobe', () => {
 			wobe.stop()
 		},
 	)
+
+	it.only('should call a hook on a specific route', async () => {
+		await fetch(`http://127.0.0.1:${port}/testRouteWithHook`)
+
+		expect(mockHookOnSpecificRoute).toHaveBeenCalledTimes(1)
+	})
 
 	it('should call the route create by the plugin', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/routeCreatedByPlugin`)
@@ -312,5 +325,14 @@ describe('Wobe', () => {
 		expect(mockOnError).toHaveBeenCalledTimes(1)
 
 		mockTestGet.mockRestore()
+	})
+
+	it('should get body in request if the request contains a body', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testPostWithBody`, {
+			method: 'POST',
+			body: JSON.stringify({ test: 'test' }),
+		})
+
+		expect(await res.json()).toEqual({ test: 'test' })
 	})
 })

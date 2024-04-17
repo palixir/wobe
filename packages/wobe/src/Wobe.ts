@@ -78,7 +78,7 @@ export class Wobe {
 		this.router = new RadixTree()
 	}
 
-	get(path: string, handler: WobeHandler) {
+	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		this.router.addRoute('GET', path, handler)
 
 		return this

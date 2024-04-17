@@ -11,29 +11,38 @@ describe('Context', () => {
 		expect(context.ipAdress).toBeUndefined()
 		expect(context.state).toEqual('beforeHandler')
 		expect(context.requestStartTimeInMs).toBeUndefined()
-		expect(context.body).toBeUndefined()
+		expect(context.body).toEqual({})
 	})
 
-	it('should return a json object', async () => {
+	it('should get the body if the body is a json', async () => {
 		const request = new Request('https://example.com', {
-			body: JSON.stringify({ name: 'John Doe' }),
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify({ test: 'test' }),
 		})
 		const context = new Context(request)
 
-		const json = await context.json()
+		await context.extractBody()
 
-		expect(json).toEqual({ name: 'John Doe' })
+		expect(context.body).toEqual({ test: 'test' })
 	})
 
-	it('should return a text', async () => {
+	it('should get the body if the body is a text', async () => {
 		const request = new Request('https://example.com', {
-			body: 'Hello, World!',
+			method: 'POST',
+			headers: {
+				'content-type': 'text/plain',
+			},
+			body: 'test',
 		})
+
 		const context = new Context(request)
 
-		const text = await context.text()
+		await context.extractBody()
 
-		expect(text).toEqual('Hello, World!')
+		expect(context.body).toEqual('test')
 	})
 
 	it('should redirect client to a specific url', () => {
