@@ -16,6 +16,11 @@ const waitWebsocketOpened = (ws: WebSocket) =>
 		ws.onopen = resolve
 	})
 
+const waitWebsocketClosed = (ws: WebSocket) =>
+	new Promise((resolve) => {
+		ws.onclose = resolve
+	})
+
 describe('Bun - websocket', () => {
 	const mockOnOpen = mock(() => {})
 	const mockOnMessage = mock(() => {})
@@ -89,6 +94,15 @@ describe('Bun - websocket', () => {
 		expect(mockOnClose).toHaveBeenCalledTimes(1)
 	})
 
+	it('should not call onOpen if the pathname is wrong', async () => {
+		const ws = new WebSocket(`ws://localhost:${port}/wrong`)
+
+		await waitWebsocketClosed(ws)
+
+		expect(mockOnOpen).toHaveBeenCalledTimes(0)
+		expect(mockOnClose).toHaveBeenCalledTimes(1)
+	})
+
 	it('should have all wobe websockets options', async () => {
 		const websocket = bunWebSocket({
 			backpressureLimit: 1024,
@@ -107,5 +121,68 @@ describe('Bun - websocket', () => {
 		expect(websocket.open).toBeDefined()
 		expect(websocket.close).toBeDefined()
 		expect(websocket.drain).toBeDefined()
+	})
+
+	it('should call all beforeHandler before the websocket upgrade', async () => {
+		const port2 = await getPort()
+
+		const wobe2 = new Wobe()
+
+		const mockBeforeHandler1 = mock(() => {})
+		const mockBeforeHandler2 = mock(() => {})
+
+		wobe2
+			.useWebSocket({
+				path: '/ws',
+				beforeWebSocketUpgrade: [
+					mockBeforeHandler1,
+					mockBeforeHandler2,
+				],
+			})
+			.listen(port2)
+
+		const ws = new WebSocket(`ws://localhost:${port2}/ws`)
+
+		await waitWebsocketOpened(ws)
+
+		expect(mockBeforeHandler1).toHaveBeenCalledTimes(1)
+		expect(mockBeforeHandler2).toHaveBeenCalledTimes(1)
+
+		ws.close()
+
+		wobe2.stop()
+	})
+
+	it('should not established the socket connection if one of the beforeSocketUpgrade failed', async () => {
+		const port2 = await getPort()
+
+		const wobe2 = new Wobe()
+
+		const mockBeforeHandler1 = mock(() => {
+			throw new Error('error')
+		})
+		const mockBeforeHandler2 = mock(() => {})
+
+		wobe2
+			.useWebSocket({
+				path: '/ws',
+				beforeWebSocketUpgrade: [
+					mockBeforeHandler1,
+					mockBeforeHandler2,
+				],
+			})
+			.listen(port2)
+
+		const ws = new WebSocket(`ws://localhost:${port2}/ws`)
+
+		await waitWebsocketClosed(ws)
+
+		ws.close()
+
+		expect(mockBeforeHandler1).toHaveBeenCalledTimes(1)
+		expect(mockOnOpen).toHaveBeenCalledTimes(0)
+		expect(mockBeforeHandler2).toHaveBeenCalledTimes(0)
+
+		wobe2.stop()
 	})
 })

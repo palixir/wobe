@@ -39,6 +39,7 @@ export interface WobeWebSocket {
 	idleTimeout?: number
 	backpressureLimit?: number
 	closeOnBackpressureLimit?: boolean
+	beforeWebSocketUpgrade?: Array<WobeHandler>
 	onOpen?(ws: ServerWebSocket<any>): void
 	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
 	onClose?(

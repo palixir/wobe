@@ -19,34 +19,46 @@ export const BunAdapter = (): RuntimeAdapter => ({
 			development: process.env.NODE_ENV !== 'production',
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
-				const { pathName, searchParams } =
-					extractPathnameAndSearchParams(req.url)
-
-				if (
-					webSocket &&
-					webSocket.path === pathName &&
-					server.upgrade(req)
-				)
-					return
-
-				const route = router.findRoute(
-					req.method as HttpMethod,
-					pathName,
-				)
-
-				if (!route) {
-					options?.onNotFound?.(req)
-
-					return new Response(null, { status: 404 })
-				}
-
-				const context = new Context(req)
-
-				context.getIpAdress = () => this.requestIP(req)?.address || ''
-				context.params = route.params || {}
-				context.query = searchParams || {}
-
 				try {
+					const context = new Context(req)
+
+					const { pathName, searchParams } =
+						extractPathnameAndSearchParams(req.url)
+
+					if (webSocket && webSocket.path === pathName) {
+						const hookBeforeSocketUpgrade =
+							webSocket.beforeWebSocketUpgrade || []
+
+						// We need to run hook sequentially
+						for (
+							let i = 0;
+							i < hookBeforeSocketUpgrade.length;
+							i++
+						) {
+							const hook = hookBeforeSocketUpgrade[i]
+
+							await hook(context)
+						}
+
+						if (server.upgrade(req)) return
+					}
+
+					const route = router.findRoute(
+						req.method as HttpMethod,
+						pathName,
+					)
+
+					if (!route) {
+						options?.onNotFound?.(req)
+
+						return new Response(null, { status: 404 })
+					}
+
+					context.getIpAdress = () =>
+						this.requestIP(req)?.address || ''
+					context.params = route.params || {}
+					context.query = searchParams || {}
+
 					const hookBeforeHandler = route.beforeHandlerHook || []
 
 					// We need to run hook sequentially
