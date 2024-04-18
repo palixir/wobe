@@ -3,6 +3,45 @@ import { RadixTree } from './RadixTree'
 
 describe('RadixTree', () => {
 	describe('addHook', () => {
+		it('should throw an error when addHook is called after optimizeTree', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/test', () => Promise.resolve())
+
+			radixTree.optimizeTree()
+
+			expect(() => {
+				radixTree.addHook(
+					'beforeHandler',
+					'/test',
+					() => Promise.resolve(),
+					'GET',
+				)
+			}).toThrowError(
+				'Cannot add hooks after the tree has been optimized',
+			)
+		})
+
+		it.only('should add a hook when the radix in the same between two routes', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/test/v1', () => Promise.resolve())
+			radixTree.addRoute('GET', '/test', () => Promise.resolve())
+
+			radixTree.addHook(
+				'beforeHandler',
+				'/test/*',
+				() => Promise.resolve(),
+				'ALL',
+			)
+
+			expect(radixTree.root.children[0].children[0].handler).toBeDefined()
+			expect(
+				radixTree.root.children[0].children[0].beforeHandlerHook
+					?.length,
+			).toBe(1)
+		})
+
 		it('should add a hook with method ALL on a route with wildcard at the end', () => {
 			const radixTree = new RadixTree()
 
@@ -267,6 +306,7 @@ describe('RadixTree', () => {
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
 			)
+
 			radixTree.addHook(
 				'beforeHandler',
 				'/a/simple/*',

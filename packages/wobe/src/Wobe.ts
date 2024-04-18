@@ -146,15 +146,31 @@ export class Wobe {
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		return this._addHook('beforeAndAfterHandler', 'ALL')(arg1, ...handlers)
+		// TODO : Maybe refactor this to be more strong
+		this._addHook('beforeAndAfterHandler', 'GET')(arg1, ...handlers)
+		this._addHook('beforeAndAfterHandler', 'PUT')(arg1, ...handlers)
+		this._addHook('beforeAndAfterHandler', 'POST')(arg1, ...handlers)
+		this._addHook('beforeAndAfterHandler', 'DELETE')(arg1, ...handlers)
+
+		return this
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('beforeHandler', 'ALL')(arg1, ...handlers)
+		this._addHook('beforeHandler', 'GET')(arg1, ...handlers)
+		this._addHook('beforeHandler', 'PUT')(arg1, ...handlers)
+		this._addHook('beforeHandler', 'POST')(arg1, ...handlers)
+		this._addHook('beforeHandler', 'DELETE')(arg1, ...handlers)
+
+		return this
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		return this._addHook('afterHandler', 'ALL')(arg1, ...handlers)
+		this._addHook('afterHandler', 'GET')(arg1, ...handlers)
+		this._addHook('afterHandler', 'PUT')(arg1, ...handlers)
+		this._addHook('afterHandler', 'POST')(arg1, ...handlers)
+		this._addHook('afterHandler', 'DELETE')(arg1, ...handlers)
+
+		return this
 	}
 
 	useWebSocket(webSocketHandler: WobeWebSocket) {
@@ -178,8 +194,6 @@ export class Wobe {
 	}
 
 	listen(port: number) {
-		this.router.optimizeTree()
-
 		// We need to add all hooks after the compilation
 		// because the tree need to be complete
 		for (const hook of this.hooks) {
@@ -190,6 +204,8 @@ export class Wobe {
 				hook.method,
 			)
 		}
+
+		this.router.optimizeTree()
 
 		this.server = this.runtimeAdapter.createServer(
 			port,

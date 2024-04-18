@@ -4,7 +4,6 @@ import { logger } from '../src/hooks'
 new Wobe()
 	.get('/', (ctx) => ctx.res.send('Hi'))
 	.post('/json', async (ctx) => {
-		console.log('handler')
 		const tata = await ctx.json()
 		return ctx.res.send(tata)
 	})

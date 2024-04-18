@@ -18,55 +18,54 @@ describe('Wobe integration', async () => {
 	let wobe: Wobe
 	const port = await getPort()
 
-	const spyConsoleLog = spyOn(console, 'log')
+	const spyConsoleLog = spyOn(console, 'log').mockResolvedValue({} as never)
 	const mockHookWithWildcardRoute = mock(() => {})
 
 	beforeAll(() => {
 		wobe = new Wobe()
-			// .beforeHandler('/testHookLifecyce', (ctx) => {
-			// 	ctx.res.headers.set('X-Test', 'Test')
-			// })
-			// .beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
-			// .beforeHandler('/testBearer', bearerAuth({ token: '123' }))
+			.beforeHandler('/testHookLifecyce', (ctx) => {
+				ctx.res.headers.set('X-Test', 'Test')
+			})
+			.beforeHandler(csrf({ origin: `http://127.0.0.1:${port}` }))
+			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
 			.beforeHandler('/test/*', mockHookWithWildcardRoute)
 
-		// wobe.beforeAndAfterHandler(logger())
+		wobe.beforeAndAfterHandler(logger())
 
-		// wobe.afterHandler('/testHookLifecyce', (ctx) => {
-		// 	ctx.res.headers.set('X-Test-3', 'Test3')
-		// 	return ctx.res.send('Test after handler')
-		// })
+		wobe.afterHandler('/testHookLifecyce', (ctx) => {
+			ctx.res.headers.set('X-Test-3', 'Test3')
+			return ctx.res.send('Test after handler')
+		})
 
-		// wobe.get('/testHookLifecyce', (ctx) => {
-		// 	ctx.res.headers.set('X-Test-2', 'Test2')
+		wobe.get('/testHookLifecyce', (ctx) => {
+			ctx.res.headers.set('X-Test-2', 'Test2')
 
-		// 	return ctx.res.send('Test')
-		// })
-		// .get('/ipAdress', (ctx) => {
-		// 	ctx.res.send(ctx.getIpAdress())
-		// })
+			return ctx.res.send('Test')
+		}).get('/ipAdress', (ctx) => {
+			ctx.res.send(ctx.getIpAdress())
+		})
 		wobe.get('/test/v1', (ctx) => {
 			return ctx.res.send('Test')
 		})
-		// .get('/test', (ctx) => {
-		// 	return ctx.res.send('Test')
-		// })
-		// .get('/testBearer', (ctx) => {
-		// 	return ctx.res.send('Test')
-		// })
-		// .get('/testReturnResponse', () => {
-		// 	return new Response('Content', { status: 200 })
-		// })
-		// .get('/route/:id/name', (ctx) => {
-		// 	if (ctx.query.test) return ctx.res.sendText(ctx.query.test)
+		wobe.get('/test', (ctx) => {
+			return ctx.res.send('Test')
+		})
+			.get('/testBearer', (ctx) => {
+				return ctx.res.send('Test')
+			})
+			.get('/testReturnResponse', () => {
+				return new Response('Content', { status: 200 })
+			})
+			.get('/route/:id/name', (ctx) => {
+				if (ctx.query.test) return ctx.res.sendText(ctx.query.test)
 
-		// 	return ctx.res.sendText(ctx.params.id)
-		// })
-		// .get('/testStatusText', (ctx) => {
-		// 	ctx.res.statusText = 'Test'
+				return ctx.res.sendText(ctx.params.id)
+			})
+			.get('/testStatusText', (ctx) => {
+				ctx.res.statusText = 'Test'
 
-		// 	return ctx.res.send('Test')
-		// })
+				return ctx.res.send('Test')
+			})
 
 		wobe.listen(port)
 	})
@@ -115,7 +114,7 @@ describe('Wobe integration', async () => {
 		expect(await res2.text()).toEqual('bun')
 	})
 
-	it.only('should execute hooks with a route name like /test/* for any route begin by /test/', async () => {
+	it('should execute hooks with a route name like /test/* for any route begin by /test/', async () => {
 		await fetch(`http://127.0.0.1:${port}/test/v1`, {
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
@@ -173,7 +172,7 @@ describe('Wobe integration', async () => {
 		)
 	})
 
-	it('should log with logger hook', async () => {
+	it.only('should log with logger hook', async () => {
 		await fetch(`http://127.0.0.1:${port}/test`, {
 			headers: {
 				origin: `http://127.0.0.1:${port}`,

@@ -14,6 +14,7 @@ export interface Node {
 
 export class RadixTree {
 	public root: Node = { name: '/', children: [] }
+	private isOptimized = false
 
 	addRoute(method: HttpMethod, path: string, handler: WobeHandler) {
 		const pathParts = path.split('/').filter(Boolean)
@@ -85,21 +86,24 @@ export class RadixTree {
 		method: HttpMethod,
 		node?: Node,
 	) {
-		const pathParts = path.split('/').filter(Boolean)
+		if (this.isOptimized)
+			throw new Error(
+				'Cannot add hooks after the tree has been optimized',
+			)
 
+		const pathParts = path.split('/').filter(Boolean)
 		let currentNode = node || this.root
 
 		for (let i = 0; i < pathParts.length; i++) {
 			const pathPart = pathParts[i]
 			const isWildcardNode = pathPart[0] === '*'
 
-			console.log(currentNode)
 			if (isWildcardNode) {
 				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
-
 				for (const child of currentNode.children) {
 					this.addHook(hook, nextPathJoin, handler, method, child)
 				}
+
 				return
 			}
 
@@ -107,27 +111,27 @@ export class RadixTree {
 				(node) =>
 					node.name ===
 						(currentNode.name === '/' ? '' : '/') + pathPart &&
-					(node.method === method ||
-						!node.method ||
-						(node.method && method === 'ALL')),
+					(node.method === method || !node.method),
 			)
 
 			if (!foundNode) break
 
 			// If we have ALL method we can have multiple path with the same name but differents methods
-			// if (foundNode.method && method === 'ALL') {
-			// 	currentNode.children
-			// 		.filter(
-			// 			(child) =>
-			// 				child.method &&
-			// 				child.name ===
-			// 					(currentNode.name === '/' ? '' : '/') +
-			// 						pathPart,
-			// 		)
-			// 		.map((child) => this._addHookToNode(child, hook, handler))
+			if (foundNode.method && method === 'ALL') {
+				currentNode.children
+					.filter(
+						(child) =>
+							child.method &&
+							child.name ===
+								(currentNode.name === '/' ? '' : '/') +
+									pathPart,
+					)
+					.map((child) => {
+						this._addHookToNode(child, hook, handler)
+					})
 
-			// 	return
-			// }
+				return
+			}
 
 			currentNode = foundNode
 		}
@@ -255,6 +259,8 @@ export class RadixTree {
 				node.children = child.children
 				node.handler = child.handler
 				node.method = child.method
+				node.beforeHandlerHook = child.beforeHandlerHook
+				node.afterHandlerHook = child.afterHandlerHook
 
 				optimizeNode(node)
 			}
@@ -263,5 +269,7 @@ export class RadixTree {
 		}
 
 		optimizeNode(this.root)
+
+		this.isOptimized = true
 	}
 }
