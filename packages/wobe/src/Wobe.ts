@@ -80,7 +80,6 @@ export class Wobe {
 	}
 
 	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
-		console.log('tata')
 		if (hook) this._addHook('beforeHandler', 'GET')(path, hook)
 
 		this.router.addRoute('GET', path, handler)
@@ -190,8 +189,6 @@ export class Wobe {
 			plugin.then((p) => {
 				return p(this)
 			})
-
-			console.log('tata')
 
 			return this
 		}

@@ -63,12 +63,12 @@ export const WobeGraphqlApolloPlugin = async ({
 				}),
 		)
 
-		wobe.post(graphqlEndpoint, async ({ request }) =>
+		wobe.post(graphqlEndpoint, async ({ request, body }) =>
 			server
 				.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
 						method: request.method.toUpperCase(),
-						body: await request.json(),
+						body,
 						// @ts-expect-error
 						headers: request.headers,
 						search: getQueryString(request.url),

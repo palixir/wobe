@@ -50,7 +50,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 		wobe.stop()
 	})
 
-	it.only('should query graphql request with context in graphql resolver', async () => {
+	it('should query graphql request with context in graphql resolver', async () => {
 		const port = await getPort()
 
 		const wobe = new Wobe()
