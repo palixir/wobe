@@ -2,9 +2,12 @@
 	"name": "wobe-validator",
 	"version": "0.1.0",
 	"main": "index.ts",
-	"dependencies": { "@sinclair/typebox": "0.32.20" },
+	"dependencies": {
+		"@sinclair/typebox": "0.32.20"
+	},
 	"devDependencies": {
-		"wobe": "workspace:*"
+		"wobe": "workspace:*",
+		"get-port": "7.0.0"
 	},
 	"scripts": {
 		"format": "biome format --write .",

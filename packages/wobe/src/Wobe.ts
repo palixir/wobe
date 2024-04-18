@@ -69,6 +69,12 @@ export class Wobe {
 	}>
 	private router: RadixTree
 	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
+	private httpMethods: Array<HttpMethod> = [
+		'GET',
+		'POST',
+		'PUT',
+		'DELETE',
+	] as const
 
 	private webSocket: WobeWebSocket | undefined = undefined
 
@@ -113,10 +119,9 @@ export class Wobe {
 
 	all(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) {
-			this._addHook('beforeHandler', 'GET')(path, hook)
-			this._addHook('beforeHandler', 'PUT')(path, hook)
-			this._addHook('beforeHandler', 'POST')(path, hook)
-			this._addHook('beforeHandler', 'DELETE')(path, hook)
+			this.httpMethods.map((method) =>
+				this._addHook('beforeHandler', method)(path, hook),
+			)
 		}
 
 		this.router.addRoute('ALL', path, handler)
@@ -151,29 +156,25 @@ export class Wobe {
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
 	) {
-		// TODO : Maybe refactor this to be more strong
-		this._addHook('beforeAndAfterHandler', 'GET')(arg1, ...handlers)
-		this._addHook('beforeAndAfterHandler', 'PUT')(arg1, ...handlers)
-		this._addHook('beforeAndAfterHandler', 'POST')(arg1, ...handlers)
-		this._addHook('beforeAndAfterHandler', 'DELETE')(arg1, ...handlers)
+		this.httpMethods.map((method) =>
+			this._addHook('beforeAndAfterHandler', method)(arg1, ...handlers),
+		)
 
 		return this
 	}
 
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		this._addHook('beforeHandler', 'GET')(arg1, ...handlers)
-		this._addHook('beforeHandler', 'PUT')(arg1, ...handlers)
-		this._addHook('beforeHandler', 'POST')(arg1, ...handlers)
-		this._addHook('beforeHandler', 'DELETE')(arg1, ...handlers)
+		this.httpMethods.map((method) =>
+			this._addHook('beforeHandler', method)(arg1, ...handlers),
+		)
 
 		return this
 	}
 
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
-		this._addHook('afterHandler', 'GET')(arg1, ...handlers)
-		this._addHook('afterHandler', 'PUT')(arg1, ...handlers)
-		this._addHook('afterHandler', 'POST')(arg1, ...handlers)
-		this._addHook('afterHandler', 'DELETE')(arg1, ...handlers)
+		this.httpMethods.map((method) =>
+			this._addHook('afterHandler', method)(arg1, ...handlers),
+		)
 
 		return this
 	}

@@ -25,3 +25,31 @@ In this example, for a request on `/hello` the output will be:
 3 : After handler
 4 : Before and after handler
 ```
+
+## Stop the execution of the request in a beforeHandler hook
+
+An usual use case of a hook can be to check the some authorization or to validate a body request. If the validation fails, you can stop the execution of the request by throwing an HTTP error.
+
+In the example below we check if the content-type is `application/json` and if the body of the request is valid according to a schema. If the validation fails, we throw an `HttpException` error with a status code of 400. When you specicaly use the `HttpException` error (exported in Wobe) the response of your request will be the response that you set in the first parameter of the `HttpException` constructor.
+
+```ts
+export const wobeValidator = (schema: TSchema): WobeHandler => {
+	return async (ctx: Context) => {
+		const request = ctx.request
+
+		if (request.headers.get('content-type') !== 'application/json') return
+
+		const body = await request.json()
+
+		if (!Value.Check(schema, body))
+			throw new HttpException(
+				new Response(
+					JSON.stringify({
+						errors: [...Value.Errors(schema, body)],
+					}),
+					{ status: 400 },
+				),
+			)
+	}
+}
+```

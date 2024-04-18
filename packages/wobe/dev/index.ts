@@ -4,7 +4,7 @@ import { logger } from '../src/hooks'
 new Wobe()
 	.get('/', (ctx) => ctx.res.send('Hi'))
 	.post('/json', async (ctx) => {
-		const tata = await ctx.json()
+		const tata = (await ctx.request.json()) as object
 		return ctx.res.send(tata)
 	})
 	.get('/id/:id', (ctx) => {
