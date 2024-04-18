@@ -54,7 +54,6 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						return new Response(null, { status: 404 })
 					}
 
-					await context.extractBody()
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
 					context.params = route.params || {}
@@ -99,6 +98,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						new Response(null, { status: 404 })
 					)
 				} catch (err: any) {
+					console.log(err)
 					if (err instanceof Error) options?.onError?.(err)
 
 					if (err instanceof HttpException) return err.response

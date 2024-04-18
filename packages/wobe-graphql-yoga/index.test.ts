@@ -5,11 +5,11 @@ import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
-	it.only('should query graphql request', async () => {
+	it('should query graphql request', async () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		await wobe.usePlugin(
+		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				schema: createSchema({
 					typeDefs: `

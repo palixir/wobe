@@ -76,10 +76,6 @@ describe('Wobe', () => {
 			return ctx.res.send('Delete')
 		})
 
-		wobe.post('/testPostWithBody', (ctx) => {
-			return ctx.res.send(ctx.body)
-		})
-
 		wobe.all('/allMethod', (ctx) => {
 			mockAllMethod()
 			return ctx.res.send('All')
@@ -353,14 +349,5 @@ describe('Wobe', () => {
 		expect(mockOnError).toHaveBeenCalledTimes(1)
 
 		mockTestGet.mockRestore()
-	})
-
-	it('should get body in request if the request contains a body', async () => {
-		const res = await fetch(`http://127.0.0.1:${port}/testPostWithBody`, {
-			method: 'POST',
-			body: JSON.stringify({ test: 'test' }),
-		})
-
-		expect(await res.json()).toEqual({ test: 'test' })
 	})
 })

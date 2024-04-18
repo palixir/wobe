@@ -17,12 +17,6 @@ export class Context {
 		this.res = new WobeResponse(request)
 	}
 
-	async extractBody() {
-		if (this.request.headers.get('content-type') === 'application/json')
-			this.body = (await this.request.json()) as object
-		else this.body = (await this.request.text()) as string
-	}
-
 	redirect(url: string, status = 302) {
 		this.res.headers.set('Location', url)
 		this.res.status = status

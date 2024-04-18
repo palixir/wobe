@@ -14,37 +14,6 @@ describe('Context', () => {
 		expect(context.body).toEqual({})
 	})
 
-	it('should get the body if the body is a json', async () => {
-		const request = new Request('https://example.com', {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify({ test: 'test' }),
-		})
-		const context = new Context(request)
-
-		await context.extractBody()
-
-		expect(context.body).toEqual({ test: 'test' })
-	})
-
-	it('should get the body if the body is a text', async () => {
-		const request = new Request('https://example.com', {
-			method: 'POST',
-			headers: {
-				'content-type': 'text/plain',
-			},
-			body: 'test',
-		})
-
-		const context = new Context(request)
-
-		await context.extractBody()
-
-		expect(context.body).toEqual('test')
-	})
-
 	it('should redirect client to a specific url', () => {
 		const request = new Request('https://example.com')
 		const context = new Context(request)
