@@ -172,8 +172,9 @@ describe('Wobe integration', async () => {
 		)
 	})
 
-	it.only('should log with logger hook', async () => {
+	it('should log with logger hook', async () => {
 		await fetch(`http://127.0.0.1:${port}/test`, {
+			method: 'GET',
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
 			},

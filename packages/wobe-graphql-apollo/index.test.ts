@@ -50,12 +50,12 @@ describe('Wobe GraphQL Apollo plugin', () => {
 		wobe.stop()
 	})
 
-	it('should query graphql request with context in graphql resolver', async () => {
+	it.only('should query graphql request with context in graphql resolver', async () => {
 		const port = await getPort()
 
 		const wobe = new Wobe()
 
-		await wobe.usePlugin(
+		wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
 				context: {
 					tata: 'test',
@@ -110,7 +110,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		await wobe.usePlugin(
+		wobe.usePlugin(
 			WobeGraphqlApolloPlugin({
 				graphqlEndpoint: '/graphql2',
 				options: {

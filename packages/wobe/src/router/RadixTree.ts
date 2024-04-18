@@ -101,7 +101,8 @@ export class RadixTree {
 			if (isWildcardNode) {
 				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
 				for (const child of currentNode.children) {
-					this.addHook(hook, nextPathJoin, handler, method, child)
+					if (child.method === method || !child.method)
+						this.addHook(hook, nextPathJoin, handler, method, child)
 				}
 
 				return
@@ -111,27 +112,10 @@ export class RadixTree {
 				(node) =>
 					node.name ===
 						(currentNode.name === '/' ? '' : '/') + pathPart &&
-					(node.method === method || !node.method),
+					((node.method && node.method === method) || !node.method),
 			)
 
 			if (!foundNode) break
-
-			// If we have ALL method we can have multiple path with the same name but differents methods
-			if (foundNode.method && method === 'ALL') {
-				currentNode.children
-					.filter(
-						(child) =>
-							child.method &&
-							child.name ===
-								(currentNode.name === '/' ? '' : '/') +
-									pathPart,
-					)
-					.map((child) => {
-						this._addHookToNode(child, hook, handler)
-					})
-
-				return
-			}
 
 			currentNode = foundNode
 		}

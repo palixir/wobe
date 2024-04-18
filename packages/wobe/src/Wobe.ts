@@ -80,6 +80,7 @@ export class Wobe {
 	}
 
 	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
+		console.log('tata')
 		if (hook) this._addHook('beforeHandler', 'GET')(path, hook)
 
 		this.router.addRoute('GET', path, handler)
@@ -112,7 +113,12 @@ export class Wobe {
 	}
 
 	all(path: string, handler: WobeHandler, hook?: WobeHandler) {
-		if (hook) this._addHook('beforeHandler', 'ALL')(path, hook)
+		if (hook) {
+			this._addHook('beforeHandler', 'GET')(path, hook)
+			this._addHook('beforeHandler', 'PUT')(path, hook)
+			this._addHook('beforeHandler', 'POST')(path, hook)
+			this._addHook('beforeHandler', 'DELETE')(path, hook)
+		}
 
 		this.router.addRoute('ALL', path, handler)
 
@@ -184,6 +190,8 @@ export class Wobe {
 			plugin.then((p) => {
 				return p(this)
 			})
+
+			console.log('tata')
 
 			return this
 		}
