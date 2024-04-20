@@ -4,9 +4,10 @@ import { HttpException } from '../../HttpException'
 import type { HttpMethod, WobeOptions, WobeWebSocket } from '../../Wobe'
 import type { RadixTree } from '../../router'
 import { extractPathnameAndSearchParams } from '../../utils'
+import type { CommonRuntime } from '../common'
 import { bunWebSocket } from './websocket'
 
-export const BunAdapter = (): RuntimeAdapter => ({
+export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 	createServer: (
 		port: number,
 		router: RadixTree,
@@ -20,10 +21,13 @@ export const BunAdapter = (): RuntimeAdapter => ({
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
 				try {
-					const context = new Context(req)
+					const context = commonRuntime.createContext(req)
 
-					const { pathName, searchParams } =
-						extractPathnameAndSearchParams(req.url)
+					const { route, pathName } = commonRuntime.getRoute(
+						router,
+						req.url,
+						req.method as HttpMethod,
+					)
 
 					if (webSocket && webSocket.path === pathName) {
 						const hookBeforeSocketUpgrade =
@@ -43,11 +47,6 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						if (server.upgrade(req)) return
 					}
 
-					const route = router.findRoute(
-						req.method as HttpMethod,
-						pathName,
-					)
-
 					if (!route) {
 						options?.onNotFound?.(req)
 
@@ -56,47 +55,10 @@ export const BunAdapter = (): RuntimeAdapter => ({
 
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
-					context.params = route.params || {}
-					context.query = searchParams || {}
 
-					const hookBeforeHandler = route.beforeHandlerHook || []
+					const response = await commonRuntime.executeHandler(route)
 
-					// We need to run hook sequentially
-					for (let i = 0; i < hookBeforeHandler.length; i++) {
-						const hook = hookBeforeHandler[i]
-
-						await hook(context)
-					}
-
-					context.state = 'handler'
-
-					const resultHandler = await route.handler?.(context)
-
-					if (
-						!context.res.response &&
-						resultHandler instanceof Response
-					)
-						context.res.response = resultHandler
-
-					context.state = 'afterHandler'
-
-					const hookAfterHandler = route.afterHandlerHook || []
-
-					// We need to run hook sequentially
-					let responseAfterHook = undefined
-					for (let i = 0; i < hookAfterHandler.length; i++) {
-						const hook = hookAfterHandler[i]
-
-						responseAfterHook = await hook(context)
-					}
-
-					if (responseAfterHook instanceof Response)
-						return responseAfterHook
-
-					return (
-						context.res.response ||
-						new Response(null, { status: 404 })
-					)
+					return response
 				} catch (err: any) {
 					if (err instanceof Error) options?.onError?.(err)
 

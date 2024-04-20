@@ -2,9 +2,9 @@ import { createServer } from 'node:http'
 import type { RadixTree } from '../../router'
 import type { HttpMethod, WobeOptions } from '../../Wobe'
 import { HttpException } from '../../HttpException'
-import { extractPathnameAndSearchParams } from '../../utils'
 import { Context } from '../../Context'
 import type { RuntimeAdapter } from '..'
+import type { CommonRuntime } from '../common'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
@@ -18,7 +18,7 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 	return { headers, body: await response.text() }
 }
 
-export const NodeAdapter = (): RuntimeAdapter => ({
+export const NodeAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 	createServer: (port: number, router: RadixTree, options?: WobeOptions) =>
 		createServer(async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
@@ -35,12 +35,12 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 					body,
 				})
 
-				const { pathName, searchParams } =
-					extractPathnameAndSearchParams(url)
+				const context = commonRuntime.createContext(request)
 
-				const route = router.findRoute(
+				const { route } = commonRuntime.getRoute(
+					router,
+					url,
 					req.method as HttpMethod,
-					pathName,
 				)
 
 				if (!route) {
@@ -51,49 +51,10 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 					return
 				}
 
-				const context = new Context(request)
-
 				context.getIpAdress = () => req.socket.remoteAddress || ''
-				context.params = route.params || {}
-				context.query = searchParams || {}
 
 				try {
-					const hookBeforeHandler = route.beforeHandlerHook || []
-
-					// We need to run hook sequentially
-					for (let i = 0; i < hookBeforeHandler.length; i++) {
-						const hook = hookBeforeHandler[i]
-
-						await hook(context)
-					}
-
-					context.state = 'handler'
-
-					const resultHandler = await route.handler?.(context)
-
-					if (
-						!context.res.response &&
-						resultHandler instanceof Response
-					)
-						context.res.response = resultHandler
-
-					context.state = 'afterHandler'
-
-					const hookAfterHandler = route.afterHandlerHook || []
-
-					// We need to run hook sequentially
-					let responseAfterHook = undefined
-					for (let i = 0; i < hookAfterHandler.length; i++) {
-						const hook = hookAfterHandler[i]
-
-						responseAfterHook = await hook(context)
-					}
-
-					const response =
-						responseAfterHook instanceof Response
-							? responseAfterHook
-							: context.res.response ||
-								new Response(null, { status: 404 })
+					const response = await commonRuntime.executeHandler(route)
 
 					const { headers, body: responseBody } =
 						await transformResponseInstanceToValidResponse(response)
