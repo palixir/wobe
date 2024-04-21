@@ -2,7 +2,7 @@ export interface WobeStoreOptions {
 	interval: number
 }
 
-export class WobeStore {
+export class WobeStore<T> {
 	private options: WobeStoreOptions
 	private store: Map<string, any>
 
@@ -19,11 +19,11 @@ export class WobeStore {
 		}, this.options.interval)
 	}
 
-	set(key: string, value: any) {
+	set(key: string, value: T) {
 		this.store.set(key, value)
 	}
 
-	get(key: string): any {
+	get(key: string): T {
 		return this.store.get(key)
 	}
 

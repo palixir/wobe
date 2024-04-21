@@ -11,7 +11,7 @@ export const rateLimit = ({
 	interval,
 	numberOfRequests,
 }: RateLimitOptions): WobeHandler => {
-	const store = new WobeStore({
+	const store = new WobeStore<number>({
 		interval,
 	})
 

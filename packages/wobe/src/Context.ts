@@ -1,7 +1,15 @@
 import type { HttpMethod, WobeHandler } from './Wobe'
 import { WobeResponse } from './WobeResponse'
-import type { RadixTree } from './router'
+import type { Node, RadixTree } from './router'
+import { WobeStore } from './store'
 import { extractPathnameAndSearchParams } from './utils'
+
+// 10 seconds
+export const _routeStore = new WobeStore<{
+	pathName: string
+	searchParams: Record<string, string> | undefined
+	route: Node | undefined | null
+}>({ interval: 10000 })
 
 export class Context {
 	public res: WobeResponse
@@ -24,14 +32,41 @@ export class Context {
 		this.request = request
 		this.res = new WobeResponse(request)
 
-		const { pathName, searchParams } = extractPathnameAndSearchParams(
-			request.url,
-		)
+		this._findRoute(router)
+	}
 
-		const route = router?.findRoute(request.method as HttpMethod, pathName)
+	private _findRoute(router?: RadixTree) {
+		const keyCacheName = `${this.request.url}$method:${this.request.method}`
 
-		this.pathname = pathName
+		const cache = _routeStore.get(keyCacheName)
+		let pathName, searchParams, route
+
+		if (cache) {
+			pathName = cache.pathName
+			searchParams = cache.searchParams
+			route = cache.route
+		} else {
+			const extractedInfos = extractPathnameAndSearchParams(
+				this.request.url,
+			)
+
+			pathName = extractedInfos.pathName
+			searchParams = extractedInfos.searchParams
+
+			route = router?.findRoute(
+				this.request.method as HttpMethod,
+				pathName,
+			)
+
+			_routeStore.set(keyCacheName, {
+				route,
+				searchParams,
+				pathName,
+			})
+		}
+
 		this.query = searchParams || {}
+		this.pathname = pathName
 		this.params = route?.params || {}
 		this.handler = route?.handler
 		this.beforeHandlerHook = route?.beforeHandlerHook || []
@@ -41,5 +76,42 @@ export class Context {
 	redirect(url: string, status = 302) {
 		this.res.headers.set('Location', url)
 		this.res.status = status
+	}
+
+	async executeHandler() {
+		const hookBeforeHandler = this.beforeHandlerHook
+
+		// We need to run hook sequentially
+		for (let i = 0; i < hookBeforeHandler.length; i++) {
+			const hook = hookBeforeHandler[i]
+
+			await hook(this)
+		}
+
+		this.state = 'handler'
+
+		const resultHandler = await this.handler?.(this)
+
+		if (!this.res.response && resultHandler instanceof Response)
+			this.res.response = resultHandler
+
+		this.state = 'afterHandler'
+
+		const hookAfterHandler = this.afterHandlerHook
+
+		// We need to run hook sequentially
+		let responseAfterHook = undefined
+		for (let i = 0; i < hookAfterHandler.length; i++) {
+			const hook = hookAfterHandler[i]
+
+			responseAfterHook = await hook(this)
+		}
+
+		const response =
+			responseAfterHook instanceof Response
+				? responseAfterHook
+				: this.res.response || new Response(null, { status: 404 })
+
+		return response
 	}
 }

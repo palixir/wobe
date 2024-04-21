@@ -1,11 +1,11 @@
 import type { RuntimeAdapter } from '..'
+import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
-import type { HttpMethod, WobeOptions, WobeWebSocket } from '../../Wobe'
+import type { WobeOptions, WobeWebSocket } from '../../Wobe'
 import type { RadixTree } from '../../router'
-import type { CommonRuntime } from '../common'
 import { bunWebSocket } from './websocket'
 
-export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
+export const BunAdapter = (): RuntimeAdapter => ({
 	createServer: (
 		port: number,
 		router: RadixTree,
@@ -19,7 +19,7 @@ export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
 				try {
-					const context = commonRuntime.createContext(req, router)
+					const context = new Context(req, router)
 
 					if (webSocket && webSocket.path === context.pathname) {
 						const hookBeforeSocketUpgrade =
@@ -48,7 +48,7 @@ export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
 
-					const response = await commonRuntime.executeHandler()
+					const response = await context.executeHandler()
 
 					return response
 				} catch (err: any) {

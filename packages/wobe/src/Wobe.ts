@@ -2,7 +2,6 @@ import type { Server, ServerWebSocket } from 'bun'
 import { RadixTree } from './router'
 import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
 import type { Context } from './Context'
-import { CommonRuntime } from './adapters/common'
 
 export type MaybePromise<T> = T | Promise<T>
 
@@ -52,12 +51,10 @@ export interface WobeWebSocket {
 }
 
 const factoryOfRuntime = (): RuntimeAdapter => {
-	const commonRuntime = new CommonRuntime()
-
 	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST)
-		return BunAdapter(commonRuntime)
+		return BunAdapter()
 
-	return NodeAdapter(commonRuntime)
+	return NodeAdapter()
 }
 
 // TODO : Create assert before hook if it's specific to a type of hook (before, after, beforeAndAfter)

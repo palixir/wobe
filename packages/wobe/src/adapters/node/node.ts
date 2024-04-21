@@ -1,12 +1,13 @@
 import { createServer } from 'node:http'
 import type { RadixTree } from '../../router'
-import type { HttpMethod, WobeOptions } from '../../Wobe'
+import type { WobeOptions } from '../../Wobe'
 import { HttpException } from '../../HttpException'
 import type { RuntimeAdapter } from '..'
-import type { CommonRuntime } from '../common'
+import { Context } from '../../Context'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
+
 	response.headers.forEach((value, name) => {
 		headers[name] = value
 	})
@@ -17,7 +18,7 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 	return { headers, body: await response.text() }
 }
 
-export const NodeAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
+export const NodeAdapter = (): RuntimeAdapter => ({
 	createServer: (port: number, router: RadixTree, options?: WobeOptions) =>
 		createServer(async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
@@ -35,7 +36,7 @@ export const NodeAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 						body,
 					})
 
-					const context = commonRuntime.createContext(request, router)
+					const context = new Context(request, router)
 
 					if (!context.handler) {
 						options?.onNotFound?.(request)
@@ -47,7 +48,7 @@ export const NodeAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 
 					context.getIpAdress = () => req.socket.remoteAddress || ''
 
-					const response = await commonRuntime.executeHandler()
+					const response = await context.executeHandler()
 
 					const { headers, body: responseBody } =
 						await transformResponseInstanceToValidResponse(response)
