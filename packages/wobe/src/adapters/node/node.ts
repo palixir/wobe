@@ -2,7 +2,6 @@ import { createServer } from 'node:http'
 import type { RadixTree } from '../../router'
 import type { HttpMethod, WobeOptions } from '../../Wobe'
 import { HttpException } from '../../HttpException'
-import { Context } from '../../Context'
 import type { RuntimeAdapter } from '..'
 import type { CommonRuntime } from '../common'
 

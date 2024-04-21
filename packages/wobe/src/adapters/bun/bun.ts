@@ -1,9 +1,7 @@
 import type { RuntimeAdapter } from '..'
-import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
 import type { HttpMethod, WobeOptions, WobeWebSocket } from '../../Wobe'
 import type { RadixTree } from '../../router'
-import { extractPathnameAndSearchParams } from '../../utils'
 import type { CommonRuntime } from '../common'
 import { bunWebSocket } from './websocket'
 
