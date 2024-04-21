@@ -19,15 +19,9 @@ export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
 				try {
-					const context = commonRuntime.createContext(req)
+					const context = commonRuntime.createContext(req, router)
 
-					const { route, pathName } = commonRuntime.getRoute(
-						router,
-						req.url,
-						req.method as HttpMethod,
-					)
-
-					if (webSocket && webSocket.path === pathName) {
+					if (webSocket && webSocket.path === context.pathname) {
 						const hookBeforeSocketUpgrade =
 							webSocket.beforeWebSocketUpgrade || []
 
@@ -45,7 +39,7 @@ export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 						if (server.upgrade(req)) return
 					}
 
-					if (!route) {
+					if (!context.handler) {
 						options?.onNotFound?.(req)
 
 						return new Response(null, { status: 404 })
@@ -54,7 +48,7 @@ export const BunAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
 
-					const response = await commonRuntime.executeHandler(route)
+					const response = await commonRuntime.executeHandler()
 
 					return response
 				} catch (err: any) {

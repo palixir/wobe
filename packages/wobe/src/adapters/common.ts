@@ -6,35 +6,41 @@ import { extractPathnameAndSearchParams } from '../utils'
 export class CommonRuntime {
 	private context: Context | undefined = undefined
 
-	createContext(request: Request) {
-		this.context = new Context(request)
+	createContext(request: Request, router: RadixTree) {
+		this.context = new Context(request, router)
 
 		return this.context
 	}
 
-	getRoute(router: RadixTree, url: string, requestMethod: HttpMethod) {
+	// createContext(request: Request) {
+	// 	this.context = new Context(request)
+
+	// 	return this.context
+	// }
+
+	// findRoute(router: RadixTree, url: string, requestMethod: HttpMethod) {
+	// 	if (!this.context)
+	// 		throw new Error(
+	// 			'You need to initialize context before execute handler',
+	// 		)
+
+	// 	const { pathName, searchParams } = extractPathnameAndSearchParams(url)
+
+	// 	const route = router.findRoute(requestMethod, pathName)
+
+	// 	this.context.query = searchParams || {}
+	// 	this.context.params = route?.params || {}
+
+	// 	return { route, pathName }
+	// }
+
+	async executeHandler() {
 		if (!this.context)
 			throw new Error(
 				'You need to initialize context before execute handler',
 			)
 
-		const { pathName, searchParams } = extractPathnameAndSearchParams(url)
-
-		const route = router.findRoute(requestMethod, pathName)
-
-		this.context.query = searchParams || {}
-		this.context.params = route?.params || {}
-
-		return { route, pathName }
-	}
-
-	async executeHandler(route: Node) {
-		if (!this.context)
-			throw new Error(
-				'You need to initialize context before execute handler',
-			)
-
-		const hookBeforeHandler = route.beforeHandlerHook || []
+		const hookBeforeHandler = this.context.beforeHandlerHook
 
 		// We need to run hook sequentially
 		for (let i = 0; i < hookBeforeHandler.length; i++) {
@@ -45,14 +51,14 @@ export class CommonRuntime {
 
 		this.context.state = 'handler'
 
-		const resultHandler = await route.handler?.(this.context)
+		const resultHandler = await this.context.handler?.(this.context)
 
 		if (!this.context.res.response && resultHandler instanceof Response)
 			this.context.res.response = resultHandler
 
 		this.context.state = 'afterHandler'
 
-		const hookAfterHandler = route.afterHandlerHook || []
+		const hookAfterHandler = this.context.afterHandlerHook
 
 		// We need to run hook sequentially
 		let responseAfterHook = undefined

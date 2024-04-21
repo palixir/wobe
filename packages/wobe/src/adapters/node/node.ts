@@ -28,32 +28,26 @@ export const NodeAdapter = (commonRuntime: CommonRuntime): RuntimeAdapter => ({
 			})
 
 			req.on('end', async () => {
-				const request = new Request(url, {
-					method: req.method,
-					headers: req.headers as any,
-					body,
-				})
-
-				const context = commonRuntime.createContext(request)
-
-				const { route } = commonRuntime.getRoute(
-					router,
-					url,
-					req.method as HttpMethod,
-				)
-
-				if (!route) {
-					options?.onNotFound?.(request)
-
-					res.writeHead(404)
-					res.end()
-					return
-				}
-
-				context.getIpAdress = () => req.socket.remoteAddress || ''
-
 				try {
-					const response = await commonRuntime.executeHandler(route)
+					const request = new Request(url, {
+						method: req.method,
+						headers: req.headers as any,
+						body,
+					})
+
+					const context = commonRuntime.createContext(request, router)
+
+					if (!context.handler) {
+						options?.onNotFound?.(request)
+
+						res.writeHead(404)
+						res.end()
+						return
+					}
+
+					context.getIpAdress = () => req.socket.remoteAddress || ''
+
+					const response = await commonRuntime.executeHandler()
 
 					const { headers, body: responseBody } =
 						await transformResponseInstanceToValidResponse(response)
