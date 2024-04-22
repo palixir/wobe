@@ -1,6 +1,6 @@
 import { HttpException } from '../HttpException'
 import type { WobeHandler } from '../Wobe'
-import { WobeStore } from '../store/WobeStore'
+import { WobeStore } from '../tools'
 
 export interface RateLimitOptions {
 	interval: number

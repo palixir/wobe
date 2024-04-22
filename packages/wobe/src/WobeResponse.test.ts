@@ -2,6 +2,20 @@ import { describe, expect, it } from 'bun:test'
 import { WobeResponse } from './WobeResponse'
 
 describe('Wobe Response', () => {
+	it('should send text with correct headers and add another header', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+
+		wobeResponse.headers.set('X-Test', 'test')
+
+		const response = wobeResponse.sendText('Hello World')
+
+		expect(response.headers.get('Content-Type')).toBe('text/plain')
+		expect(response.headers.get('charset')).toBe('utf-8')
+		expect(response.headers.get('X-Test')).toBe('test')
+	})
+
 	it('should set a cookie in a response', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),
@@ -210,15 +224,13 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		wobeResponse.headers.set('Content-Type', 'invalid-content-type')
+		wobeResponse.headers.set('Valid-Header', 'valid-value')
 
 		const response = wobeResponse.send('Hello World')
 
 		expect(response.status).toBe(200)
 		expect(response.statusText).toBe('OK')
-		expect(response.headers.get('Content-Type')).toBe(
-			'invalid-content-type',
-		)
+		expect(response.headers.get('Valid-Header')).toBe('valid-value')
 		expect(await response.text()).toBe('Hello World')
 	})
 })

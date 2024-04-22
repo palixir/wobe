@@ -11,9 +11,7 @@ export interface SetCookieOptions {
 export class WobeResponse {
 	public request: Request
 	public response: Response | undefined = undefined
-	public headers = new Headers({
-		'Content-type': 'text/plain',
-	})
+	public headers = new Headers()
 	public status = 200
 	public statusText = 'OK'
 
@@ -63,8 +61,9 @@ export class WobeResponse {
 		this.setCookie(name, '', { expires: new Date(0) })
 	}
 
-	sendJson(content: object) {
-		this.headers.set('Content-Type', 'application/json')
+	sendJson(content: Record<string, any>) {
+		this.headers.set('content-type', 'application/json')
+		this.headers.set('charset', 'utf-8')
 
 		this.response = new Response(JSON.stringify(content), {
 			headers: this.headers,
@@ -76,7 +75,7 @@ export class WobeResponse {
 	}
 
 	sendText(content: string) {
-		this.headers.set('Content-Type', 'text/plain')
+		this.headers.set('content-type', 'text/plain')
 		this.headers.set('charset', 'utf-8')
 
 		this.response = new Response(content, {
@@ -89,7 +88,7 @@ export class WobeResponse {
 	}
 
 	send(
-		content: string | object,
+		content: string | Record<string, any>,
 		{
 			status,
 			statusText,
@@ -101,13 +100,16 @@ export class WobeResponse {
 		} = {},
 	) {
 		let body: string
+
 		if (typeof content === 'object') {
-			this.headers.set('Content-Type', 'application/json')
+			this.headers.set('content-type', 'application/json')
 			body = JSON.stringify(content)
 		} else {
-			this.headers.set('charset', 'utf-8')
+			this.headers.set('content-type', 'text/plain')
 			body = content
 		}
+
+		this.headers.set('charset', 'utf-8')
 
 		if (status) this.status = status
 		if (statusText) this.statusText = statusText

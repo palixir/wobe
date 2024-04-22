@@ -107,6 +107,11 @@ describe('Wobe', () => {
 
 				return ctx.res.send('Test')
 			})
+			.get('/testAfterHandlerCache', (ctx) => {
+				expect(ctx.state).toEqual('beforeHandler')
+
+				return ctx.res.send(ctx.state)
+			})
 			.usePlugin(mockUsePlugin())
 			.beforeHandler(
 				'/test/',
@@ -126,6 +131,9 @@ describe('Wobe', () => {
 			.afterHandler('/testHookLifecyce', (ctx) => {
 				ctx.res.headers.set('X-Test-3', 'Test3')
 				return ctx.res.send('Test after handler')
+			})
+			.afterHandler('/testAfterHandlerCache', (ctx) => {
+				return new Response(ctx.state)
 			})
 			.listen(port)
 	})
@@ -190,6 +198,17 @@ describe('Wobe', () => {
 		})
 
 		expect(res.statusText).toBe('Test')
+	})
+
+	it('should have the correct state if there is afterHandler middleware (with context cache)', async () => {
+		const res = await fetch(
+			`http://127.0.0.1:${port}/testAfterHandlerCache`,
+		)
+
+		expect(await res.text()).toBe('afterHandler')
+
+		// Expect is done in the handler
+		await fetch(`http://127.0.0.1:${port}/testAfterHandlerCache`)
 	})
 
 	it('should have a beforeHandler and afterHandler hook and a route that update response', async () => {
