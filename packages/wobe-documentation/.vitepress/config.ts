@@ -28,6 +28,25 @@ export default defineConfig({
 					{ text: 'Plugins', link: '/doc/concepts/plugin' },
 				],
 			},
+			{
+				text: 'Ecosystem',
+				items: [
+					{
+						text: 'Plugins',
+						link: '/doc/ecosystem/plugins',
+						items: [
+							{
+								text: 'GraphQL Yoga',
+								link: '/doc/ecosystem/plugins/graphql-yoga',
+							},
+							{
+								text: 'GraphQL Apollo Server',
+								link: '/doc/ecosystem/plugins/graphql-apollo-server',
+							},
+						],
+					},
+				],
+			},
 		],
 
 		socialLinks: [

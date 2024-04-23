@@ -25,63 +25,17 @@ For a plugin that returns a promise you can `await` it directly in the usePlugin
 ```ts
 import { Wobe } from 'wobe'
 
-const myPlugin = async () => {
+const myAsyncPlugin = async () => {
 	return (wobe: Wobe) => {
 		wobe.get('/test', (context) => context.res.sendText('Hello World'))
 	}
 }
 
-const wobe = new Wobe().usePlugin(await myPlugin()).listen(3000)
+const wobe = new Wobe().usePlugin(await myAsyncPlugin()).listen(3000)
 ```
 
 ## Official plugins
 
 -   Wobe-graphql-apollo : A plugin to add an Apollo graphql server to your wobe app.
 
-```ts
-import { Wobe } from 'wobe'
-import { WobeGraphqlApolloPlugin } from 'wobe-graphql-apollo'
-
-const wobe = new Wobe().usePlugin(
-	await WobeGraphqlApolloPlugin({
-		options: {
-			typeDefs: `
-          type Query {
-            hello: String
-          }
-        `,
-			resolvers: {
-				Query: {
-					hello: () => 'Hello from Apollo!',
-				},
-			},
-		},
-	}),
-)
-
-wobe.listen(port)
-```
-
 -   Wobe-graphql-yoga : A plugin to add a Yoga graphql server to your wobe app.
-
-```ts
-import { Wobe } from 'wobe'
-import { WobeGraphqlYogaPlugin } from 'wobe-graphql-yoga'
-
-const wobe = new Wobe().usePlugin(
-	WobeGraphqlYogaPlugin({
-		schema: createSchema({
-			typeDefs: `
-					type Query {
-						hello: String
-					}
-				`,
-			resolvers: {
-				Query: {
-					hello: () => 'Hello from Yoga!',
-				},
-			},
-		}),
-	}),
-)
-```
