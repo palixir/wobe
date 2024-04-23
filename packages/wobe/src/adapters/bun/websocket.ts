@@ -3,7 +3,7 @@ import type { WobeWebSocket } from '../../Wobe'
 
 export const bunWebSocket = (webSocket?: WobeWebSocket): WebSocketHandler => {
 	return {
-		perMessageDeflate: true,
+		perMessageDeflate: webSocket?.compression,
 		maxPayloadLength: webSocket?.maxPayloadLength,
 		idleTimeout: webSocket?.idleTimeout,
 		backpressureLimit: webSocket?.backpressureLimit,

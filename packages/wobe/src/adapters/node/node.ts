@@ -4,6 +4,7 @@ import type { WobeOptions } from '../../Wobe'
 import { HttpException } from '../../HttpException'
 import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
+import { WobeStore } from '../../tools'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
@@ -17,6 +18,8 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 
 	return { headers, body: await response.text() }
 }
+
+const _contextStore = new WobeStore<Context>({ interval: 10000 })
 
 export const NodeAdapter = (): RuntimeAdapter => ({
 	createServer: (port: number, router: RadixTree, options?: WobeOptions) =>
@@ -36,7 +39,17 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 						body,
 					})
 
-					const context = new Context(request, router)
+					const cacheKey = url + '$method:' + req.method
+
+					let context = _contextStore.get(cacheKey)
+
+					if (context) {
+						context.request = request
+					} else {
+						context = new Context(request, router)
+
+						_contextStore.set(cacheKey, context)
+					}
 
 					if (!context.handler) {
 						options?.onNotFound?.(request)

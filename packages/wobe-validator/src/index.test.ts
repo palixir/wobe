@@ -68,4 +68,17 @@ describe('wobe-validator', () => {
 			],
 		})
 	})
+
+	it('should return 400 for a request if content-type not equal to application/json', async () => {
+		const response = await fetch(`http://127.0.0.1:${port}/test`, {
+			method: 'POST',
+			body: JSON.stringify({ name: 42 }),
+			headers: {
+				'Content-Type': 'invalid/application/json',
+			},
+		})
+
+		expect(response.status).toBe(400)
+		expect(await response.json()).toBeNull()
+	})
 })

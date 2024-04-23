@@ -32,6 +32,13 @@ export class RadixTree {
 					(node.method === method || !node.method),
 			)
 
+			if (
+				foundNode &&
+				foundNode.method === method &&
+				i === pathParts.length - 1
+			)
+				throw new Error(`Route ${method} ${path} already exists`)
+
 			if (!foundNode) {
 				foundNode = {
 					name: (i === 0 ? '' : '/') + pathPart,

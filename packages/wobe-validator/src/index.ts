@@ -6,7 +6,8 @@ export const wobeValidator = (schema: TSchema): WobeHandler => {
 	return async (ctx: Context) => {
 		const request = ctx.request
 
-		if (request.headers.get('content-type') !== 'application/json') return
+		if (request.headers.get('content-type') !== 'application/json')
+			throw new HttpException(new Response(null, { status: 400 }))
 
 		const body = await request.json()
 

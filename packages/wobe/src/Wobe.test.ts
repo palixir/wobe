@@ -15,6 +15,7 @@ import type { Context } from './Context'
 import * as nodeAdapter from './adapters/node'
 import * as bunAdapter from './adapters/bun'
 import { bearerAuth, csrf, logger } from './hooks'
+import { WobeStore } from './tools'
 
 describe('Wobe', () => {
 	let wobe: Wobe
@@ -112,6 +113,40 @@ describe('Wobe', () => {
 
 				return ctx.res.send(ctx.state)
 			})
+			.get('/testContextCache', (ctx) => {
+				return ctx.res.send('Hello world')
+			})
+			.get('/testPromiseResponse', (ctx) => {
+				return Promise.resolve(ctx.res.send('Hello world'))
+			})
+			.get('/testBasicError', () => {
+				throw new Error('Test error')
+			})
+			.get('/testHttpExceptionError', () => {
+				throw new HttpException(
+					new Response('Test error', { status: 400 }),
+				)
+			})
+			.get('/1', (ctx) => {
+				ctx.res.headers.set('X-Test', 'Test')
+
+				return ctx.res.send('1')
+			})
+			.get('/2', (ctx) => {
+				ctx.res.headers.set('X-Test', 'Test2')
+
+				return ctx.res.send('2')
+			})
+			.get('/upload', async () => {
+				return new Response(
+					Bun.file(`${__dirname}/../fixtures/testFile.html`),
+					{
+						headers: {
+							'Content-Type': 'text/html',
+						},
+					},
+				)
+			})
 			.usePlugin(mockUsePlugin())
 			.beforeHandler(
 				'/test/',
@@ -198,6 +233,65 @@ describe('Wobe', () => {
 		})
 
 		expect(res.statusText).toBe('Test')
+	})
+
+	it.skipIf(process.env.NODE_TEST === 'true')(
+		'should upload a file',
+		async () => {
+			const res = await fetch(`http://127.0.0.1:${port}/upload`)
+
+			expect(await res.text()).toBe('<html>\ntestfile\n</html>\n')
+			expect(res.headers.get('Content-Type')).toBe('text/html')
+			expect(res.status).toBe(200)
+		},
+	)
+
+	it('should separate headers from two response', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/1`)
+
+		expect(res.headers.get('X-Test')).toBe('Test')
+		expect(await res.text()).toBe('1')
+
+		const res2 = await fetch(`http://127.0.0.1:${port}/2`)
+
+		expect(res2.headers.get('X-Test')).toBe('Test2')
+		expect(await res2.text()).toBe('2')
+	})
+
+	it('should return a response in case of error in handler', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testBasicError`)
+
+		expect(await res.text()).toBe('Test error')
+		expect(res.status).toBe(500)
+
+		const res2 = await fetch(
+			`http://127.0.0.1:${port}/testHttpExceptionError`,
+		)
+
+		expect(await res2.text()).toBe('Test error')
+		expect(res2.status).toBe(400)
+	})
+
+	it('should return a promise of Response', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/testPromiseResponse`)
+
+		expect(await res.text()).toBe('Hello world')
+		expect(res.status).toBe(200)
+	})
+
+	it('should only create the context once (with the cache)', async () => {
+		const spyStoreSet = spyOn(WobeStore.prototype, 'set')
+		const spyStoreGet = spyOn(WobeStore.prototype, 'get')
+
+		await fetch(`http://127.0.0.1:${port}/testContextCache`)
+
+		expect(spyStoreSet).toHaveBeenCalledTimes(1)
+		expect(spyStoreGet).toHaveBeenCalledTimes(1)
+
+		await fetch(`http://127.0.0.1:${port}/testContextCache`)
+
+		expect(spyStoreSet).toHaveBeenCalledTimes(1)
+		expect(spyStoreGet).toHaveBeenCalledTimes(2)
 	})
 
 	it('should have the correct state if there is afterHandler middleware (with context cache)', async () => {

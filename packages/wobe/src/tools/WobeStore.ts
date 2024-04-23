@@ -6,7 +6,7 @@ export class WobeStore<T> {
 	private options: WobeStoreOptions
 	private store: Record<string, any>
 
-	private intervalId: Timer | undefined = undefined
+	public intervalId: Timer | undefined = undefined
 
 	constructor(options: WobeStoreOptions) {
 		this.options = options

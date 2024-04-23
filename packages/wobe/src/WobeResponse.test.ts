@@ -2,6 +2,14 @@ import { describe, expect, it } from 'bun:test'
 import { WobeResponse } from './WobeResponse'
 
 describe('Wobe Response', () => {
+	it('should set an empty header value', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+		wobeResponse.headers.set('X-Test', '')
+		expect(wobeResponse.headers.get('X-Test')).toBe('')
+	})
+
 	it('should send text with correct headers and add another header', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),

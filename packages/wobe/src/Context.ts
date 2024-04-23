@@ -49,32 +49,24 @@ export class Context {
 	}
 
 	async executeHandler() {
-		if (this.beforeHandlerHook.length > 0) {
-			// We need to run hook sequentially
-			for (const hookBeforeHandler of this.beforeHandlerHook)
-				await hookBeforeHandler(this)
-		}
+		// We need to run hook sequentially
+		for (const hookBeforeHandler of this.beforeHandlerHook)
+			await hookBeforeHandler(this)
 
 		const resultHandler = await this.handler?.(this)
 
-		if (this.afterHandlerHook.length > 0) {
-			if (!this.res.response && resultHandler instanceof Response)
-				this.res.response = resultHandler
+		if (!this.res.response && resultHandler instanceof Response)
+			this.res.response = resultHandler
 
-			this.state = 'afterHandler'
+		this.state = 'afterHandler'
 
-			// We need to run hook sequentially
-			let responseAfterHook: Response | undefined | void = undefined
-			for (const hookAfterHandler of this.afterHandlerHook)
-				responseAfterHook = await hookAfterHandler(this)
+		// We need to run hook sequentially
+		let responseAfterHook: Response | undefined = undefined
+		for (const hookAfterHandler of this.afterHandlerHook)
+			responseAfterHook = await hookAfterHandler(this)
 
-			if (responseAfterHook instanceof Response) return responseAfterHook
-		}
+		if (responseAfterHook instanceof Response) return responseAfterHook
 
-		return (
-			resultHandler ||
-			this.res.response ||
-			new Response(null, { status: 404 })
-		)
+		return this.res.response || new Response(null, { status: 404 })
 	}
 }

@@ -364,6 +364,14 @@ describe('RadixTree', () => {
 	})
 
 	describe('addRoute', () => {
+		it('should throw an error if the route already exist with same http method', () => {
+			const radixTree = new RadixTree()
+			radixTree.addRoute('GET', '/route', () => Promise.resolve())
+			expect(() =>
+				radixTree.addRoute('GET', '/route', () => Promise.resolve()),
+			).toThrow()
+		})
+
 		it('should add a route to the radix tree', () => {
 			const radixTree = new RadixTree()
 
@@ -746,39 +754,6 @@ describe('RadixTree', () => {
 			expect(
 				radixTree.root.children[0].children[0].children[0].children[0]
 					.handler,
-			).toBeDefined()
-		})
-
-		it('should not add a route if already exist', () => {
-			const radixTree = new RadixTree()
-
-			radixTree.addRoute('GET', '/a/simple/route', () =>
-				Promise.resolve(),
-			)
-			radixTree.addRoute('GET', '/a/simple/route', () =>
-				Promise.resolve(),
-			)
-
-			expect(radixTree.root.children.length).toBe(1)
-
-			expect(radixTree.root.children[0].name).toBe('a')
-			expect(radixTree.root.children[0].method).toBeUndefined()
-			expect(radixTree.root.children[0].handler).toBeUndefined()
-			expect(radixTree.root.children[0].children[0].name).toBe('/simple')
-			expect(
-				radixTree.root.children[0].children[0].method,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].handler,
-			).toBeUndefined()
-			expect(
-				radixTree.root.children[0].children[0].children[0].name,
-			).toBe('/route')
-			expect(
-				radixTree.root.children[0].children[0].children[0].method,
-			).toBe('GET')
-			expect(
-				radixTree.root.children[0].children[0].children[0].handler,
 			).toBeDefined()
 		})
 	})
