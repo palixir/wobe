@@ -10,10 +10,10 @@ Here is the list of the properties of the context object:
 -   `res`: The response object that you can use to send the response to the client.
 -   `params`: The parameters of the route.
 -   `query`: The query parameters of the route (all parameters after the ? in the url).
--   `ipAddress`: A function that returns the ip address of the client.
+-   `getIpAdress`: A function that returns the ip address of the client.
 -   `headers`: The headers of the request.
 -   `body`: The body of the request.
--   `state`: The state of your position in the life cycle (beforeHandler, handler or afterHandler).
+-   `state`: The state of your position in the life cycle (beforeHandler or afterHandler).
 -   `requestStartTimeInMs`: If you use the `logger` hook, this property will be set to the time in milliseconds when the request has been received. It's allow you to calculate the time spent in the handler.
 
 ## The response object
@@ -29,9 +29,9 @@ The response object is used to send the response to the client. It has the follo
 
 You can also directly access to some properties of the response object:
 
--   `status`: Set the status code of the response.
--   `statusText`: Set the status text of the response.
--   `header`: Set a header of the response.
+-   `status`: Set or get the status code of the response.
+-   `statusText`: Set or get the status text of the response.
+-   `header`: Set or get a header of the response.
 
 ## Methods of the context object
 
@@ -63,6 +63,20 @@ const app = new Wobe()
 		context.res.setCookie('myCookie', 'myValue', { httpOnly: true })
 		context.res.status = 201
 		context.res.sendJson({ message: 'Hello world' })
+	})
+	.listen(3000)
+```
+
+Here is an example of a route handler that redirects the client to another url:
+
+```ts
+import { Wobe } from 'wobe'
+
+const app = new Wobe()
+	.get('/hello', (context) => {
+		context.redirect('http://example.com')
+		// You can also set the status of response by default it's 302
+		context.redirect('http://example.com', 301)
 	})
 	.listen(3000)
 ```
