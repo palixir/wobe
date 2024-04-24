@@ -1,24 +1,29 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-    name: 'wobe'
-    text: 'A Fast, lightweight simple web framework'
+    name: 'Wobe'
+    text: 'A fast, lightweight and simple web framework'
     tagline:
     actions:
         - theme: brand
           text: Docs
-          link: /markdown-examples
+          link: /doc/wobe/motivations
         - theme: alt
           text: GitHub
-          link: /api-examples
+          link: https://github.com/coratgerl/wobe
 
 features:
-    - title: Feature A
-      details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-    - title: Feature B
-      details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-    - title: Feature C
-      details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    - icon: '🧩'
+      title: Simple & Easy to use
+      details: Wobe respects the standard and provide a large ecosystem.
+    - icon: '🚀'
+      title: Fast & Lightweight
+      details: Wobe is one of the fastest web framework on Bun, and he has 0 dependencies.
+    - icon: '🔧'
+      title: Multi-runtime
+      details: Wobe support Node.js and Bun runtime.
+    - icon: '🔌'
+      title: Easy to extend
+      details: Wobe has an easy to use plugin system that allow to extend for all your personnal use cases.
 ---

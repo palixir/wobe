@@ -1,16 +1,14 @@
 import { defineConfig } from 'vitepress'
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
-	title: 'wobe',
+	title: 'Wobe',
 	description: 'A Fast, lightweight simple web framework',
+	lastUpdated: true,
 	themeConfig: {
-		// https://vitepress.dev/reference/default-theme-config
-		nav: [
-			{ text: 'Home', link: '/' },
-			{ text: 'Examples', link: '/markdown-examples' },
-		],
-
+		search: {
+			provider: 'local',
+		},
+		nav: [{ text: 'Home', link: '/' }],
 		sidebar: [
 			{
 				text: 'Wobe',
@@ -24,8 +22,6 @@ export default defineConfig({
 				items: [
 					{ text: 'Routes', link: '/doc/concepts/route' },
 					{ text: 'Context', link: '/doc/concepts/context' },
-					{ text: 'Hooks', link: '/doc/concepts/hook' },
-					{ text: 'Plugins', link: '/doc/concepts/plugin' },
 				],
 			},
 			{
@@ -33,24 +29,55 @@ export default defineConfig({
 				items: [
 					{
 						text: 'Plugins',
-						link: '/doc/ecosystem/plugins',
+						link: '/doc/ecosystem/plugins/index',
 						items: [
 							{
-								text: 'GraphQL Yoga',
+								text: 'GraphQL Yoga (official)',
 								link: '/doc/ecosystem/plugins/graphql-yoga',
 							},
 							{
-								text: 'GraphQL Apollo Server',
+								text: 'GraphQL Apollo Server (official)',
 								link: '/doc/ecosystem/plugins/graphql-apollo-server',
+							},
+						],
+					},
+					{
+						text: 'Hooks',
+						link: '/doc/ecosystem/hooks/index',
+						items: [
+							{
+								text: 'Cors',
+								link: '/doc/ecosystem/hooks/cors',
+							},
+							{
+								text: 'CSRF',
+								link: '/doc/ecosystem/hooks/csrf',
+							},
+							{
+								text: 'Bearer auth',
+								link: '/doc/ecosystem/hooks/bearer-auth',
+							},
+							{
+								text: 'Body limit',
+								link: '/doc/ecosystem/hooks/body-limit',
+							},
+							{
+								text: 'Logger',
+								link: '/doc/ecosystem/hooks/logger',
 							},
 						],
 					},
 				],
 			},
 		],
-
+		footer: {
+			message:
+				'Released under the <a href="https://github.com/coratgerl/wobe/blob/main/LICENSE">MIT License</a>.',
+			copyright:
+				'Copyright © 2024 <a href="https://github.com/coratgerl">coratgerl</a>',
+		},
 		socialLinks: [
-			{ icon: 'github', link: 'https://github.com/vuejs/vitepress' },
+			{ icon: 'github', link: 'https://github.com/coratgerl/wobe' },
 		],
 	},
 })
