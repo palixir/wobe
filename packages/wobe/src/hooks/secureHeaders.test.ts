@@ -18,7 +18,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -39,7 +38,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -58,7 +56,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -79,7 +76,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -98,7 +94,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -119,7 +114,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -138,7 +132,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -159,7 +152,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -178,7 +170,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -199,7 +190,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -218,7 +208,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -239,7 +228,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -258,7 +246,6 @@ describe('Secure headers', () => {
 		const handler = secureHeaders({})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 
@@ -277,7 +264,6 @@ describe('Secure headers', () => {
 		})
 
 		const context = new Context(request)
-		context.ipAdress = 'ipAdress'
 
 		handler(context)
 

@@ -65,6 +65,14 @@ export default defineConfig({
 								text: 'Logger',
 								link: '/doc/ecosystem/hooks/logger',
 							},
+							{
+								text: 'Rate limit',
+								link: '/doc/ecosystem/hooks/rate-limit',
+							},
+							{
+								text: 'Secure headers',
+								link: '/doc/ecosystem/hooks/secure-headers',
+							},
 						],
 					},
 				],
