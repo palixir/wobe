@@ -1,13 +1,18 @@
 {
-	"name": "wobe-graphql-yoga",
-	"version": "0.1.0",
-	"main": "index.ts",
-	"devDependencies": { "get-port": "7.0.0" },
-	"dependencies": {
-		"graphql-yoga": "5.2.0",
-		"wobe": "workspace:*"
-	},
-	"scripts": {
-		"build": "tsc --project tsconfig.json"
-	}
+  "name": "wobe-graphql-yoga",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "devDependencies": {
+    "get-port": "7.0.0"
+  },
+  "dependencies": {
+    "graphql-yoga": "5.2.0",
+    "wobe": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "format": "biome format --write .",
+    "lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
+    "ci": "bun lint && bun test"
+  }
 }
