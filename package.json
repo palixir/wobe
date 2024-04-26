@@ -5,23 +5,14 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.7.1",
 		"@types/bun": "latest",
-		"husky": "9.0.11",
-		"lint-staged": "15.2.2",
+		"lefthook": "1.6.10",
 		"typescript": "5.4.2"
 	},
 	"scripts": {
-		"prepare": "husky",
 		"ci": "bun --filter './packages/*' ci",
-		"format": "bun --filter './packages/*' format",
-		"lint": "bun --filter './packages/*' lint"
-	},
-	"lint-staged": {
-		"*": [
-			"biome lint ./packages/**/*.ts --no-errors-on-unmatched",
-			"biome format --write ."
-		]
-	},
-	"dependencies": {
-		"find-my-way": "^8.1.0"
+		"format": "bun --filter './packages/*' format && biome format --write ./*.json",
+		"lint": "bun --filter './packages/*' lint",
+		"pre:commit": "biome lint ./packages --no-errors-on-unmatched && biome format --write ./packages",
+		"squash": "base_branch=${1:-main} && git fetch origin $base_branch && branch=$(git branch --show-current) && git checkout $branch && git reset $(git merge-base origin/$base_branch $branch) && git add -A"
 	}
 }

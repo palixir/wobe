@@ -2,7 +2,7 @@
 	"$schema": "https://biomejs.dev/schemas/1.6.2/schema.json",
 	"files": {
 		"include": ["**/*.ts", "**/*.js"],
-		"ignore": ["**/lib/**", "**/node_modules/**"],
+		"ignore": ["**/lib/**", "**/node_modules/**", ".vitepress/**"],
 		"ignoreUnknown": true
 	},
 	"organizeImports": {
