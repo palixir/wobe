@@ -25,6 +25,19 @@ npm install wobe # On npm
 yarn add wobe # On yarn
 ```
 
+## Basic example
+
+```ts
+import { Wobe } from 'wobe'
+
+const app = new Wobe()
+	.get('/hello', (context) => context.res.sendText('Hello world'))
+	.get('/hello/:name', (context) =>
+		context.res.sendText(`Hello ${context.params.name}`),
+	)
+	.listen(3000)
+```
+
 ## Features
 
 -   **Simple & Easy to use**: Wobe respects the standard and provides a large ecosystem.
