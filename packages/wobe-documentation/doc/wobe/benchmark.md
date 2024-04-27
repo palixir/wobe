@@ -2,7 +2,7 @@
 
 Although performance is not the main focus of Wobe, it is still an important factor when choosing a web framework. So on, we have done some benchmarks to compare Wobe with other popular web frameworks.
 
-## HTTP Server benchmark
+## HTTP Server benchmark (on Bun runtime)
 
 Wobe is one of the fastest web framework based on the [benchmark](https://github.com/SaltyAom/bun-http-framework-benchmark) of SaltyAom. Indeed, this benchmark is complete and already contains a lot of others web frameworks.
 

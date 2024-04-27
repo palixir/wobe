@@ -8,7 +8,6 @@ export default defineConfig({
 		search: {
 			provider: 'local',
 		},
-		nav: [{ text: 'Home', link: '/' }],
 		sidebar: [
 			{
 				text: 'Wobe',
