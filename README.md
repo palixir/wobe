@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://wobe.dev"><img src="https://i.ibb.co/YWw16K1/image.png" alt="Logo" height=170></a>
+  <a href="https://wobe.dev"><img src="/packages/wobe-documentation/assets/logo.png" alt="Logo" height=170></a>
 </p>
 <h1 align="center">Wobe</h1>
 
@@ -45,7 +45,7 @@ const app = new Wobe()
 -   **Multi-runtime**: Wobe supports Node.js and Bun runtime.
 -   **Easy to extend**: Wobe has an easy-to-use plugin system that allows extending for all your personal use cases.
 
-## Benchmarks
+## Benchmarks (on Bun runtime)
 
 Wobe is one of the fastest web framework based on the [benchmark](https://github.com/SaltyAom/bun-http-framework-benchmark) of SaltyAom.
 
