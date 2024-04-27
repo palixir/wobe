@@ -95,6 +95,9 @@ describe('Wobe', () => {
 			.get('/test', (ctx) => {
 				return ctx.res.send('Test')
 			})
+			.post('/testRequestBodyCache', async (ctx) => {
+				return ctx.res.send(await ctx.request.text())
+			})
 			.get('/testBearer', (ctx) => {
 				return ctx.res.send('Test')
 			})
@@ -245,6 +248,28 @@ describe('Wobe', () => {
 			expect(res.status).toBe(200)
 		},
 	)
+
+	it('should works with request cache (same request but different body)', async () => {
+		const res = await fetch(
+			`http://127.0.0.1:${port}/testRequestBodyCache`,
+			{
+				method: 'POST',
+				body: '1',
+			},
+		)
+
+		expect(await res.text()).toBe('1')
+
+		const res2 = await fetch(
+			`http://127.0.0.1:${port}/testRequestBodyCache`,
+			{
+				method: 'POST',
+				body: '2',
+			},
+		)
+
+		expect(await res2.text()).toBe('2')
+	})
 
 	it('should separate headers from two response', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/1`)

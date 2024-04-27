@@ -1,10 +1,10 @@
 import { createServer } from 'node:http'
-import type { RadixTree } from '../../router'
-import type { WobeOptions } from '../../Wobe'
 import { HttpException } from '../../HttpException'
-import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
 import { WobeStore } from '../../tools'
+import type { RuntimeAdapter } from '..'
+import type { RadixTree } from '../../router'
+import type { WobeOptions } from '../../Wobe'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
@@ -26,33 +26,36 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 		createServer(async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
 
-			const body: Array<any> = []
+			let body = ''
 			req.on('data', (chunk) => {
-				body.push(chunk)
+				body += chunk
 			})
 
 			req.on('end', async () => {
 				try {
-					const request = new Request(url, {
-						method: req.method,
-						headers: req.headers as any,
-						body,
-					})
-
 					const cacheKey = url + '$method:' + req.method
 
 					let context = _contextStore.get(cacheKey)
 
-					if (context) {
-						context.request = request
-					} else {
+					const request = new Request(url, {
+						method: req.method,
+						headers: req.headers as any,
+						body:
+							req.method !== 'GET' && req.method !== 'HEAD'
+								? body
+								: undefined,
+					})
+
+					if (!context) {
 						context = new Context(request, router)
 
 						_contextStore.set(cacheKey, context)
+					} else {
+						context.request = request
 					}
 
 					if (!context.handler) {
-						options?.onNotFound?.(request)
+						options?.onNotFound?.(context.request)
 
 						res.writeHead(404)
 						res.end()

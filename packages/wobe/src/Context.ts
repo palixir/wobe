@@ -61,7 +61,7 @@ export class Context {
 		this.state = 'afterHandler'
 
 		// We need to run hook sequentially
-		let responseAfterHook: Response | undefined = undefined
+		let responseAfterHook = undefined
 		for (const hookAfterHandler of this.afterHandlerHook)
 			responseAfterHook = await hookAfterHandler(this)
 
