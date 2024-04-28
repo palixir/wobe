@@ -1,5 +1,5 @@
 {
-  "branches": ["main", "feat-release],
+  "branches": ["main"],
   "repositoryUrl": "https://github.com/palixir/wobe",
     "plugins": [
         "@semantic-release/npm",
