@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint && bun run test && bun test:node",
+		"ci": "bun lint $(pwd) && bun run test src && bun test:node src",
 		"format": "biome format --write .",
 		"test": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
 		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
