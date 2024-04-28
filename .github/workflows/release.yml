@@ -27,5 +27,5 @@ jobs:
             - run: bun ci
             - run: bun --filter ./packages/${{inputs.package}} build
             - run: bun semantic-release
-              with:
+              env:
                   NPM_TOKEN: ${{secrets.NPM_TOKEN}}
