@@ -2,17 +2,13 @@
 	"name": "wobe-test",
 	"version": "0.8.0",
 	"main": "lib/index.js",
-	"devDependencies": {
-		"@semantic-release/npm": "12.0.0",
-		"@semantic-release/release-notes-generator": "13.0.0",
-		"get-port": "7.0.0",
-		"semantic-release": "23.0.8"
-	},
+	"devDependencies": { "get-port": "7.0.0", "semantic-release": "23.0.8" },
 	"scripts": {
 		"build": "tsc --project tsconfig.json",
 		"ci": ""
 	},
 	"publishConfig": {
 		"tag": "wobe-test"
-	}
+	},
+	"release": { "branches": ["main"] }
 }
