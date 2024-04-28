@@ -13,6 +13,6 @@
 		"build": "tsc --project tsconfig.json",
 		"format": "biome format --write .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint && bun test"
+		"ci": "bun lint  $(pwd) && bun test src"
 	}
 }

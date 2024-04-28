@@ -1,13 +1,15 @@
 {
 	"name": "wobe",
-	"version": "0.1.0",
-	"main": "index.ts",
+	"version": "0.8.0",
+	"main": "lib/index.js",
 	"devDependencies": {
-		"get-port": "7.0.0"
+		"@semantic-release/npm": "^12.0.0",
+		"get-port": "7.0.0",
+		"semantic-release": "^23.0.8"
 	},
 	"scripts": {
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint && bun run test && bun test:node",
+		"ci": "bun lint $(pwd) && bun run test src && bun test:node src",
 		"format": "biome format --write .",
 		"test": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
 		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
