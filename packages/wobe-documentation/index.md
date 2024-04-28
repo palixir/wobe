@@ -5,6 +5,9 @@ hero:
     name: 'Wobe'
     text: 'A fast, lightweight and simple web framework'
     tagline:
+    image:
+        src: /assets/logo.png
+        alt: VitePress
     actions:
         - theme: brand
           text: Docs

@@ -15,6 +15,11 @@ export interface WobeOptions {
 	hostname?: string
 	onError?: (error: Error) => void
 	onNotFound?: (request: Request) => void
+	tls?: {
+		key: string
+		cert: string
+		passphrase?: string
+	}
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL'

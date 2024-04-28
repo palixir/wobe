@@ -1,6 +1,6 @@
 # Rate limit
 
-Wobe has a rate limit `beforeHandler` hook that allow to limit the number of request on your server in an amount of time.
+Wobe has a rate limit `beforeHandler` hook that allows you to limit the number of requests on your server within a specified amount of time.
 
 ## Example
 

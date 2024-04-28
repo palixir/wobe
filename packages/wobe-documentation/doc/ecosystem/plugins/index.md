@@ -4,7 +4,7 @@ An essential aspect of Wobe is its requirement for zero dependencies. This featu
 
 ## How to create and use a plugin
 
-A plugin is just a function that return another function that receives the `Wobe` object as a parameter. This function can be used to extend the `Wobe` object with new methods or properties.
+A plugin is essentially a function that returns another function, which in turn accepts the Wobe object as a parameter. This inner function serves to expand the capabilities of the Wobe object by adding new methods or properties.
 
 ```ts
 import { Wobe } from 'wobe'
@@ -18,7 +18,7 @@ const myPlugin = () => {
 const wobe = new Wobe().usePlugin(myPlugin()).listen(3000)
 ```
 
-For a plugin that returns a promise you can `await` it directly in the usePlugin method. You can have this kind of plugin when for example you need to start a server (like the graphql-apollo plugin for example).
+To utilize a plugin that returns a promise, you can directly `await` it within the `usePlugin` method. Such a plugin is handy in scenarios like initiating a server, such as with the graphql-apollo plugin.
 
 ```ts
 import { Wobe } from 'wobe'

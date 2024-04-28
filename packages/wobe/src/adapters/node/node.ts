@@ -1,4 +1,5 @@
-import { createServer } from 'node:http'
+import { createServer as createHttpServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 import { HttpException } from '../../HttpException'
 import { Context } from '../../Context'
 import { WobeStore } from '../../tools'
@@ -22,8 +23,14 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 const _contextStore = new WobeStore<Context>({ interval: 10000 })
 
 export const NodeAdapter = (): RuntimeAdapter => ({
-	createServer: (port: number, router: RadixTree, options?: WobeOptions) =>
-		createServer(async (req, res) => {
+	createServer: (port: number, router: RadixTree, options?: WobeOptions) => {
+		// @ts-expect-error
+		const createServer: typeof createHttpsServer = options?.tls
+			? createHttpsServer
+			: createHttpServer
+		const certificateObject = { ...options?.tls } || {}
+
+		return createServer(certificateObject, async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
 
 			let body = ''
@@ -103,6 +110,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 				res.end()
 			})
-		}).listen(port),
+		}).listen(port)
+	},
 	stopServer: (server: any) => server.close(),
 })

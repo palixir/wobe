@@ -1,6 +1,6 @@
 # Secure headers
 
-Wobe has a secure headers `beforeHandler` hook that allow to set secure headers on your server. It can be considered as an equivalence of `helmet` for express.
+Wobe has a secure headers `beforeHandler` hook that allows you to set secure headers on your server. It can be considered as an equivalent of `helmet` for Express.
 
 ## Example
 

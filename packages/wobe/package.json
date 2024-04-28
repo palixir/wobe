@@ -7,9 +7,10 @@
 	},
 	"scripts": {
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint && bun test && bun test:node",
+		"ci": "bun lint && bun run test && bun test:node",
 		"format": "biome format --write .",
-		"test:node": "NODE_TEST='true' bun test",
+		"test": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
+		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
 		"build": "tsc --project tsconfig.json",
 		"dev": "bun run --watch dev/index.ts"
 	}

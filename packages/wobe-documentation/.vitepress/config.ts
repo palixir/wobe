@@ -8,7 +8,6 @@ export default defineConfig({
 		search: {
 			provider: 'local',
 		},
-		nav: [{ text: 'Home', link: '/' }],
 		sidebar: [
 			{
 				text: 'Wobe',
@@ -20,8 +19,10 @@ export default defineConfig({
 			{
 				text: 'Concepts',
 				items: [
+					{ text: 'Wobe', link: '/doc/concepts/wobe' },
 					{ text: 'Routes', link: '/doc/concepts/route' },
 					{ text: 'Context', link: '/doc/concepts/context' },
+					{ text: 'Websocket', link: '/doc/concepts/websocket' },
 				],
 			},
 			{
@@ -80,9 +81,8 @@ export default defineConfig({
 		],
 		footer: {
 			message:
-				'Released under the <a href="https://github.com/coratgerl/wobe/blob/main/LICENSE">MIT License</a>.',
-			copyright:
-				'Copyright © 2024 <a href="https://github.com/coratgerl">coratgerl</a>',
+				'Made with ❤️ by <a href="https://github.com/coratgerl">coratgerl</a></br>Released under the <a href="https://github.com/coratgerl/wobe/blob/main/LICENSE">MIT License</a>.',
+			copyright: 'Copyright © 2024',
 		},
 		socialLinks: [
 			{ icon: 'github', link: 'https://github.com/coratgerl/wobe' },

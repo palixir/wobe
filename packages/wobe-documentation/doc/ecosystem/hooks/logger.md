@@ -1,6 +1,6 @@
 # Logger
 
-Wobe has a logger `beforeAndAfterHandler` that allow to log something before and after a function is called. For example, it can be useful to log the time taken by an handler to execute.
+Wobe has a logger `beforeAndAfterHandler` that allows to log something before and after a function is called. For example, it can be useful to log the time taken by an handler to execute.
 
 ## Example
 
