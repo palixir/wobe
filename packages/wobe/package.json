@@ -3,7 +3,9 @@
 	"version": "0.8.0",
 	"main": "lib/index.js",
 	"devDependencies": {
-		"get-port": "7.0.0"
+		"@semantic-release/npm": "^12.0.0",
+		"get-port": "7.0.0",
+		"semantic-release": "^23.0.8"
 	},
 	"scripts": {
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",

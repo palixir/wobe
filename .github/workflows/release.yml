@@ -1,0 +1,27 @@
+name: release
+
+on:
+    workflow_dispatch:
+        inputs:
+            package:
+                description: 'Package to release'
+                required: true
+                type: choice
+                options:
+                    - 'wobe'
+                    - 'wobe-graphql-yoga'
+                    - 'wobe-graphql-apollo'
+                    - 'wobe-validator'
+                    - 'wobe-documentation'
+
+jobs:
+    run:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v1
+              with:
+                  bun-version: latest
+            - run: bun install
+            - run: bun ci
+            - run: bun --filter ./packages/${{inputs.package}} build
