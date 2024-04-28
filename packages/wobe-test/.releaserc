@@ -1,8 +1,7 @@
 {
-  "branches": ["main"],
+  "branches": ["main", "feat-release],
   "repositoryUrl": "https://github.com/palixir/wobe",
     "plugins": [
-        "@semantic-release/release-notes-generator",
         "@semantic-release/npm",
     ]
 }
