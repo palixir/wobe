@@ -22,6 +22,8 @@ describe('logger', () => {
 
 		const context = new Context(request)
 
+		const now = Date.now()
+
 		handler(context)
 
 		expect(mockLoggerFunction).toHaveBeenCalledTimes(1)
@@ -31,7 +33,7 @@ describe('logger', () => {
 			url: 'http://localhost:3000/test',
 		})
 
-		expect(context.requestStartTimeInMs).toBeGreaterThanOrEqual(Date.now())
+		expect(context.requestStartTimeInMs).toBeGreaterThanOrEqual(now)
 	})
 
 	it('should log after handler', () => {
