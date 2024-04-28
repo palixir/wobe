@@ -2,7 +2,7 @@
 
 ## Context object
 
-Each Wobe route handler receives a context object that contains some information about the request like the params, the ipAdress, the headers, the body, etc. It also contains the response object that you can use to send the response to the client.
+Each Wobe route handler receives a context object that contains some information about the request like the params, the ipAddress, the headers, the body, etc. It also contains the response object that you can use to send the response to the client.
 
 Here is the list of the properties of the context object:
 
@@ -10,7 +10,7 @@ Here is the list of the properties of the context object:
 -   `res`: The response object that you can use to send the response to the client.
 -   `params`: The parameters of the route.
 -   `query`: The query parameters of the route (all parameters after the ? in the url).
--   `getIpAdress`: A function that returns the ip address of the client.
+-   `getIpAddress`: A function that returns the ip address of the client.
 -   `headers`: The headers of the request.
 -   `body`: The body of the request.
 -   `state`: The state of your position in the life cycle (beforeHandler or afterHandler).

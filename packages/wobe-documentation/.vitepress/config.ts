@@ -19,8 +19,10 @@ export default defineConfig({
 			{
 				text: 'Concepts',
 				items: [
+					{ text: 'Wobe', link: '/doc/concepts/wobe' },
 					{ text: 'Routes', link: '/doc/concepts/route' },
 					{ text: 'Context', link: '/doc/concepts/context' },
+					{ text: 'Websocket', link: '/doc/concepts/websocket' },
 				],
 			},
 			{

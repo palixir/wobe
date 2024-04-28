@@ -28,4 +28,4 @@ const wobe = new Wobe().usePlugin(
 wobe.listen(port)
 ```
 
-With GraphQL Apollo Server plugin, you have access to all yoga options. You can refer to the [graphql-apollo-server documentation](https://www.apollographql.com/docs/apollo-server/) for more informations.
+With GraphQL Apollo Server plugin, you have access to all apollo server options. You can refer to the [graphql-apollo-server documentation](https://www.apollographql.com/docs/apollo-server/) for more informations.

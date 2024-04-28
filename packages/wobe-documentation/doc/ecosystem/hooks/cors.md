@@ -4,7 +4,7 @@ Wobe has a `beforeHandker` hook to manage CORS.
 
 ## Example
 
-You can only authorize some request with the `origin` option.
+You can only authorize some requests with the `origin` option.
 
 ```ts
 import { Wobe, cors } from 'wobe'
@@ -15,7 +15,7 @@ const app = new Wobe()
 	.listen(3000)
 ```
 
-With multiple origin.
+With multiple origins.
 
 ```ts
 import { Wobe, cors } from 'wobe'

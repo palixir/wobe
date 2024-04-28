@@ -1,10 +1,10 @@
 # WebSocket
 
-WebSocket is a real time protocol to communicate between a client and a server.
+WebSocket is a real-time protocol to communicate between a client and a server.
 
-Wobe propose a simple way to create a WebSocket server.
+Wobe proposes a simple way to create a WebSocket server.
 
-Node : Wobe WebSocket is only available on Bun for the moment.
+Note: Wobe WebSocket is only available on Bun for the moment.
 
 ## Create a simple WebSocket server
 
@@ -31,7 +31,7 @@ wobe.useWebSocket({
 wobe.listen(3000)
 ```
 
-In this example, we create a WebSocket server on the `/ws` path. When a client connects on this path, we send a message to the client. When the client sends a message, we send back the message. When the client disconnects, we send a goodbye message.
+In this example, we create a WebSocket server on the /ws path. When a client connects on this path, we send a message to the client. When the client sends a message, we send back the message. When the client disconnects, we send a goodbye message.
 
 ## WebSocket options
 

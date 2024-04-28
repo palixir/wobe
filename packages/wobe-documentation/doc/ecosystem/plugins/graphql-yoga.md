@@ -26,4 +26,4 @@ const wobe = new Wobe().usePlugin(
 )
 ```
 
-With GraphQL Yoga plugin, you have access to all yoga options. You can refer to the [graphql-yoga documentation](https://the-guild.dev/graphql/yoga-server/docs) for more information.
+With GraphQL Yoga plugin, you have access to all yoga options. You can refer to the [graphql-yoga documentation](https://the-guild.dev/graphql/yoga-server/docs) for more informations.
