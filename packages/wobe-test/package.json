@@ -2,13 +2,10 @@
 	"name": "wobe-test",
 	"version": "0.8.0",
 	"main": "lib/index.js",
-	"devDependencies": { "get-port": "7.0.0", "semantic-release": "23.0.8" },
+	"devDependencies": { "get-port": "7.0.0" },
 	"scripts": {
 		"build": "tsc --project tsconfig.json",
-		"ci": ""
-	},
-	"publishConfig": {
-		"tag": "wobe-test"
-	},
-	"release": { "branches": ["main"] }
+		"ci": "",
+		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+	}
 }
