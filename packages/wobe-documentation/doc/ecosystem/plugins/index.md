@@ -18,7 +18,7 @@ const myPlugin = () => {
 const wobe = new Wobe().usePlugin(myPlugin()).listen(3000)
 ```
 
-To utilize a plugin that returns a promise, you can directly await it within the usePlugin method. Such a plugin is handy in scenarios like initiating a server, such as with the graphql-apollo plugin.
+To utilize a plugin that returns a promise, you can directly `await` it within the `usePlugin` method. Such a plugin is handy in scenarios like initiating a server, such as with the graphql-apollo plugin.
 
 ```ts
 import { Wobe } from 'wobe'
