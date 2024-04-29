@@ -11,4 +11,12 @@ node_modules/
 cache
 build
 lib
-dist
+src
+tests
+test
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+CHANGELOG.md
+tsconfig.json
+.git
+bun.lockb
