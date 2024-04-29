@@ -6,7 +6,7 @@
 		"@sinclair/typebox": "0.32.20"
 	},
 	"devDependencies": {
-		"wobe": "workspace:*",
+		"wobe": "*",
 		"get-port": "7.0.0"
 	},
 	"scripts": {
