@@ -1,7 +1,7 @@
 {
 	"name": "wobe-validator",
-	"version": "0.1.0",
-	"main": "index.ts",
+	"version": "1.0.0",
+	"main": "dist/index.js",
 	"dependencies": {
 		"@sinclair/typebox": "0.32.20"
 	},
@@ -10,9 +10,10 @@
 		"get-port": "7.0.0"
 	},
 	"scripts": {
+		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
+		"generate:types": "dts-bundle-generator $(pwd)/src/index.ts -o dist/index.d.ts --no-check",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
-		"build": "tsc --project tsconfig.json",
 		"dev": "bun run --watch dev/index.ts"
 	}
 }

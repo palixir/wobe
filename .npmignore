@@ -20,3 +20,5 @@ CHANGELOG.md
 tsconfig.json
 .git
 bun.lockb
+dev
+fixtures
