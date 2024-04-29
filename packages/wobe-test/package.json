@@ -1,5 +1,5 @@
 {
-	"name": "wobe-test",
+	"name": "wobe-test2",
 	"version": "0.8.0",
 	"main": "lib/index.js",
 	"devDependencies": { "get-port": "7.0.0" },
