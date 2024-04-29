@@ -1,18 +1,18 @@
 {
 	"name": "wobe",
-	"version": "0.8.0",
-	"main": "lib/index.js",
+	"version": "1.0.0",
+	"main": "dist/index.js",
 	"devDependencies": {
-		"get-port": "7.0.0",
-		"semantic-release": "^23.0.8"
+		"get-port": "7.0.0"
 	},
 	"scripts": {
+		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
+		"generate:types": "dts-bundle-generator $(pwd)/src/index.ts -o dist/index.d.ts --no-check",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint $(pwd) && bun run test src && bun test:node src",
+		"ci": "bun lint $(pwd) && bun run test:bun src && bun test:node src",
 		"format": "biome format --write .",
-		"test": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
+		"test:bun": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
 		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
-		"build": "tsc --project tsconfig.json",
 		"dev": "bun run --watch dev/index.ts"
 	}
 }

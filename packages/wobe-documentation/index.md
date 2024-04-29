@@ -4,13 +4,13 @@ layout: home
 hero:
     name: 'Wobe'
     text: 'A fast, lightweight and simple web framework'
-    tagline:
+    tagline: A solid library kicks off with killer documentation. Let's dive in together !
     image:
         src: /assets/logo.png
         alt: VitePress
     actions:
         - theme: brand
-          text: Docs
+          text: Documentation
           link: /doc/wobe/motivations
         - theme: alt
           text: GitHub

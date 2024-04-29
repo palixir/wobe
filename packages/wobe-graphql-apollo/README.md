@@ -1,15 +1,50 @@
-# wobe-graphql-yoga
+<p align="center">
+  <a href="https://wobe.dev"><img src="/packages/wobe-documentation/assets/logo.png" alt="Logo" height=170></a>
+</p>
+<h1 align="center">Wobe</h1>
 
-To install dependencies:
+<div align="center">
+  <a href="">Documentation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="">Discord</a>
+</div>
 
-```bash
-bun install
+### [Read the docs]()
+
+## What is Wobe apollo ?
+
+**Wobe apollo** is a plugin for the **wobe** web framework that allows you to easily use the apollo server.
+
+## Install
+
+```sh
+bun install wobe-graphql-apollo # On bun
+npm install wobe-graphql-apollo # On npm
+yarn add wobe-graphql-apollo # On yarn
 ```
 
-To run:
+## Basic example
 
-```bash
-bun run index.ts
+```ts
+import { Wobe } from 'wobe'
+import { WobeGraphqlApolloPlugin } from 'wobe-graphql-apollo'
+
+const wobe = new Wobe().usePlugin(
+	await WobeGraphqlApolloPlugin({
+		options: {
+			typeDefs: `
+          type Query {
+            hello: String
+          }
+        `,
+			resolvers: {
+				Query: {
+					hello: () => 'Hello from Apollo!',
+				},
+			},
+		},
+	}),
+)
+
+wobe.listen(3000)
 ```
-
-This project was created using `bun init` in bun v1.0.33. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

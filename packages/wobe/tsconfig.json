@@ -19,7 +19,7 @@
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"outDir": "lib",
+		"outDir": "dist",
 		"declaration": true
 	},
 	"exclude": ["node_modules", "lib", "dev", "**/*.test.ts"],

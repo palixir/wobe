@@ -74,6 +74,10 @@ export default defineConfig({
 								text: 'Secure headers',
 								link: '/doc/ecosystem/hooks/secure-headers',
 							},
+							{
+								text: 'Validator',
+								link: '/doc/ecosystem/hooks/validator',
+							},
 						],
 					},
 				],
@@ -81,7 +85,7 @@ export default defineConfig({
 		],
 		footer: {
 			message:
-				'Made with ❤️ by <a href="https://github.com/coratgerl">coratgerl</a></br>Released under the <a href="https://github.com/coratgerl/wobe/blob/main/LICENSE">MIT License</a>.',
+				'Made with ❤️ by <a href="https://github.com/coratgerl">coratgerl</a>',
 			copyright: 'Copyright © 2024',
 		},
 		socialLinks: [
