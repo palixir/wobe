@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://wobe.dev"><img src="../wobe-documentation/assets/logo.png" alt="Logo" height=170></a>
+  <a href="https://wobe.dev"><img src="/assets/logo.png" alt="Logo" height=170></a>
 </p>
 <h1 align="center">Wobe</h1>
 
