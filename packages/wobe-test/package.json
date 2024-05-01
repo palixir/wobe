@@ -14,6 +14,7 @@
 	},
 	"devDependencies": {},
 	"scripts": {
+		"generate:types": "dts-bundle-generator $(pwd)/src/index.ts -o dist/index.d.ts --no-check",
 		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
 		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
 	}
