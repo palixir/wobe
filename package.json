@@ -9,7 +9,6 @@
     "@semantic-release/commit-analyzer": "12.0.0",
     "@semantic-release/github": "^10.0.3",
     "@types/bun": "latest",
-    "dts-bundle-generator": "9.5.1",
     "lefthook": "1.6.10",
     "semantic-release": "23.0.8",
     "semantic-release-monorepo": "8.0.2",
