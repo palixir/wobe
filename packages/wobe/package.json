@@ -13,6 +13,7 @@
 		"format": "biome format --write .",
 		"test:bun": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
 		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
-		"dev": "bun run --watch dev/index.ts"
+		"dev": "bun run --watch dev/index.ts",
+		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
 	}
 }

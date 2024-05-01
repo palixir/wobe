@@ -14,6 +14,7 @@
 		"generate:types": "dts-bundle-generator $(pwd)/src/index.ts -o dist/index.d.ts --no-check",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
-		"dev": "bun run --watch dev/index.ts"
+		"dev": "bun run --watch dev/index.ts",
+		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
 	}
 }
