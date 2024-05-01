@@ -12,14 +12,14 @@ on:
                     - 'wobe-graphql-yoga'
                     - 'wobe-graphql-apollo'
                     - 'wobe-validator'
-                    - 'wobe-documentation'
-                    - 'wobe-test'
 
 jobs:
     run:
         runs-on: ubuntu-latest
         permissions:
             contents: write
+            issues: write
+            pull-requests: write
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
