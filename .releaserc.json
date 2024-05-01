@@ -13,6 +13,7 @@
 						"type": "docs",
 						"release": "patch"
 					},
+					{ "type": "fix", "release": "patch" },
 					{
 						"type": "refactor",
 						"release": "patch"
