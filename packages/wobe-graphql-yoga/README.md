@@ -6,7 +6,7 @@
 <div align="center">
   <a href="">Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="">Discord</a>
+  <a href="https://discord.gg/GVuyYXNvGg">Discord</a>
 </div>
 
 ### [Read the docs](https://wobe.dev)

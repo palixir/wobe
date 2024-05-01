@@ -91,6 +91,7 @@ export default defineConfig({
 		},
 		socialLinks: [
 			{ icon: 'github', link: 'https://github.com/coratgerl/wobe' },
+			{ icon: 'discord', link: 'https://discord.gg/GVuyYXNvGg' },
 		],
 	},
 })
