@@ -15,7 +15,7 @@
 		"typescript": "5.4.2"
 	},
 	"scripts": {
-		"commit:check": "commitlint --edit ${1}",
+		"commit:check": "commitlint --edit",
 		"build:wobe": "bun --filter './packages/wobe' build",
 		"ci": "bun build:wobe && bun --filter './packages/*' ci",
 		"format": "bun --filter './packages/*' format && biome format --write ./*.json",
