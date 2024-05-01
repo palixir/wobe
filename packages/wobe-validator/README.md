@@ -4,12 +4,10 @@
 <h1 align="center">Wobe</h1>
 
 <div align="center">
-  <a href="https://wobe.dev">Documentation</a>
+  <a href="https://wobe.dev" target="_blank">Documentation</a>
   <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
   <a href="https://discord.gg/GVuyYXNvGg">Discord</a>
 </div>
-
-### [Read the docs](https://wobe.dev)
 
 # What is wobe validator ?
 
