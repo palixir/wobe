@@ -10,6 +10,7 @@
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
 	},
+	"license": "MIT",
 	"main": "dist/index.js",
 	"devDependencies": {
 		"get-port": "7.0.0"

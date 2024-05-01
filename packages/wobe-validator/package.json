@@ -10,6 +10,7 @@
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
 	},
+	"license": "MIT",
 	"main": "dist/index.js",
 	"dependencies": {
 		"@sinclair/typebox": "0.32.27"

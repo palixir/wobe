@@ -6,6 +6,7 @@
 		"name": "coratgerl",
 		"url": "https://github.com/coratgerl"
 	},
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
