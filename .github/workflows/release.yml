@@ -12,6 +12,7 @@ on:
                     - 'wobe-graphql-yoga'
                     - 'wobe-graphql-apollo'
                     - 'wobe-validator'
+                    - 'wobe-test'
 
 jobs:
     run:

@@ -1,0 +1,19 @@
+{
+	"name": "wobe-test",
+	"version": "1.0.0",
+	"description": "Wobe description",
+	"author": {
+		"name": "coratgerl",
+		"url": "https://github.com/coratgerl"
+	},
+	"license": "MIT",
+	"main": "dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/palixir/wobe"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+	}
+}
