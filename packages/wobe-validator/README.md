@@ -9,7 +9,7 @@
   <a href="">Discord</a>
 </div>
 
-### [Read the docs]()
+### [Read the docs](https://wobe.dev)
 
 # What is wobe validator ?
 

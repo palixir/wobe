@@ -12,3 +12,5 @@ cache
 build
 lib
 dist
+
+.DS_Store

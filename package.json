@@ -1,25 +1,26 @@
 {
-  "name": "main",
-  "version": "1.0.0",
-  "workspaces": [
-    "packages/*"
-  ],
-  "devDependencies": {
-    "dts-bundle-generator": "9.5.1",
-    "@biomejs/biome": "1.7.1",
-    "@semantic-release/commit-analyzer": "12.0.0",
-    "@types/bun": "latest",
-    "lefthook": "1.6.10",
-    "semantic-release": "23.0.8",
-    "semantic-release-monorepo": "8.0.2",
-    "typescript": "5.4.2"
-  },
-  "scripts": {
-    "build:wobe": "bun --filter './packages/wobe' build",
-    "ci": "bun build:wobe && bun --filter './packages/*' ci",
-    "format": "bun --filter './packages/*' format && biome format --write ./*.json",
-    "lint": "bun --filter './packages/*' lint",
-    "pre:commit": "biome lint ./packages --no-errors-on-unmatched && biome format --write ./packages",
-    "squash": "base_branch=${1:-main} && git fetch origin $base_branch && branch=$(git branch --show-current) && git checkout $branch && git reset $(git merge-base origin/$base_branch $branch) && git add -A"
-  }
+	"name": "main",
+	"version": "1.0.0",
+	"workspaces": ["packages/*"],
+	"devDependencies": {
+		"@biomejs/biome": "1.7.1",
+		"@commitlint/cli": "19.3.0",
+		"@commitlint/config-conventional": "19.2.2",
+		"@semantic-release/commit-analyzer": "12.0.0",
+		"@types/bun": "latest",
+		"dts-bundle-generator": "9.5.1",
+		"lefthook": "1.6.10",
+		"semantic-release": "23.0.8",
+		"semantic-release-monorepo": "8.0.2",
+		"typescript": "5.4.2"
+	},
+	"scripts": {
+		"commit:check": "commitlint --edit ${1}",
+		"build:wobe": "bun --filter './packages/wobe' build",
+		"ci": "bun build:wobe && bun --filter './packages/*' ci",
+		"format": "bun --filter './packages/*' format && biome format --write ./*.json",
+		"lint": "bun --filter './packages/*' lint",
+		"pre:commit": "biome lint ./packages --no-errors-on-unmatched && biome format --write ./packages",
+		"squash": "base_branch=${1:-main} && git fetch origin $base_branch && branch=$(git branch --show-current) && git checkout $branch && git reset $(git merge-base origin/$base_branch $branch) && git add -A"
+	}
 }

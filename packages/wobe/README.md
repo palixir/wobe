@@ -9,7 +9,7 @@
   <a href="">Discord</a>
 </div>
 
-### [Read the docs]()
+### [Read the docs](https://wobe.dev)
 
 ## What is Wobe?
 
@@ -58,7 +58,7 @@ Wobe is one of the fastest web framework based on the [benchmark](https://github
 | fastify   | bun     | 49,648.977 | 62,511.85  | 58,904.51 | 27,530.57 |
 | express   | bun     | 31,370.06  | 39,775.79  | 36,605.68 | 17,728.71 |
 
-_Execute with 5 runs - 12/04/2024_
+_Executed with 5 runs - 12/04/2024_
 
 ## Contributing
 

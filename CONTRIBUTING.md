@@ -7,6 +7,8 @@ Contributions are welcome! Here's how you can help:
 -   **Create a pull request**: If you can fix a bug or implement a feature, please create a pull request (I promise a quick review).
 -   **Use Wobe**: The best way to contribute is to use Wobe in your application.
 
+Note: Each code contribution must be tested either by an existing test or a new one.
+
 ## Install
 
 Wobe uses Bun, so you need the latest version of Bun. You can see [here](https://bun.sh/docs/installation) if Bun is not installed on your machine.
