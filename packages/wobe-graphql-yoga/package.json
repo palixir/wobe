@@ -21,11 +21,19 @@
 		"wobe": "*"
 	},
 	"scripts": {
-		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
+		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
 		"generate:types": "bun tsc --project .",
 		"format": "biome format --write .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
 		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+	},
+	"peerDependenciesMeta": {
+		"graphql": {
+			"optional": true
+		},
+		"graphql-yoga": {
+			"optional": true
+		}
 	}
 }

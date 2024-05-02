@@ -1,4 +1,16 @@
-import { createYoga, type YogaServerOptions } from 'graphql-yoga'
+import {
+	GraphQLEnumType,
+	GraphQLObjectType,
+	GraphQLScalarType,
+	GraphQLSchema,
+	type GraphQLFieldConfig,
+} from 'graphql'
+import {
+	createSchema,
+	createYoga,
+	type GraphQLSchemaWithContext,
+	type YogaServerOptions,
+} from 'graphql-yoga'
 import type { Wobe, WobePlugin } from 'wobe'
 
 export const WobeGraphqlYogaPlugin = ({
@@ -6,9 +18,18 @@ export const WobeGraphqlYogaPlugin = ({
 	...options
 }: {
 	context?: Record<string, any>
+	schema?: GraphQLSchemaWithContext<Record<string, any>>
+	typeDefs?: string
+	resolvers?: Record<string, any>
 } & YogaServerOptions<any, any>): WobePlugin => {
 	const yoga = createYoga({
 		...options,
+		schema:
+			options.schema ||
+			createSchema({
+				typeDefs: options.typeDefs || '',
+				resolvers: options.resolvers || {},
+			}),
 		context: () => ({ ...context }),
 	})
 
