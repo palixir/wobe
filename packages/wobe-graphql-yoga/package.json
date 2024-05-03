@@ -2,6 +2,7 @@
 	"name": "wobe-graphql-yoga",
 	"version": "1.0.0",
 	"description": "GraphQL Yoga server for Wobe (official)",
+	"homepage": "https://wobe.dev",
 	"author": {
 		"name": "coratgerl",
 		"url": "https://github.com/coratgerl"

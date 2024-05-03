@@ -2,6 +2,7 @@
 	"name": "wobe",
 	"version": "1.0.0",
 	"description": "A fast, lightweight and simple web framework",
+	"homepage": "https://wobe.dev",
 	"author": {
 		"name": "coratgerl",
 		"url": "https://github.com/coratgerl"
