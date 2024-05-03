@@ -10,18 +10,17 @@ import { WobeGraphqlYogaPlugin } from 'wobe-graphql-yoga'
 
 const wobe = new Wobe().usePlugin(
 	WobeGraphqlYogaPlugin({
-		schema: createSchema({
-			typeDefs: `
+		typeDefs: `
 					type Query {
 						hello: String
 					}
 				`,
-			resolvers: {
-				Query: {
-					hello: () => 'Hello from Yoga!',
-				},
+		resolvers: {
+			Query: {
+				hello: () => 'Hello from Yoga!',
 			},
-		}),
+		},
+		maskedErrors: false, // You can mask the errors to have generic errors in production
 	}),
 )
 
