@@ -2,6 +2,7 @@ import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
 import type { WobeOptions, WobeWebSocket } from '../../Wobe'
+import { WobeResponse } from '../../WobeResponse'
 import type { RadixTree } from '../../router'
 import { WobeStore } from '../../tools'
 import { bunWebSocket } from './websocket'
@@ -31,6 +32,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 
 					if (context) {
 						context.request = req
+						context.res = new WobeResponse(req)
 					} else {
 						context = new Context(req, router)
 

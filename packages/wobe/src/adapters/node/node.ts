@@ -6,6 +6,7 @@ import { WobeStore } from '../../tools'
 import type { RuntimeAdapter } from '..'
 import type { RadixTree } from '../../router'
 import type { WobeOptions } from '../../Wobe'
+import { WobeResponse } from '../../WobeResponse'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
@@ -59,6 +60,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 						_contextStore.set(cacheKey, context)
 					} else {
 						context.request = request
+						context.res = new WobeResponse(request)
 					}
 
 					if (!context.handler) {

@@ -49,14 +49,14 @@ export class Context {
 	}
 
 	async executeHandler() {
+		this.state = 'beforeHandler'
 		// We need to run hook sequentially
 		for (const hookBeforeHandler of this.beforeHandlerHook)
 			await hookBeforeHandler(this)
 
 		const resultHandler = await this.handler?.(this)
 
-		if (!this.res.response && resultHandler instanceof Response)
-			this.res.response = resultHandler
+		if (resultHandler instanceof Response) this.res.response = resultHandler
 
 		this.state = 'afterHandler'
 
