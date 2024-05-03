@@ -14,14 +14,14 @@
 	"license": "MIT",
 	"main": "dist/index.js",
 	"devDependencies": {
-		"get-port": "7.0.0"
-	},
-	"dependencies": {
-		"@apollo/server": "4.10.1",
+		"get-port": "7.0.0",
 		"wobe": "*"
 	},
+	"dependencies": {
+		"@apollo/server": "4.10.1"
+	},
 	"scripts": {
-		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
+		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
 		"generate:types": "bun tsc --project .",
 		"format": "biome format --write .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",

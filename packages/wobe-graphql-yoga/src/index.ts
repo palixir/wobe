@@ -1,11 +1,4 @@
 import {
-	GraphQLEnumType,
-	GraphQLObjectType,
-	GraphQLScalarType,
-	GraphQLSchema,
-	type GraphQLFieldConfig,
-} from 'graphql'
-import {
 	createSchema,
 	createYoga,
 	type GraphQLSchemaWithContext,

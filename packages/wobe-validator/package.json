@@ -14,14 +14,14 @@
 	"license": "MIT",
 	"main": "dist/index.js",
 	"dependencies": {
-		"@sinclair/typebox": "0.32.27"
+		"@sinclair/typebox": "0.32.27",
+		"wobe": "*"
 	},
 	"devDependencies": {
-		"wobe": "*",
 		"get-port": "7.0.0"
 	},
 	"scripts": {
-		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
+		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
 		"generate:types": "bun tsc --project .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
