@@ -1,6 +1,6 @@
 {
 	"name": "wobe",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A fast, lightweight and simple web framework",
 	"homepage": "https://wobe.dev",
 	"author": {
@@ -26,6 +26,6 @@
 		"test:bun": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",
 		"test:node": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_TEST='true' bun test",
 		"dev": "bun run --watch dev/index.ts",
-		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+		"release": "npm publish --access=public"
 	}
 }

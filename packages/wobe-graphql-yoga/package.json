@@ -1,6 +1,6 @@
 {
 	"name": "wobe-graphql-yoga",
-	"version": "1.0.0",
+	"version": "1.2.0",
 	"description": "GraphQL Yoga server for Wobe (official)",
 	"homepage": "https://wobe.dev",
 	"author": {
@@ -27,6 +27,6 @@
 		"format": "biome format --write .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
-		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+		"release": "npm publish --access=public"
 	}
 }

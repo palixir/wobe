@@ -12,25 +12,106 @@ on:
                     - 'wobe-graphql-yoga'
                     - 'wobe-graphql-apollo'
                     - 'wobe-validator'
+            newVersion:
+                description: 'New version to release'
+                required: true
+                type: string
 jobs:
     run:
         runs-on: ubuntu-latest
         permissions:
             contents: write
-            issues: write
-            pull-requests: write
+            pull-requests: read
+
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
             - uses: actions/setup-node@v4
               with:
                   node-version: 22
+
             - uses: oven-sh/setup-bun@v1
               with:
                   bun-version: latest
+
             - run: bun install
             - run: bun ci
             - run: bun --filter ./packages/${{inputs.package}} build
+
+            - name: 'Get Previous tag'
+              id: previousTag
+              uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+              with:
+                  fallback: ''
+                  prefix: ${{inputs.package}}-
+
+            - name: Build Changelog
+              id: githubRelease
+              uses: mikepenz/release-changelog-builder-action@v4.2.2
+              with:
+                  # We consider the first version is create manually because fallback is ''
+                  fromTag: ${{steps.previousTag.outputs.tag}}
+                  toTag: ${{inputs.package}}-${{inputs.newVersion}}
+                  configurationJson: |
+                      {
+                       	"categories": [
+                        		{
+                       			"title": "## 🚀 Features",
+                       			"labels": ["feat"]
+                        		},
+                        		{
+                       			"title": "## 🐛 Fixes",
+                       			"labels": ["fix", "bug"]
+                        		},
+                        		{
+                       			"key": "tests",
+                       			"title": "## 🧪 Tests",
+                       			"labels": ["test", "tests"]
+                        		},
+                         	{
+                       			"key": "doc",
+                       			"title": "## 📚 Documentation",
+                       			"labels": ["doc", "docs"]
+                        		},
+                            {
+                       			"key": "misc",
+                       			"title": "## 💬 Miscellaneous",
+                       			"labels": ["ci", "chore", "perf", "refactor"]
+                        		}
+                       	],
+                       	"template": "#{{CHANGELOG}}\n\n",
+                       	"pr_template": "- #{{TITLE}} (by @#{{AUTHOR}} in ##{{NUMBER}}) ",
+                       	"label_extractor": [
+                        		{
+                       			"pattern": "^(ci|chore|doc|docs|feat|fix|bug|perf|refactor|test|tests)\\(${{inputs.package}}\\):(.*)",
+                       			"target": "$1",
+                       			"on_property": "title"
+                        		}
+                       	]
+                      }
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
             - run: bun --filter ./packages/${{inputs.package}} release
               env:
-                  NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-                  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+            - name: Create tag
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.git.createRef({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: 'refs/tags/${{inputs.package}}-${{inputs.newVersion}}',
+                        sha: context.sha
+                      })
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{inputs.package}}-${{inputs.newVersion}}
+                  body: ${{steps.githubRelease.outputs.changelog}}

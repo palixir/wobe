@@ -1,6 +1,6 @@
 {
 	"name": "wobe-validator",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Validator plugin for Wobe (official)",
 	"homepage": "https://wobe.dev",
 	"author": {
@@ -27,6 +27,6 @@
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
 		"ci": "bun lint $(pwd) && bun test src",
 		"dev": "bun run --watch dev/index.ts",
-		"release": "semantic-release -e ../../.releaserc -e semantic-release-monorepo"
+		"release": "npm publish --access=public"
 	}
 }
