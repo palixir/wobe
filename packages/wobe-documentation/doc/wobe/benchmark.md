@@ -16,3 +16,14 @@ Wobe is one of the fastest web framework based on the [benchmark](https://github
 | express   | bun     | 31,370.06  | 39,775.79  | 36,605.68 | 17,728.71 |
 
 _Executed with 5 runs - 12/04/2024_
+
+## Startup benchmark
+
+Wobe is faster around 58% than Elysia to start. For more informations on this benchmark see [here](https://github.com/palixir/wobe/blob/main/packages/wobe-benchmark/startup/benchmark.ts).
+
+| Framework | Runtime | Time in (µs) |
+| --------- | ------- | ------------ |
+| Elysia    | bun     | 3,109        |
+| Wobe      | bun     | 1,820        |
+
+_Executed with 5 runs - 04/05/2024_

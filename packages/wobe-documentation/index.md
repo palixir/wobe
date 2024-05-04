@@ -22,7 +22,7 @@ features:
       details: Wobe respects the standard and provides a large ecosystem.
     - icon: '🚀'
       title: Fast & Lightweight
-      details: Wobe is one of the fastest web framework on Bun, and it has 0 dependencies.
+      details: Wobe is one of the fastest web framework on Bun, and it has 0 dependencies (only 23.9 kB).
     - icon: '🔧'
       title: Multi-runtime
       details: Wobe supports Node.js and Bun runtime.
