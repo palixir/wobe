@@ -40,7 +40,7 @@ const extracters = [
 	{
 		name: 'Wobe',
 		fn: ({ request }: RouteInterface) => {
-			return extractPathnameAndSearchParams(request)
+			return extractPathnameAndSearchParams(request.url)
 		},
 	},
 	{
