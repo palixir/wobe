@@ -33,5 +33,7 @@ const wobe = new Wobe({
 	},
 })
 
-wobe.listen(3000)
+wobe.listen(3000, ({ hostname, port }) => {
+	console.log(`Server running at https://${hostname}:${port}`)
+})
 ```

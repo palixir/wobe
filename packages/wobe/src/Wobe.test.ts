@@ -249,6 +249,26 @@ describe('Wobe', () => {
 		},
 	)
 
+	it('should call callback on listen', async () => {
+		const localPort = await getPort()
+
+		const mockCallback = mock((hostname: string, listenPort: number) => {
+			expect(hostname).toBe('localhost')
+			expect(listenPort).toBe(localPort)
+		})
+
+		const localWobe = new Wobe().listen(
+			localPort,
+			({ hostname, port: listenPort }) => {
+				mockCallback(hostname, listenPort)
+			},
+		)
+
+		expect(mockCallback).toHaveBeenCalledTimes(1)
+
+		localWobe.stop()
+	})
+
 	it('should works with request cache (same request but different body)', async () => {
 		const res = await fetch(
 			`http://127.0.0.1:${port}/testRequestBodyCache`,

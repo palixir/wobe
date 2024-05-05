@@ -204,7 +204,10 @@ export class Wobe {
 		return this
 	}
 
-	listen(port: number) {
+	listen(
+		port: number,
+		callback?: (options: { hostname: string; port: number }) => void,
+	) {
 		// We need to add all hooks after the compilation
 		// because the tree need to be complete
 		for (const hook of this.hooks) {
@@ -224,6 +227,8 @@ export class Wobe {
 			this.options,
 			this.webSocket,
 		)
+
+		callback?.({ port, hostname: this.options?.hostname || 'localhost' })
 
 		return this
 	}
