@@ -4,7 +4,10 @@ export default defineConfig({
 	title: 'Wobe',
 	description: 'A Fast, lightweight simple web framework',
 	lastUpdated: true,
-	head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+	head: [
+		['link', { rel: 'icon', href: '/favicon.ico' }],
+		['script', { src: '/_vercel/insights/script.js', defer: 'true' }],
+	],
 	themeConfig: {
 		search: {
 			provider: 'local',
