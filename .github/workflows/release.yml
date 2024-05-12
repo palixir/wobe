@@ -45,7 +45,7 @@ jobs:
               uses: 'WyriHaximus/github-action-get-previous-tag@v1'
               with:
                   fallback: ''
-                  prefix: ${{inputs.package}}-
+                  prefix: ${{inputs.package}}-v
 
             - name: Build Changelog
               id: githubRelease
@@ -95,7 +95,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
-            - run: bun --filter ./packages/${{inputs.package}} release
+            - run: npm publish --access public --workspace=${{inputs.package}}
               env:
                   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 

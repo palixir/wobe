@@ -26,7 +26,6 @@
 		"generate:types": "bun tsc --project .",
 		"format": "biome format --write .",
 		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
-		"ci": "bun lint  $(pwd) && bun test src",
-		"release": "npm publish --access=public"
+		"ci": "bun lint  $(pwd) && bun test src"
 	}
 }
