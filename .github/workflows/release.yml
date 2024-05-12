@@ -31,10 +31,12 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 22
+                  registry-url: 'https://registry.npmjs.org'
 
             - uses: oven-sh/setup-bun@v1
               with:
                   bun-version: latest
+                  registry-url: 'https://registry.npmjs.org'
 
             - run: bun install
             - run: bun ci
@@ -46,6 +48,22 @@ jobs:
               with:
                   fallback: ''
                   prefix: ${{inputs.package}}-v
+
+            # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
+            - run: npm publish --access=public --workspace=${{inputs.package}}
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+            - name: Create tag
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.git.createRef({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: 'refs/tags/${{inputs.package}}-${{inputs.newVersion}}',
+                        sha: context.sha
+                      })
 
             - name: Build Changelog
               id: githubRelease
@@ -93,22 +111,6 @@ jobs:
                       }
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
-            - run: npm publish --access public --workspace=${{inputs.package}}
-              env:
-                  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-            - name: Create tag
-              uses: actions/github-script@v7
-              with:
-                  script: |
-                      github.rest.git.createRef({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        ref: 'refs/tags/${{inputs.package}}-${{inputs.newVersion}}',
-                        sha: context.sha
-                      })
 
             - name: Create Release
               uses: softprops/action-gh-release@v2
