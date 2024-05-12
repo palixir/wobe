@@ -35,8 +35,25 @@ export type WobeHandler = (ctx: Context) => WobeHandlerOutput
 
 export type WobePlugin = (wobe: Wobe) => void
 
+/**
+ * Hook is the state of the request, it can be before the handler, after the handler or both
+ */
 export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
 
+/**
+ * WobeWebSocket is the configuration for the WebSocket server
+ * @param path The path of the WebSocket server
+ * @param compression Enable or disable the compression of the WebSocket server
+ * @param maxPayloadLength The maximum length of the payload
+ * @param idleTimeout The time before the WebSocket server is closed
+ * @param backpressureLimit The limit of the backpressure
+ * @param closeOnBackpressureLimit Close the WebSocket server if the backpressure limit is reached
+ * @param beforeWebSocketUpgrade Array of handlers before the WebSocket server is upgraded
+ * @param onOpen Handler when the WebSocket server is opened
+ * @param onMessage Handler when the WebSocket server receives a message
+ * @param onClose Handler when the WebSocket server is closed
+ * @param onDrain Handler when the WebSocket server is drained
+ */
 export interface WobeWebSocket {
 	path: string
 	compression?: boolean
@@ -62,7 +79,9 @@ const factoryOfRuntime = (): RuntimeAdapter => {
 	return NodeAdapter()
 }
 
-// TODO : Create assert before hook if it's specific to a type of hook (before, after, beforeAndAfter)
+/**
+ * Wobe is the main class of the framework
+ */
 export class Wobe {
 	private options?: WobeOptions
 	private server: Server | null
@@ -83,6 +102,10 @@ export class Wobe {
 
 	private webSocket: WobeWebSocket | undefined = undefined
 
+	/**
+	 * Constructor of the Wobe class
+	 * @param options The options of the Wobe class
+	 */
 	constructor(options?: WobeOptions) {
 		this.options = options
 		this.hooks = []
@@ -90,6 +113,12 @@ export class Wobe {
 		this.router = new RadixTree()
 	}
 
+	/**
+	 * get is the method to handle the GET requests
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
 	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) this._addHook('beforeHandler', 'GET')(path, hook)
 
@@ -98,6 +127,12 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * post is the method to handle the POST requests
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
 	post(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) this._addHook('beforeHandler', 'POST')(path, hook)
 
@@ -106,6 +141,12 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * put is the method to handle the PUT requests
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
 	put(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) this._addHook('beforeHandler', 'PUT')(path, hook)
 
@@ -114,6 +155,12 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * delete is the method to handle the DELETE requests
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
 	delete(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) this._addHook('beforeHandler', 'DELETE')(path, hook)
 
@@ -122,6 +169,12 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * all is the method to handle all the requests
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
 	all(path: string, handler: WobeHandler, hook?: WobeHandler) {
 		if (hook) {
 			this.httpMethods.map((method) =>
@@ -157,6 +210,11 @@ export class Wobe {
 			return this
 		}
 
+	/**
+	 * beforeAndAfterHandler is the method to handle the before and after handlers
+	 * @param arg1 The path of the request or the handler
+	 * @param handlers The handlers of the request
+	 */
 	beforeAndAfterHandler(
 		arg1: string | WobeHandler,
 		...handlers: WobeHandler[]
@@ -168,6 +226,11 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * beforeHandler is the method to handle the before handlers
+	 * @param arg1 The path of the request or the handler
+	 * @param handlers The handlers of the request
+	 */
 	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
 		this.httpMethods.map((method) =>
 			this._addHook('beforeHandler', method)(arg1, ...handlers),
@@ -176,6 +239,11 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * afterHandler is the method to handle the after handlers
+	 * @param arg1 The path of the request or the handler
+	 * @param handlers The handlers of the request
+	 */
 	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
 		this.httpMethods.map((method) =>
 			this._addHook('afterHandler', method)(arg1, ...handlers),
@@ -184,12 +252,21 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * useWebSocket is the method to handle the WebSocket
+	 * @param webSocketHandler The WebSocket handler
+	 */
 	useWebSocket(webSocketHandler: WobeWebSocket) {
 		this.webSocket = webSocketHandler
 
 		return this
 	}
 
+	/**
+	 * usePlugin is the method to use a plugin
+	 * @param plugin The plugin to use
+	 * You can find more informations about plugins in the documentation (https://www.wobe.dev/doc/ecosystem/plugins)
+	 */
 	usePlugin(plugin: MaybePromise<WobePlugin>) {
 		if (plugin instanceof Promise) {
 			plugin.then((p) => {
@@ -204,6 +281,11 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * listen is the method to start the server
+	 * @param port The port of the server
+	 * @param callback The callback to execute after the server is started
+	 */
 	listen(
 		port: number,
 		callback?: (options: { hostname: string; port: number }) => void,
@@ -233,6 +315,9 @@ export class Wobe {
 		return this
 	}
 
+	/**
+	 * stop is the method to stop the server
+	 */
 	stop() {
 		this.runtimeAdapter.stopServer(this.server)
 	}

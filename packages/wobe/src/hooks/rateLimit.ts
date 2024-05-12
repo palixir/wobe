@@ -7,6 +7,9 @@ export interface RateLimitOptions {
 	numberOfRequests: number
 }
 
+/**
+ * rateLimit is a hook that limits the number of requests per interval
+ */
 export const rateLimit = ({
 	interval,
 	numberOfRequests,

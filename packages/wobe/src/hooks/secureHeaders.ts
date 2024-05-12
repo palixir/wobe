@@ -36,6 +36,9 @@ export interface SecureHeadersOptions {
 	xDownloadOptions?: string
 }
 
+/**
+ * secureHeaders is a hook that sets secure headers (equivalent of helmet on express)
+ */
 export const secureHeaders = ({
 	contentSecurityPolicy,
 	crossOriginEmbedderPolicy,

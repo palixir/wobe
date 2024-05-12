@@ -5,6 +5,9 @@ interface BodyLimitOptions {
 	maxSize: number
 }
 
+/**
+ * bodyLimit is a hook that checks if the request body is too large
+ */
 export const bodyLimit = (options: BodyLimitOptions): WobeHandler => {
 	return (ctx) => {
 		// The content-length header is not always present

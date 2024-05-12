@@ -43,11 +43,19 @@ export class Context {
 		this.afterHandlerHook = route?.afterHandlerHook || []
 	}
 
+	/**
+	 * Redirect to a specific URL
+	 * @param url The URL to redirect
+	 * @param status The status of the redirection
+	 */
 	redirect(url: string, status = 302) {
 		this.res.headers.set('Location', url)
 		this.res.status = status
 	}
 
+	/**
+	 * Execute the handler of the route
+	 */
 	async executeHandler() {
 		this.state = 'beforeHandler'
 		// We need to run hook sequentially

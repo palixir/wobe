@@ -30,6 +30,9 @@ const defaultLoggerFunction = ({
 	)
 }
 
+/**
+ * logger is a hook that logs the request method, url, and status code
+ */
 export const logger = (
 	{ loggerFunction }: LoggerOptions = {
 		loggerFunction: defaultLoggerFunction,
