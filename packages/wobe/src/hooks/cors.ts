@@ -14,6 +14,9 @@ export interface CorsOptions {
 	exposeHeaders?: string[]
 }
 
+/**
+ * cors is a hook that adds the necessary headers to enable CORS
+ */
 export const cors = (options?: CorsOptions): WobeHandler => {
 	const defaults: CorsOptions = {
 		origin: '*',

@@ -2,6 +2,9 @@ export interface WobeStoreOptions {
 	interval: number
 }
 
+/**
+ * WobeStore is a class that stores data for a certain amount of time
+ */
 export class WobeStore<T> {
 	private options: WobeStoreOptions
 	private store: Record<string, any>

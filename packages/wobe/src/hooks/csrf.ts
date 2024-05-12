@@ -18,6 +18,10 @@ const isSameOrigin = (optsOrigin: Origin, requestOrigin: string) => {
 // Reliability on these headers comes from the fact that they cannot be altered programmatically
 // as they fall under forbidden headers list, meaning that only the browser can set them.
 // https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#using-standard-headers-to-verify-origin
+
+/**
+ * csrf is a hook that checks if the request has a valid CSRF token
+ */
 export const csrf = (options: CsrfOptions): WobeHandler => {
 	return (ctx) => {
 		const requestOrigin = ctx.request.headers.get('origin') || ''

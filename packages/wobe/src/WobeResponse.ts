@@ -19,6 +19,12 @@ export class WobeResponse {
 		this.request = request
 	}
 
+	/**
+	 * Set a cookie
+	 * @param name The name of the cookie
+	 * @param value The value of the cookie
+	 * @param options The options of the cookie
+	 */
 	setCookie(name: string, value: string, options?: SetCookieOptions) {
 		let cookie = `${name}=${value};`
 
@@ -45,6 +51,10 @@ export class WobeResponse {
 		this.headers?.append('Set-Cookie', cookie)
 	}
 
+	/**
+	 * Get a cookie
+	 * @param cookieName The name of the cookie
+	 */
 	getCookie(cookieName: string) {
 		const cookies = this.request.headers.get('Cookie')
 
@@ -57,10 +67,19 @@ export class WobeResponse {
 		return cookie.split('=')[1]
 	}
 
+	/**
+	 * Delete a cookie
+	 * @param name The name of the cookie
+	 */
 	deleteCookie(name: string) {
 		this.setCookie(name, '', { expires: new Date(0) })
 	}
 
+	/**
+	 * Send a JSON response
+	 * @param content The json content of the response
+	 * @returns The response
+	 */
 	sendJson(content: Record<string, any>) {
 		this.headers.set('content-type', 'application/json')
 		this.headers.set('charset', 'utf-8')
@@ -74,6 +93,11 @@ export class WobeResponse {
 		return this.response
 	}
 
+	/**
+	 * Send a text response
+	 * @param content The text content of the response
+	 * @returns The response
+	 */
 	sendText(content: string) {
 		this.headers.set('content-type', 'text/plain')
 		this.headers.set('charset', 'utf-8')
@@ -87,6 +111,12 @@ export class WobeResponse {
 		return this.response
 	}
 
+	/**
+	 * Send a response (text or json)
+	 * @param content The content of the response
+	 * @param object The object contains the status, statusText and headers of the response
+	 * @returns The response
+	 */
 	send(
 		content: string | Record<string, any>,
 		{
