@@ -1,13 +1,16 @@
 {
 	"name": "wobe-graphql-yoga",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "GraphQL Yoga server for Wobe (official)",
 	"homepage": "https://wobe.dev",
 	"author": {
 		"name": "coratgerl",
 		"url": "https://github.com/coratgerl"
 	},
-	"keywords": ["graphql-yoga", "wobe"],
+	"keywords": [
+		"graphql-yoga",
+		"wobe"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
