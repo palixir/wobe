@@ -23,7 +23,7 @@ export const WobeGraphqlYogaPlugin = ({
 				typeDefs: options.typeDefs || '',
 				resolvers: options.resolvers || {},
 			}),
-		context: () => ({ ...context }),
+		context: context || ((req) => req),
 	})
 
 	return (wobe: Wobe) => {

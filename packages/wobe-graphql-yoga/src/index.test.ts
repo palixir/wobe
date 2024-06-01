@@ -18,7 +18,10 @@ describe('Wobe GraphQL Yoga plugin', () => {
           `,
 				resolvers: {
 					Query: {
-						hello: () => 'Hello from Yoga!',
+						hello: (_, __, context) => {
+							expect(context.request.headers).toBeDefined()
+							return 'Hello from Yoga!'
+						},
 					},
 				},
 			}),
@@ -108,7 +111,6 @@ describe('Wobe GraphQL Yoga plugin', () => {
 					resolvers: {
 						Query: {
 							hello: (_, __, context) => {
-								expect(context.request).toBeDefined()
 								expect(context.request.method).toBe('POST')
 								expect(context.tata).toBe('test')
 
@@ -117,8 +119,12 @@ describe('Wobe GraphQL Yoga plugin', () => {
 						},
 					},
 				}),
-				context: {
-					tata: 'test',
+				context: (req) => {
+					expect(req.request.method).toBe('POST')
+					expect(req.request.headers).toBeDefined()
+					expect(req.params).toBeDefined()
+
+					return { tata: 'test' }
 				},
 			}),
 		)
