@@ -3,18 +3,22 @@ import {
 	createYoga,
 	type GraphQLSchemaWithContext,
 	type YogaServerOptions,
+	type YogaInitialContext,
 } from 'graphql-yoga'
-import type { Wobe, WobePlugin } from 'wobe'
+import type { MaybePromise, Wobe, WobePlugin } from 'wobe'
+
+export type GraphqlYogaContext =
+	| MaybePromise<Record<string, unknown>>
+	| ((initialContext: YogaInitialContext) => MaybePromise<unknown>)
 
 export const WobeGraphqlYogaPlugin = ({
-	context,
 	...options
 }: {
-	context?: Record<string, any>
 	schema?: GraphQLSchemaWithContext<Record<string, any>>
 	typeDefs?: string
+	context?: GraphqlYogaContext
 	resolvers?: Record<string, any>
-} & YogaServerOptions<any, any>): WobePlugin => {
+} & Omit<YogaServerOptions<any, any>, 'context'>): WobePlugin => {
 	const yoga = createYoga({
 		...options,
 		schema:
@@ -23,7 +27,6 @@ export const WobeGraphqlYogaPlugin = ({
 				typeDefs: options.typeDefs || '',
 				resolvers: options.resolvers || {},
 			}),
-		context: context || ((req) => req),
 	})
 
 	return (wobe: Wobe) => {

@@ -119,10 +119,10 @@ describe('Wobe GraphQL Yoga plugin', () => {
 						},
 					},
 				}),
-				context: (req) => {
-					expect(req.request.method).toBe('POST')
-					expect(req.request.headers).toBeDefined()
-					expect(req.params).toBeDefined()
+				context: ({ request, params }) => {
+					expect(request.method).toBe('POST')
+					expect(request.headers).toBeDefined()
+					expect(params).toBeDefined()
 
 					return { tata: 'test' }
 				},
