@@ -34,6 +34,7 @@ export class WobeResponse {
 
 		wobeResponse.status = response.status
 		wobeResponse.statusText = response.statusText
+		wobeResponse.response = response
 
 		return wobeResponse
 	}
