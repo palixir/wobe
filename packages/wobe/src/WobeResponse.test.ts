@@ -20,6 +20,7 @@ describe('Wobe Response', () => {
 		expect(clonedWobeResponse.headers.get('Set-Cookie')).toBe(
 			'cookieName=cookieValue;',
 		)
+		expect(clonedWobeResponse.response?.status).toBe(200)
 	})
 
 	it('should set an empty header value', () => {
