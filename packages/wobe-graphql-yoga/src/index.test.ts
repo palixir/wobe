@@ -5,16 +5,18 @@ import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
-	it.only("should use the graphql middleware if it's provided", async () => {
+	it("should use the graphql middleware if it's provided", async () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				graphqlMiddleware: async (resolve, res) => {
-					res.setCookie('test', 'test')
+					res.setCookie('before', 'before')
 
 					const response = await resolve()
+
+					res.setCookie('after', 'after')
 
 					return response
 				},
@@ -51,7 +53,9 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		})
 
 		expect(res.status).toBe(200)
-		expect(res.headers.get('set-cookie')).toBe('test=test')
+		expect(res.headers.get('set-cookie')).toBe(
+			'before=before;, after=after;',
+		)
 		expect(await res.json()).toEqual({
 			data: { hello: 'Hello from Yoga!' },
 		})

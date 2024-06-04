@@ -42,27 +42,47 @@ export const WobeGraphqlYogaPlugin = ({
 		wobe.get(
 			options?.graphqlEndpoint || '/graphql',
 			async ({ request, res }) => {
-				if (!graphqlMiddleware) return fetch(request)
+				if (!graphqlMiddleware) return yoga.fetch(request)
 
-				return graphqlMiddleware(async () => {
-					const response = await fetch(request)
+				const response = await graphqlMiddleware(async () => {
+					const response = await yoga.fetch(request)
 
-					return res.copy(response).response || new Response()
+					return response
 				}, res)
+
+				for (const [key, value] of res.headers.entries()) {
+					if (key === 'set-cookie') {
+						response.headers.append('set-cookie', value)
+						continue
+					}
+
+					response.headers.set(key, value)
+				}
+
+				return response
 			},
 		)
 		wobe.post(
 			options?.graphqlEndpoint || '/graphql',
 			async ({ request, res }) => {
-				if (!graphqlMiddleware) return fetch(request)
+				if (!graphqlMiddleware) return yoga.fetch(request)
 
-				return graphqlMiddleware(async () => {
+				const response = await graphqlMiddleware(async () => {
 					const response = await yoga.fetch(request)
 
-					console.log(res.copy(response))
-
-					return res.copy(response).response || new Response()
+					return response
 				}, res)
+
+				for (const [key, value] of res.headers.entries()) {
+					if (key === 'set-cookie') {
+						response.headers.append('set-cookie', value)
+						continue
+					}
+
+					response.headers.set(key, value)
+				}
+
+				return response
 			},
 		)
 	}
