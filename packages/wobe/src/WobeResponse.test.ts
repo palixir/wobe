@@ -2,6 +2,26 @@ import { describe, expect, it } from 'bun:test'
 import { WobeResponse } from './WobeResponse'
 
 describe('Wobe Response', () => {
+	it('should clone a Response into a WobeResponse instance', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+
+		wobeResponse.headers.set('X-Tata', 'tata')
+		wobeResponse.setCookie('cookieName', 'cookieValue')
+
+		const response = new Response()
+		response.headers.set('X-Test', 'test')
+
+		const clonedWobeResponse = wobeResponse.copy(response)
+
+		expect(clonedWobeResponse.headers.get('X-Test')).toBe('test')
+		expect(clonedWobeResponse.headers.get('X-Tata')).toBe('tata')
+		expect(clonedWobeResponse.headers.get('Set-Cookie')).toBe(
+			'cookieName=cookieValue;',
+		)
+	})
+
 	it('should set an empty header value', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),

@@ -20,6 +20,25 @@ export class WobeResponse {
 	}
 
 	/**
+	 * Copy a response into an existing wobe instance response
+	 * @param response The response to copy
+	 * @returns A new wobe instance response
+	 */
+	copy(response: Response) {
+		const wobeResponse = new WobeResponse(this.request)
+
+		wobeResponse.headers = new Headers(response.headers)
+
+		for (const [key, value] of this.headers.entries())
+			wobeResponse.headers.set(key, value)
+
+		wobeResponse.status = response.status
+		wobeResponse.statusText = response.statusText
+
+		return wobeResponse
+	}
+
+	/**
 	 * Set a cookie
 	 * @param name The name of the cookie
 	 * @param value The value of the cookie
