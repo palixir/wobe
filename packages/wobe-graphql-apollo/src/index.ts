@@ -1,21 +1,33 @@
-import { ApolloServer, type ApolloServerOptions } from '@apollo/server'
+import {
+	ApolloServer,
+	type ApolloServerOptions,
+	type BaseContext,
+} from '@apollo/server'
 import {
 	ApolloServerPluginLandingPageLocalDefault,
 	ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default'
-import type { Wobe, WobePlugin } from 'wobe'
+import type { MaybePromise, Wobe, WobePlugin, WobeResponse } from 'wobe'
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
+
+export interface GraphQLApolloPluginOptions {
+	graphqlMiddleware?: (
+		resolve: () => Promise<Response>,
+		res: WobeResponse,
+	) => Promise<Response>
+}
 
 export const WobeGraphqlApolloPlugin = async ({
 	options,
 	graphqlEndpoint = '/graphql',
+	graphqlMiddleware,
 	context,
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
-	context?: Record<string, any>
-}): Promise<WobePlugin> => {
+	context?: (request: Request) => MaybePromise<BaseContext>
+} & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
 		plugins: [
@@ -43,7 +55,9 @@ export const WobeGraphqlApolloPlugin = async ({
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
-					context: () => Promise.resolve({ ...context, request }),
+					context: context
+						? () => context(request) as any
+						: () => ({}),
 				})
 				.then((res) => {
 					if (res.body.kind === 'complete') {
@@ -73,7 +87,9 @@ export const WobeGraphqlApolloPlugin = async ({
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
-					context: () => Promise.resolve({ ...context, request }),
+					context: context
+						? () => context(request) as any
+						: () => ({}),
 				})
 				.then((res) => {
 					if (res.body.kind === 'complete') {
