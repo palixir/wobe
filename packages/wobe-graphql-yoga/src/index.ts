@@ -13,9 +13,9 @@ export type GraphqlYogaContext =
 
 export interface GraphqlYogaPluginOptions {
 	graphqlMiddleware?: (
-		resolve: Promise<WobeResponse>,
+		resolve: () => Promise<Response>,
 		res: WobeResponse,
-	) => Promise<WobeResponse>
+	) => Promise<Response>
 }
 
 export const WobeGraphqlYogaPlugin = ({
@@ -44,11 +44,26 @@ export const WobeGraphqlYogaPlugin = ({
 			async ({ request, res }) => {
 				if (!graphqlMiddleware) return fetch(request)
 
-				return graphqlMiddleware(new Promise(() => fetch(request)), res)
+				return graphqlMiddleware(async () => {
+					const response = await fetch(request)
+
+					return res.copy(response).response || new Response()
+				}, res)
 			},
 		)
-		wobe.post(options?.graphqlEndpoint || '/graphql', async ({ request }) =>
-			yoga.fetch(request),
+		wobe.post(
+			options?.graphqlEndpoint || '/graphql',
+			async ({ request, res }) => {
+				if (!graphqlMiddleware) return fetch(request)
+
+				return graphqlMiddleware(async () => {
+					const response = await yoga.fetch(request)
+
+					console.log(res.copy(response))
+
+					return res.copy(response).response || new Response()
+				}, res)
+			},
 		)
 	}
 }

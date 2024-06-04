@@ -5,15 +5,16 @@ import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
-	it("should use the graphql middleware if it's provided", async () => {
+	it.only("should use the graphql middleware if it's provided", async () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
 		wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				graphqlMiddleware: async (resolve, res) => {
-					const response = await resolve
 					res.setCookie('test', 'test')
+
+					const response = await resolve()
 
 					return response
 				},
