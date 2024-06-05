@@ -12,15 +12,29 @@ const wobe = new Wobe().usePlugin(
 	await WobeGraphqlApolloPlugin({
 		options: {
 			typeDefs: `
-          type Query {
-            hello: String
-          }
+			type Query {
+            	hello: String
+         	}
         `,
 			resolvers: {
 				Query: {
 					hello: () => 'Hello from Apollo!',
 				},
 			},
+		},
+		graphqlMiddleware: async (resolve, res) => {
+			// Execute some code before graphql resolver
+
+			const response = await resolve()
+
+			// Execute some code after graphql resolver
+
+			return response
+		},
+		context: ({ request, params }) => {
+			const accessToken = request.headers.get('Access-Token')
+
+			return { accessToken }
 		},
 	}),
 )
