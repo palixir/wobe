@@ -5,6 +5,64 @@ import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
+	it("should use the graphql middleware if it's provided", async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				graphqlMiddleware: async (resolve, res) => {
+					res.setCookie('before', 'before')
+
+					const response = await resolve()
+
+					res.setCookie('after', 'after')
+
+					return response
+				},
+				typeDefs: `
+            type Query {
+              hello: String
+            }
+          `,
+				resolvers: {
+					Query: {
+						hello: (_, __, context) => {
+							expect(context.request.headers).toBeDefined()
+							return 'Hello from Yoga!'
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+				  query {
+        hello
+      }
+        `,
+			}),
+		})
+
+		expect(res.status).toBe(200)
+		expect(res.headers.get('set-cookie')).toBe(
+			'before=before;, after=after;',
+		)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Yoga!' },
+		})
+
+		wobe.stop()
+	})
+
 	it('should work with typedef and resolvers', async () => {
 		const port = await getPort()
 		const wobe = new Wobe()
@@ -119,10 +177,10 @@ describe('Wobe GraphQL Yoga plugin', () => {
 						},
 					},
 				}),
-				context: (req) => {
-					expect(req.request.method).toBe('POST')
-					expect(req.request.headers).toBeDefined()
-					expect(req.params).toBeDefined()
+				context: ({ request, params }) => {
+					expect(request.method).toBe('POST')
+					expect(request.headers).toBeDefined()
+					expect(params).toBeDefined()
 
 					return { tata: 'test' }
 				},
