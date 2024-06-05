@@ -4,6 +4,67 @@ import getPort from 'get-port'
 import { WobeGraphqlApolloPlugin } from '.'
 
 describe('Wobe GraphQL Apollo plugin', () => {
+	it("should use the graphql middleware if it's provided", async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe()
+
+		wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				options: {
+					typeDefs: `#graphql
+						type Query {
+							hello: String
+						}
+	  				`,
+					resolvers: {
+						Query: {
+							hello: () => 'Hello from Apollo!',
+						},
+					},
+				},
+				context: async () => {
+					return { tata: 'test' }
+				},
+				graphqlMiddleware: async (resolve, res) => {
+					res.setCookie('before', 'before')
+
+					const response = await resolve()
+
+					res.setCookie('after', 'after')
+
+					return response
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+			  query {
+		hello
+				}
+			`,
+			}),
+		})
+
+		expect(res.status).toBe(200)
+		expect(res.headers.get('set-cookie')).toBe(
+			'before=before;, after=after;',
+		)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Apollo!' },
+		})
+
+		wobe.stop()
+	})
+
 	it('should query graphql request with context in graphql resolver', async () => {
 		const port = await getPort()
 
@@ -23,7 +84,9 @@ describe('Wobe GraphQL Apollo plugin', () => {
 						},
 					},
 				},
-				context: async (tata) => {
+				context: async (request) => {
+					expect(request.method).toBe('POST')
+
 					return { tata: 'test' }
 				},
 			}),

@@ -45,70 +45,77 @@ export const WobeGraphqlApolloPlugin = async ({
 	await server.start()
 
 	return (wobe: Wobe) => {
-		wobe.get(graphqlEndpoint, async ({ request }) =>
-			server
-				.executeHTTPGraphQLRequest({
-					httpGraphQLRequest: {
-						method: request.method,
-						body: await request.json(),
-						// @ts-expect-error
-						headers: request.headers,
-						search: getQueryString(request.url),
-					},
-					context: context
-						? () => context(request) as any
-						: () => ({}),
-				})
-				.then((res) => {
-					if (res.body.kind === 'complete') {
-						return new Response(res.body.string, {
-							status: res.status ?? 200,
-							// @ts-expect-error
-							headers: res.headers,
-						})
-					}
+		const fetchEndpoint = async (request: Request) => {
+			const res = await server.executeHTTPGraphQLRequest({
+				httpGraphQLRequest: {
+					method: request.method,
+					body: await request.json(),
+					// @ts-expect-error
+					headers: request.headers,
+					search: getQueryString(request.url),
+				},
+				context: context ? () => context(request) as any : () => ({}),
+			})
 
-					return new Response('')
+			if (res.body.kind === 'complete') {
+				const response = new Response(res.body.string, {
+					status: res.status ?? 200,
+					// @ts-expect-error
+					headers: res.headers,
 				})
-				.catch((error) => {
-					return new Response(error.message, {
-						status: error.statusCode,
-					})
-				}),
-		)
 
-		wobe.post(graphqlEndpoint, async ({ request }) =>
-			server
-				.executeHTTPGraphQLRequest({
-					httpGraphQLRequest: {
-						method: request.method.toUpperCase(),
-						body: await request.json(),
-						// @ts-expect-error
-						headers: request.headers,
-						search: getQueryString(request.url),
-					},
-					context: context
-						? () => context(request) as any
-						: () => ({}),
-				})
-				.then((res) => {
-					if (res.body.kind === 'complete') {
-						return new Response(res.body.string, {
-							status: res.status ?? 200,
-							// @ts-expect-error
-							headers: res.headers,
-						})
-					}
+				return response
+			}
 
-					return new Response('')
-				})
-				.catch((error) => {
-					if (error instanceof Error) throw error
+			return new Response()
+		}
 
-					return new Response(error.message, {
-						status: error.statusCode,
-					})
-				}),
-		)
+		wobe.get(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
+			if (!graphqlMiddleware) return fetchEndpoint(request)
+
+			const responseAfterMiddleware = await graphqlMiddleware(
+				async () => {
+					const response = await fetchEndpoint(request)
+
+					return response
+				},
+				wobeResponse,
+			)
+
+			for (const [key, value] of wobeResponse.headers.entries()) {
+				if (key === 'set-cookie') {
+					responseAfterMiddleware.headers.append('set-cookie', value)
+					continue
+				}
+
+				responseAfterMiddleware.headers.set(key, value)
+			}
+
+			return responseAfterMiddleware
+		})
+
+		wobe.post(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
+			if (!graphqlMiddleware) return fetchEndpoint(request)
+
+			const responseAfterMiddleware = await graphqlMiddleware(
+				async () => {
+					const response = await fetchEndpoint(request)
+
+					return response
+				},
+				wobeResponse,
+			)
+
+			for (const [key, value] of wobeResponse.headers.entries()) {
+				if (key === 'set-cookie') {
+					responseAfterMiddleware.headers.append('set-cookie', value)
+					continue
+				}
+
+				responseAfterMiddleware.headers.set(key, value)
+			}
+
+			return responseAfterMiddleware
+		})
 	}
 }
