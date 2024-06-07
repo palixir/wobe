@@ -5,6 +5,55 @@ import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
 describe('Wobe GraphQL Yoga plugin', () => {
+	it('should set the wobe response in the graphql context', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				typeDefs: `
+					type Query {
+						hello: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						hello: (_, __, context) => {
+							context.response.setCookie('tata', 'tata')
+							expect(context.response).toBeDefined()
+							expect(context.request.headers).toBeDefined()
+							return 'Hello from Yoga!'
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+				    query {
+						hello
+					}
+        `,
+			}),
+		})
+
+		expect(res.headers.get('set-cookie')).toBe('tata=tata;')
+		expect(res.status).toBe(200)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Yoga!' },
+		})
+
+		wobe.stop()
+	})
+
 	it("should use the graphql middleware if it's provided", async () => {
 		const port = await getPort()
 		const wobe = new Wobe()
