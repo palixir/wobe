@@ -30,8 +30,10 @@ const wobe = new Wobe().usePlugin(
 
 			return response
 		},
-		context: ({ request, params }) => {
+		context: ({ request, response }) => {
 			const accessToken = request.headers.get('Access-Token')
+
+			response.setCookie('cookieName', 'cookieValue')
 
 			return { accessToken }
 		},
