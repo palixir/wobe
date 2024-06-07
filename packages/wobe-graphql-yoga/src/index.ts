@@ -28,7 +28,10 @@ export const WobeGraphqlYogaPlugin = ({
 	resolvers?: Record<string, any>
 } & Omit<YogaServerOptions<any, any>, 'context'> &
 	GraphqlYogaPluginOptions): WobePlugin => {
-	const yoga = createYoga({
+	const yoga = createYoga<{
+		request: Request
+		response: WobeResponse
+	}>({
 		...options,
 		schema:
 			options.schema ||
@@ -38,52 +41,49 @@ export const WobeGraphqlYogaPlugin = ({
 			}),
 	})
 
+	const handleGraphQLRequest = async (
+		request: Request,
+		res: WobeResponse,
+	) => {
+		const getResponse = async () => {
+			if (!graphqlMiddleware)
+				return yoga.handle(request, {
+					response: res,
+					request,
+				})
+
+			return graphqlMiddleware(
+				async () =>
+					yoga.handle(request, {
+						response: res,
+						request,
+					}),
+				res,
+			)
+		}
+
+		const response = await getResponse()
+
+		for (const [key, value] of res.headers.entries()) {
+			if (key === 'set-cookie') {
+				response.headers.append('set-cookie', value)
+				continue
+			}
+
+			response.headers.set(key, value)
+		}
+
+		return response
+	}
+
 	return (wobe: Wobe) => {
 		wobe.get(
 			options?.graphqlEndpoint || '/graphql',
-			async ({ request, res }) => {
-				if (!graphqlMiddleware) return yoga.fetch(request)
-
-				const response = await graphqlMiddleware(async () => {
-					const response = await yoga.fetch(request)
-
-					return response
-				}, res)
-
-				for (const [key, value] of res.headers.entries()) {
-					if (key === 'set-cookie') {
-						response.headers.append('set-cookie', value)
-						continue
-					}
-
-					response.headers.set(key, value)
-				}
-
-				return response
-			},
+			async ({ request, res }) => handleGraphQLRequest(request, res),
 		)
 		wobe.post(
 			options?.graphqlEndpoint || '/graphql',
-			async ({ request, res }) => {
-				if (!graphqlMiddleware) return yoga.fetch(request)
-
-				const response = await graphqlMiddleware(async () => {
-					const response = await yoga.fetch(request)
-
-					return response
-				}, res)
-
-				for (const [key, value] of res.headers.entries()) {
-					if (key === 'set-cookie') {
-						response.headers.append('set-cookie', value)
-						continue
-					}
-
-					response.headers.set(key, value)
-				}
-
-				return response
-			},
+			async ({ request, res }) => handleGraphQLRequest(request, res),
 		)
 	}
 }
