@@ -26,7 +26,10 @@ export const WobeGraphqlApolloPlugin = async ({
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
-	context?: (request: Request) => MaybePromise<BaseContext>
+	context?: (options: {
+		request: Request
+		response: WobeResponse
+	}) => MaybePromise<BaseContext>
 } & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
@@ -45,77 +48,78 @@ export const WobeGraphqlApolloPlugin = async ({
 	await server.start()
 
 	return (wobe: Wobe) => {
-		const fetchEndpoint = async (request: Request) => {
-			const res = await server.executeHTTPGraphQLRequest({
-				httpGraphQLRequest: {
-					method: request.method,
-					body: await request.json(),
-					// @ts-expect-error
-					headers: request.headers,
-					search: getQueryString(request.url),
-				},
-				context: context ? () => context(request) as any : () => ({}),
-			})
-
-			if (res.body.kind === 'complete') {
-				const response = new Response(res.body.string, {
-					status: res.status ?? 200,
-					// @ts-expect-error
-					headers: res.headers,
+		const getResponse = async (
+			request: Request,
+			wobeResponse: WobeResponse,
+		) => {
+			const fetchEndpoint = async (request: Request) => {
+				const res = await server.executeHTTPGraphQLRequest({
+					httpGraphQLRequest: {
+						method: request.method,
+						body: await request.json(),
+						// @ts-expect-error
+						headers: request.headers,
+						search: getQueryString(request.url),
+					},
+					context: async () => ({
+						request: request,
+						response: wobeResponse,
+						...(context
+							? await context({ request, response: wobeResponse })
+							: {}),
+					}),
 				})
 
-				return response
+				if (res.body.kind === 'complete') {
+					const response = new Response(res.body.string, {
+						status: res.status ?? 200,
+						// @ts-expect-error
+						headers: res.headers,
+					})
+
+					return response
+				}
+
+				return new Response()
 			}
 
-			return new Response()
+			if (!graphqlMiddleware) return fetchEndpoint(request)
+
+			return graphqlMiddleware(async () => {
+				const response = await fetchEndpoint(request)
+
+				return response
+			}, wobeResponse)
 		}
 
 		wobe.get(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
-			if (!graphqlMiddleware) return fetchEndpoint(request)
-
-			const responseAfterMiddleware = await graphqlMiddleware(
-				async () => {
-					const response = await fetchEndpoint(request)
-
-					return response
-				},
-				wobeResponse,
-			)
+			const response = await getResponse(request, wobeResponse)
 
 			for (const [key, value] of wobeResponse.headers.entries()) {
 				if (key === 'set-cookie') {
-					responseAfterMiddleware.headers.append('set-cookie', value)
+					response.headers.append('set-cookie', value)
 					continue
 				}
 
-				responseAfterMiddleware.headers.set(key, value)
+				response.headers.set(key, value)
 			}
 
-			return responseAfterMiddleware
+			return response
 		})
 
 		wobe.post(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
-			if (!graphqlMiddleware) return fetchEndpoint(request)
-
-			const responseAfterMiddleware = await graphqlMiddleware(
-				async () => {
-					const response = await fetchEndpoint(request)
-
-					return response
-				},
-				wobeResponse,
-			)
+			const response = await getResponse(request, wobeResponse)
 
 			for (const [key, value] of wobeResponse.headers.entries()) {
 				if (key === 'set-cookie') {
-					responseAfterMiddleware.headers.append('set-cookie', value)
+					response.headers.append('set-cookie', value)
 					continue
 				}
 
-				responseAfterMiddleware.headers.set(key, value)
+				response.headers.set(key, value)
 			}
 
-			return responseAfterMiddleware
+			return response
 		})
 	}
 }
