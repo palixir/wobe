@@ -3,13 +3,15 @@ import {
 	createYoga,
 	type GraphQLSchemaWithContext,
 	type YogaServerOptions,
-	type YogaInitialContext,
 } from 'graphql-yoga'
 import type { MaybePromise, Wobe, WobePlugin, WobeResponse } from 'wobe'
 
 export type GraphqlYogaContext =
 	| MaybePromise<Record<string, unknown>>
-	| ((initialContext: YogaInitialContext) => MaybePromise<unknown>)
+	| ((context: {
+			request: Request
+			response: WobeResponse
+	  }) => MaybePromise<unknown>)
 
 export interface GraphqlYogaPluginOptions {
 	graphqlMiddleware?: (

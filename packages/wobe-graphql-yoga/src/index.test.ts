@@ -20,11 +20,15 @@ describe('Wobe GraphQL Yoga plugin', () => {
 					Query: {
 						hello: (_, __, context) => {
 							context.response.setCookie('tata', 'tata')
+							expect(context.test).toBeDefined()
 							expect(context.response).toBeDefined()
 							expect(context.request.headers).toBeDefined()
 							return 'Hello from Yoga!'
 						},
 					},
+				},
+				context: () => {
+					return { test: 'test' }
 				},
 			}),
 		)
