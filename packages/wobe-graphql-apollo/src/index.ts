@@ -7,7 +7,7 @@ import {
 	ApolloServerPluginLandingPageLocalDefault,
 	ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default'
-import type { MaybePromise, Wobe, WobePlugin, WobeResponse } from 'wobe'
+import type { Wobe, MaybePromise, WobePlugin, WobeResponse } from 'wobe'
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 
@@ -56,7 +56,10 @@ export const WobeGraphqlApolloPlugin = async ({
 				const res = await server.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
 						method: request.method,
-						body: await request.json(),
+						body:
+							request.method === 'GET'
+								? request.body
+								: await request.json(),
 						// @ts-expect-error
 						headers: request.headers,
 						search: getQueryString(request.url),

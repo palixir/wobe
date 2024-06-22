@@ -29,7 +29,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 						},
 					},
 				},
-				context: async (tutu) => {
+				context: async () => {
 					return { tata: 'test' }
 				},
 			}),
