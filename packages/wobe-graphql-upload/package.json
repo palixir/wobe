@@ -1,0 +1,34 @@
+{
+  "name": "wobe-graphql-upload",
+  "version": "1.0.0",
+  "author": {
+    "name": "coratgerl",
+    "url": "https://github.com/coratgerl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/palixir/wobe"
+  },
+  "main": "dist/index.js",
+  "devDependencies": {
+    "get-port": "7.0.0",
+    "wobe": "*"
+  },
+  "description": "GraphQL Upload for Wobe (official)",
+  "homepage": "https://wobe.dev",
+  "keywords": [
+    "graphql-upload",
+    "wobe"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "bun build  --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
+    "generate:types": "bun tsc --project .",
+    "format": "biome format --write .",
+    "lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
+    "ci": "bun lint $(pwd) && bun test src"
+  },
+  "dependencies": {
+    "graphql-upload-minimal": "1.6.1"
+  }
+}
