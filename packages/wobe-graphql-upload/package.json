@@ -29,6 +29,6 @@
     "ci": "bun lint $(pwd) && bun test src"
   },
   "dependencies": {
-    "graphql-upload-minimal": "1.6.1"
+    "graphql-upload-ts": "2.1.2"
   }
 }
