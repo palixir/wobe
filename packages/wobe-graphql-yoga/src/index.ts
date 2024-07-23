@@ -4,14 +4,17 @@ import {
 	type GraphQLSchemaWithContext,
 	type YogaServerOptions,
 } from 'graphql-yoga'
-import type { MaybePromise, Wobe, WobePlugin, WobeResponse } from 'wobe'
+import type {
+	Context,
+	MaybePromise,
+	Wobe,
+	WobePlugin,
+	WobeResponse,
+} from 'wobe'
 
 export type GraphqlYogaContext =
 	| MaybePromise<Record<string, unknown>>
-	| ((context: {
-			request: Request
-			response: WobeResponse
-	  }) => MaybePromise<unknown>)
+	| ((context: any) => MaybePromise<unknown>)
 
 export interface GraphqlYogaPluginOptions {
 	graphqlMiddleware?: (
@@ -43,30 +46,19 @@ export const WobeGraphqlYogaPlugin = ({
 			}),
 	})
 
-	const handleGraphQLRequest = async (
-		request: Request,
-		res: WobeResponse,
-	) => {
+	const handleGraphQLRequest = async (context: Context) => {
 		const getResponse = async () => {
-			if (!graphqlMiddleware)
-				return yoga.handle(request, {
-					response: res,
-					request,
-				})
+			if (!graphqlMiddleware) return yoga.handle(context.request, context)
 
 			return graphqlMiddleware(
-				async () =>
-					yoga.handle(request, {
-						response: res,
-						request,
-					}),
-				res,
+				async () => yoga.handle(context.request, context),
+				context.res,
 			)
 		}
 
 		const response = await getResponse()
 
-		for (const [key, value] of res.headers.entries()) {
+		for (const [key, value] of context.res.headers.entries()) {
 			if (key === 'set-cookie') {
 				response.headers.append('set-cookie', value)
 				continue
@@ -78,14 +70,12 @@ export const WobeGraphqlYogaPlugin = ({
 		return response
 	}
 
-	return (wobe: Wobe) => {
-		wobe.get(
-			options?.graphqlEndpoint || '/graphql',
-			async ({ request, res }) => handleGraphQLRequest(request, res),
+	return (wobe: Wobe<unknown>) => {
+		wobe.get(options?.graphqlEndpoint || '/graphql', async (context) =>
+			handleGraphQLRequest(context),
 		)
-		wobe.post(
-			options?.graphqlEndpoint || '/graphql',
-			async ({ request, res }) => handleGraphQLRequest(request, res),
+		wobe.post(options?.graphqlEndpoint || '/graphql', async (context) =>
+			handleGraphQLRequest(context),
 		)
 	}
 }
