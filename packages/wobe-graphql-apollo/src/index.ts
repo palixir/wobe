@@ -7,7 +7,13 @@ import {
 	ApolloServerPluginLandingPageLocalDefault,
 	ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default'
-import type { Wobe, MaybePromise, WobePlugin, WobeResponse } from 'wobe'
+import type {
+	Wobe,
+	MaybePromise,
+	WobePlugin,
+	WobeResponse,
+	Context,
+} from 'wobe'
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 
@@ -22,14 +28,11 @@ export const WobeGraphqlApolloPlugin = async ({
 	options,
 	graphqlEndpoint = '/graphql',
 	graphqlMiddleware,
-	context,
+	context: apolloContext,
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
-	context?: (options: {
-		request: Request
-		response: WobeResponse
-	}) => MaybePromise<BaseContext>
+	context?: (options: Context) => MaybePromise<BaseContext>
 } & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
@@ -47,11 +50,8 @@ export const WobeGraphqlApolloPlugin = async ({
 
 	await server.start()
 
-	return (wobe: Wobe) => {
-		const getResponse = async (
-			request: Request,
-			wobeResponse: WobeResponse,
-		) => {
+	return (wobe: Wobe<unknown>) => {
+		const getResponse = async (context: Context) => {
 			const fetchEndpoint = async (request: Request) => {
 				const res = await server.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
@@ -65,11 +65,8 @@ export const WobeGraphqlApolloPlugin = async ({
 						search: getQueryString(request.url),
 					},
 					context: async () => ({
-						request: request,
-						response: wobeResponse,
-						...(context
-							? await context({ request, response: wobeResponse })
-							: {}),
+						...context,
+						...(apolloContext ? await apolloContext(context) : {}),
 					}),
 				})
 
@@ -86,19 +83,19 @@ export const WobeGraphqlApolloPlugin = async ({
 				return new Response()
 			}
 
-			if (!graphqlMiddleware) return fetchEndpoint(request)
+			if (!graphqlMiddleware) return fetchEndpoint(context.request)
 
 			return graphqlMiddleware(async () => {
-				const response = await fetchEndpoint(request)
+				const response = await fetchEndpoint(context.request)
 
 				return response
-			}, wobeResponse)
+			}, context.res)
 		}
 
-		wobe.get(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
-			const response = await getResponse(request, wobeResponse)
+		wobe.get(graphqlEndpoint, async (context) => {
+			const response = await getResponse(context)
 
-			for (const [key, value] of wobeResponse.headers.entries()) {
+			for (const [key, value] of context.res.headers.entries()) {
 				if (key === 'set-cookie') {
 					response.headers.append('set-cookie', value)
 					continue
@@ -110,10 +107,10 @@ export const WobeGraphqlApolloPlugin = async ({
 			return response
 		})
 
-		wobe.post(graphqlEndpoint, async ({ request, res: wobeResponse }) => {
-			const response = await getResponse(request, wobeResponse)
+		wobe.post(graphqlEndpoint, async (context) => {
+			const response = await getResponse(context)
 
-			for (const [key, value] of wobeResponse.headers.entries()) {
+			for (const [key, value] of context.res.headers.entries()) {
 				if (key === 'set-cookie') {
 					response.headers.append('set-cookie', value)
 					continue

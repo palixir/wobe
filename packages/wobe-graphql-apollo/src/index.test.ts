@@ -4,6 +4,65 @@ import getPort from 'get-port'
 import { WobeGraphqlApolloPlugin } from '.'
 
 describe('Wobe GraphQL Apollo plugin', () => {
+	it('should have custom wobe context in graphql context', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe<{ customType: string }>().beforeHandler((ctx) => {
+			ctx.customType = 'test'
+		})
+
+		wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				options: {
+					typeDefs: `#graphql
+					type Query {
+						hello: String
+					}
+				  `,
+					resolvers: {
+						Query: {
+							hello: (_, __, context) => {
+								context.res.setCookie('before', 'before')
+
+								expect(context.res).toBeDefined()
+								expect(context.request).toBeDefined()
+								expect(context.customType).toEqual('test')
+								return 'Hello from Apollo!'
+							},
+						},
+					},
+				},
+				context: async () => {
+					return { tata: 'test' }
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+		  query {
+	hello
+			}
+		`,
+			}),
+		})
+
+		expect(res.status).toBe(200)
+		expect(res.headers.get('set-cookie')).toBe('before=before;')
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Apollo!' },
+		})
+
+		wobe.stop()
+	})
+
 	it('should have WobeResponse in graphql context', async () => {
 		const port = await getPort()
 
@@ -20,9 +79,9 @@ describe('Wobe GraphQL Apollo plugin', () => {
 					resolvers: {
 						Query: {
 							hello: (_, __, context) => {
-								context.response.setCookie('before', 'before')
+								context.res.setCookie('before', 'before')
 
-								expect(context.response).toBeDefined()
+								expect(context.res).toBeDefined()
 								expect(context.request).toBeDefined()
 								return 'Hello from Apollo!'
 							},
