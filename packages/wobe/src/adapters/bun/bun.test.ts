@@ -63,6 +63,8 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 	})
 
 	it('should call create server from node:https if https options is not undefined', async () => {
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 		const port = await getPort()
 
 		const key = await Bun.file(

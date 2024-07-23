@@ -140,6 +140,9 @@ describe('Wobe', () => {
 
 				return ctx.res.send('2')
 			})
+			.get('/name/with/slash', (ctx) => {
+				return ctx.res.send('OK')
+			})
 			.get('/upload', async () => {
 				return new Response(
 					Bun.file(`${__dirname}/../fixtures/testFile.html`),
@@ -565,6 +568,16 @@ describe('Wobe', () => {
 		})
 
 		expect(mockAllMethod).toHaveBeenCalledTimes(4)
+	})
+
+	it('should handle beforeHandler hook on path with slash', async () => {
+		await fetch(`http://127.0.0.1:${port}/name/with/slash`)
+
+		expect(mockHook).toHaveBeenCalledTimes(1)
+
+		await fetch(`http://127.0.0.1:${port}/testPost`, { method: 'POST' })
+
+		expect(mockHook).toHaveBeenCalledTimes(2)
 	})
 
 	it('should handle hooks before any request', async () => {
