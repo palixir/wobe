@@ -5,12 +5,6 @@ import type { Context } from './Context'
 
 export type MaybePromise<T> = T | Promise<T>
 
-export type Routes = Array<{
-	path: string
-	handler: WobeHandler
-	method: HttpMethod
-}>
-
 export interface WobeOptions {
 	hostname?: string
 	onError?: (error: Error) => void
@@ -31,9 +25,9 @@ export type WobeHandlerOutput =
 	| Response
 	| Promise<Response>
 
-export type WobeHandler = (ctx: Context) => WobeHandlerOutput
+export type WobeHandler<T> = (ctx: Context & T) => WobeHandlerOutput
 
-export type WobePlugin = (wobe: Wobe) => void
+export type WobePlugin = (wobe: Wobe<any>) => void
 
 /**
  * Hook is the state of the request, it can be before the handler, after the handler or both
@@ -61,7 +55,7 @@ export interface WobeWebSocket {
 	idleTimeout?: number
 	backpressureLimit?: number
 	closeOnBackpressureLimit?: boolean
-	beforeWebSocketUpgrade?: Array<WobeHandler>
+	beforeWebSocketUpgrade?: Array<WobeHandler<any>>
 	onOpen?(ws: ServerWebSocket<any>): void
 	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
 	onClose?(
@@ -82,12 +76,12 @@ const factoryOfRuntime = (): RuntimeAdapter => {
 /**
  * Wobe is the main class of the framework
  */
-export class Wobe {
+export class Wobe<T> {
 	private options?: WobeOptions
 	private server: Server | null
 	private hooks: Array<{
 		pathname: string
-		handler: WobeHandler
+		handler: WobeHandler<T>
 		hook: Hook
 		method: HttpMethod
 	}>
@@ -119,7 +113,7 @@ export class Wobe {
 	 * @param handler The handler of the request
 	 * @param hook The hook of the request (optional)
 	 */
-	get(path: string, handler: WobeHandler, hook?: WobeHandler) {
+	get(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) this._addHook('beforeHandler', 'GET')(path, hook)
 
 		this.router.addRoute('GET', path, handler)
@@ -133,7 +127,7 @@ export class Wobe {
 	 * @param handler The handler of the request
 	 * @param hook The hook of the request (optional)
 	 */
-	post(path: string, handler: WobeHandler, hook?: WobeHandler) {
+	post(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) this._addHook('beforeHandler', 'POST')(path, hook)
 
 		this.router.addRoute('POST', path, handler)
@@ -147,7 +141,7 @@ export class Wobe {
 	 * @param handler The handler of the request
 	 * @param hook The hook of the request (optional)
 	 */
-	put(path: string, handler: WobeHandler, hook?: WobeHandler) {
+	put(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) this._addHook('beforeHandler', 'PUT')(path, hook)
 
 		this.router.addRoute('PUT', path, handler)
@@ -161,7 +155,7 @@ export class Wobe {
 	 * @param handler The handler of the request
 	 * @param hook The hook of the request (optional)
 	 */
-	delete(path: string, handler: WobeHandler, hook?: WobeHandler) {
+	delete(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) this._addHook('beforeHandler', 'DELETE')(path, hook)
 
 		this.router.addRoute('DELETE', path, handler)
@@ -175,7 +169,7 @@ export class Wobe {
 	 * @param handler The handler of the request
 	 * @param hook The hook of the request (optional)
 	 */
-	all(path: string, handler: WobeHandler, hook?: WobeHandler) {
+	all(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) {
 			this.httpMethods.map((method) =>
 				this._addHook('beforeHandler', method)(path, hook),
@@ -189,7 +183,7 @@ export class Wobe {
 
 	private _addHook =
 		(hook: Hook, method: HttpMethod) =>
-		(arg1: string | WobeHandler, ...handlers: WobeHandler[]) => {
+		(arg1: string | WobeHandler<T>, ...handlers: WobeHandler<T>[]) => {
 			let path = arg1
 
 			if (typeof arg1 !== 'string') {
@@ -216,8 +210,8 @@ export class Wobe {
 	 * @param handlers The handlers of the request
 	 */
 	beforeAndAfterHandler(
-		arg1: string | WobeHandler,
-		...handlers: WobeHandler[]
+		arg1: string | WobeHandler<T>,
+		...handlers: WobeHandler<T>[]
 	) {
 		this.httpMethods.map((method) =>
 			this._addHook('beforeAndAfterHandler', method)(arg1, ...handlers),
@@ -231,7 +225,10 @@ export class Wobe {
 	 * @param arg1 The path of the request or the handler
 	 * @param handlers The handlers of the request
 	 */
-	beforeHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+	beforeHandler(
+		arg1: string | WobeHandler<T>,
+		...handlers: WobeHandler<T>[]
+	) {
 		this.httpMethods.map((method) =>
 			this._addHook('beforeHandler', method)(arg1, ...handlers),
 		)
@@ -244,7 +241,7 @@ export class Wobe {
 	 * @param arg1 The path of the request or the handler
 	 * @param handlers The handlers of the request
 	 */
-	afterHandler(arg1: string | WobeHandler, ...handlers: WobeHandler[]) {
+	afterHandler(arg1: string | WobeHandler<T>, ...handlers: WobeHandler<T>[]) {
 		this.httpMethods.map((method) =>
 			this._addHook('afterHandler', method)(arg1, ...handlers),
 		)

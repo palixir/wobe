@@ -3,9 +3,9 @@ import type { Hook, HttpMethod, WobeHandler } from '../Wobe'
 export interface Node {
 	name: string
 	children: Array<Node>
-	handler?: WobeHandler
-	beforeHandlerHook?: Array<WobeHandler>
-	afterHandlerHook?: Array<WobeHandler>
+	handler?: WobeHandler<any>
+	beforeHandlerHook?: Array<WobeHandler<any>>
+	afterHandlerHook?: Array<WobeHandler<any>>
 	method?: HttpMethod
 	isParameterNode?: boolean
 	isWildcardNode?: boolean
@@ -16,7 +16,7 @@ export class RadixTree {
 	public root: Node = { name: '/', children: [] }
 	private isOptimized = false
 
-	addRoute(method: HttpMethod, path: string, handler: WobeHandler) {
+	addRoute(method: HttpMethod, path: string, handler: WobeHandler<any>) {
 		const pathParts = path.split('/').filter(Boolean)
 
 		let currentNode = this.root
@@ -57,7 +57,7 @@ export class RadixTree {
 		currentNode.method = method
 	}
 
-	_addHookToNode(node: Node, hook: Hook, handler: WobeHandler) {
+	_addHookToNode(node: Node, hook: Hook, handler: WobeHandler<any>) {
 		switch (hook) {
 			case 'beforeHandler': {
 				if (!node.beforeHandlerHook) node.beforeHandlerHook = []
@@ -89,7 +89,7 @@ export class RadixTree {
 	addHook(
 		hook: Hook,
 		path: string,
-		handler: WobeHandler,
+		handler: WobeHandler<any>,
 		method: HttpMethod,
 		node?: Node,
 	) {

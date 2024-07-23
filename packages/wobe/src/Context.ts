@@ -14,9 +14,9 @@ export class Context {
 	public requestStartTimeInMs: number | undefined = undefined
 	public getIpAdress: () => string = () => ''
 
-	public handler: WobeHandler | undefined = undefined
-	public beforeHandlerHook: Array<WobeHandler> = []
-	public afterHandlerHook: Array<WobeHandler> = []
+	public handler: WobeHandler<any> | undefined = undefined
+	public beforeHandlerHook: Array<WobeHandler<any>> = []
+	public afterHandlerHook: Array<WobeHandler<any>> = []
 
 	constructor(request: Request, router?: RadixTree) {
 		this.request = request
