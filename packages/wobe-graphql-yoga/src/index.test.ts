@@ -7,6 +7,62 @@ import { WobeGraphqlYogaPlugin } from '.'
 describe('Wobe GraphQL Yoga plugin', () => {
 	it('should set the wobe response in the graphql context', async () => {
 		const port = await getPort()
+		const wobe = new Wobe<{ customType: string }>().beforeHandler((ctx) => {
+			ctx.customType = 'test'
+		})
+
+		wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				typeDefs: `
+					type Query {
+						hello: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						hello: (_, __, context: any) => {
+							context.res.setCookie('tata', 'tata')
+							expect(context.test).toBeDefined()
+							expect(context.res).toBeDefined()
+							expect(context.request.headers).toBeDefined()
+							expect(context.customType).toEqual('test')
+							return 'Hello from Yoga!'
+						},
+					},
+				},
+				context: () => {
+					return { test: 'test' }
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+				    query {
+						hello
+					}
+        `,
+			}),
+		})
+
+		expect(res.headers.get('set-cookie')).toBe('tata=tata;')
+		expect(res.status).toBe(200)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Yoga!' },
+		})
+
+		wobe.stop()
+	})
+
+	it('should set the wobe response in the graphql context', async () => {
+		const port = await getPort()
 		const wobe = new Wobe()
 
 		wobe.usePlugin(
@@ -18,10 +74,10 @@ describe('Wobe GraphQL Yoga plugin', () => {
 				`,
 				resolvers: {
 					Query: {
-						hello: (_, __, context) => {
-							context.response.setCookie('tata', 'tata')
+						hello: (_, __, context: any) => {
+							context.res.setCookie('tata', 'tata')
 							expect(context.test).toBeDefined()
-							expect(context.response).toBeDefined()
+							expect(context.res).toBeDefined()
 							expect(context.request.headers).toBeDefined()
 							return 'Hello from Yoga!'
 						},
