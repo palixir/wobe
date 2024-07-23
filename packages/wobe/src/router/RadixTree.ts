@@ -101,12 +101,36 @@ export class RadixTree {
 		const pathParts = path.split('/').filter(Boolean)
 		let currentNode = node || this.root
 
+		// For hooks with no specific path
+		if (path === '*') {
+			const addHookToChildren = (node: Node) => {
+				for (let i = 0; i < node.children.length; i++) {
+					const child = node.children[i]
+
+					if (
+						child.children.length === 0 &&
+						(method === child.method || method === 'ALL')
+					)
+						this._addHookToNode(child, hook, handler)
+
+					addHookToChildren(child)
+				}
+			}
+
+			for (let i = 0; i < currentNode.children.length; i++) {
+				const child = currentNode.children[i]
+
+				addHookToChildren(child)
+			}
+		}
+
 		for (let i = 0; i < pathParts.length; i++) {
 			const pathPart = pathParts[i]
 			const isWildcardNode = pathPart[0] === '*'
 
 			if (isWildcardNode) {
 				const nextPathJoin = '/' + pathParts.slice(i + 1).join('/')
+
 				for (const child of currentNode.children) {
 					if (child.method === method || !child.method)
 						this.addHook(hook, nextPathJoin, handler, method, child)

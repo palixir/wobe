@@ -74,6 +74,40 @@ describe('RadixTree', () => {
 			).toBe(1)
 		})
 
+		it('should add a hook with path * on beforeHandler', () => {
+			const radixTree = new RadixTree()
+
+			radixTree.addRoute('GET', '/a/simple/route', () =>
+				Promise.resolve(),
+			)
+
+			radixTree.addHook(
+				'beforeHandler',
+				'*',
+				() => Promise.resolve(),
+				'GET',
+			)
+
+			expect(
+				radixTree.root.children[0].children[0].children[0].name,
+			).toBe('/route')
+			expect(
+				radixTree.root.children[0].children[0].children[0].method,
+			).toBe('GET')
+			expect(
+				radixTree.root.children[0].children[0].children[0].handler,
+			).toBeDefined()
+
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.beforeHandlerHook?.length,
+			).toBe(1)
+			expect(
+				radixTree.root.children[0].children[0].children[0]
+					.afterHandlerHook,
+			).toBeUndefined()
+		})
+
 		it('should add a hook beforeHandler to the radix tree', () => {
 			const radixTree = new RadixTree()
 
