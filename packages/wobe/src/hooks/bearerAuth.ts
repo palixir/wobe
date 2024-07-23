@@ -20,7 +20,7 @@ export const bearerAuth = ({
 	token,
 	hashFunction = defaultHash,
 	realm = '',
-}: BearerAuthOptions): WobeHandler => {
+}: BearerAuthOptions): WobeHandler<any> => {
 	return (ctx) => {
 		const requestAuthorization = ctx.request.headers.get('Authorization')
 

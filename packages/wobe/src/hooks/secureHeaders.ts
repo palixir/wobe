@@ -48,7 +48,7 @@ export const secureHeaders = ({
 	strictTransportSecurity = ['max-age=31536000; includeSubDomains'],
 	xContentTypeOptions = 'nosniff',
 	xDownloadOptions = 'noopen',
-}: SecureHeadersOptions): WobeHandler => {
+}: SecureHeadersOptions): WobeHandler<any> => {
 	return (ctx) => {
 		if (contentSecurityPolicy) {
 			const formatContentSecurityPolicy = Object.entries(

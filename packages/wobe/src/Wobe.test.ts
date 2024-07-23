@@ -18,7 +18,7 @@ import { bearerAuth, csrf, logger } from './hooks'
 import { WobeStore } from './tools'
 
 describe('Wobe', () => {
-	let wobe: Wobe
+	let wobe: Wobe<any>
 	const mockHookOnSpecificRoute = mock(() => {})
 	const mockHook = mock(() => {})
 	const mockSecondHook = mock(() => {})
@@ -251,6 +251,26 @@ describe('Wobe', () => {
 			expect(res.status).toBe(200)
 		},
 	)
+
+	it('should create wobe app with custom context', async () => {
+		const wobeWithContext = new Wobe<{
+			customType: string
+		}>().get('/test', (ctx) => {
+			ctx.customType = 'test'
+
+			return ctx.res.send(ctx.customType)
+		})
+
+		const port = await getPort()
+
+		wobeWithContext.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/test`)
+
+		expect(await res.text()).toEqual('test')
+
+		wobeWithContext.stop()
+	})
 
 	it('should call callback on listen', async () => {
 		const localPort = await getPort()

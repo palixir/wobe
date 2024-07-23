@@ -37,7 +37,7 @@ export const logger = (
 	{ loggerFunction }: LoggerOptions = {
 		loggerFunction: defaultLoggerFunction,
 	},
-): WobeHandler => {
+): WobeHandler<any> => {
 	return (ctx) => {
 		const { state, request } = ctx
 

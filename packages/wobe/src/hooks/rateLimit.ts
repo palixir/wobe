@@ -13,7 +13,7 @@ export interface RateLimitOptions {
 export const rateLimit = ({
 	interval,
 	numberOfRequests,
-}: RateLimitOptions): WobeHandler => {
+}: RateLimitOptions): WobeHandler<any> => {
 	const store = new WobeStore<number>({
 		interval,
 	})

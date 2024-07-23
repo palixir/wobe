@@ -22,7 +22,7 @@ const isSameOrigin = (optsOrigin: Origin, requestOrigin: string) => {
 /**
  * csrf is a hook that checks if the request has a valid CSRF token
  */
-export const csrf = (options: CsrfOptions): WobeHandler => {
+export const csrf = (options: CsrfOptions): WobeHandler<any> => {
 	return (ctx) => {
 		const requestOrigin = ctx.request.headers.get('origin') || ''
 
