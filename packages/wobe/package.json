@@ -1,6 +1,6 @@
 {
 	"name": "wobe",
-	"version": "1.1.3",
+	"version": "1.1.4",
 	"description": "A fast, lightweight and simple web framework",
 	"homepage": "https://wobe.dev",
 	"author": {
