@@ -79,4 +79,22 @@ export class Context {
 
 		return this.res.response || new Response(null, { status: 404 })
 	}
+
+	getCookie(name: string) {
+		const cookieHeader = this.request.headers.get('cookie')
+
+		if (!cookieHeader) return undefined
+
+		const split = cookieHeader
+			.split(';')
+			.map((cookie) => cookie.replaceAll(' ', ''))
+
+		const existingCookie = split.find(
+			(element) => element.split('=')[0] === name,
+		)
+
+		if (!existingCookie) return undefined
+
+		return existingCookie.split('=')[1]
+	}
 }

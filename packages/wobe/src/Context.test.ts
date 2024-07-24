@@ -78,4 +78,17 @@ describe('Context', () => {
 		)
 		expect(context.res.status).toEqual(301)
 	})
+
+	it('should get the cookie in the request headers', () => {
+		const request = new Request('https://example.com', {
+			headers: {
+				cookie: 'test=tata; test2=titi',
+			},
+		})
+		const context = new Context(request)
+
+		expect(context.getCookie('test')).toEqual('tata')
+		expect(context.getCookie('test2')).toEqual('titi')
+		expect(context.getCookie('invalid')).toBeUndefined()
+	})
 })
