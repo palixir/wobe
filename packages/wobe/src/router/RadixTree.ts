@@ -108,7 +108,7 @@ export class RadixTree {
 					const child = node.children[i]
 
 					if (
-						child.children.length === 0 &&
+						child.handler &&
 						(method === child.method || method === 'ALL')
 					)
 						this._addHookToNode(child, hook, handler)
