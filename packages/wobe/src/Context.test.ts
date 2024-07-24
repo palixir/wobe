@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from 'bun:test'
+import { describe, expect, it, mock, spyOn } from 'bun:test'
 import { Context } from './Context'
 
 describe('Context', () => {
@@ -58,12 +58,17 @@ describe('Context', () => {
 		const request = new Request('https://example.com')
 		const context = new Context(request)
 
+		const spyContextRes = spyOn(context.res, 'send')
+
 		context.redirect('https://example.com/test')
 
 		expect(context.res.headers.get('Location')).toEqual(
 			'https://example.com/test',
 		)
 		expect(context.res.status).toEqual(302)
+
+		expect(spyContextRes).toHaveBeenCalledTimes(1)
+		expect(spyContextRes).toHaveBeenCalledWith('OK')
 
 		// Redirect permanently
 		context.redirect('https://example.com/test2', 301)

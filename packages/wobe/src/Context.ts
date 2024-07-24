@@ -51,6 +51,8 @@ export class Context {
 	redirect(url: string, status = 302) {
 		this.res.headers.set('Location', url)
 		this.res.status = status
+
+		this.res.send('OK')
 	}
 
 	/**
