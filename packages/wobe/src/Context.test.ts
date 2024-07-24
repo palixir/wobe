@@ -91,4 +91,17 @@ describe('Context', () => {
 		expect(context.getCookie('test2')).toEqual('titi')
 		expect(context.getCookie('invalid')).toBeUndefined()
 	})
+
+	it('should get the cookie in the request headers with only one cookie', () => {
+		const request = new Request('https://example.com', {
+			headers: {
+				cookie: 'test=tata',
+			},
+		})
+		const context = new Context(request)
+
+		expect(context.getCookie('test')).toEqual('tata')
+		expect(context.getCookie('test2')).toBeUndefined()
+		expect(context.getCookie('invalid')).toBeUndefined()
+	})
 })
