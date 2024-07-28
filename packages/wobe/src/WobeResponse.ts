@@ -138,7 +138,7 @@ export class WobeResponse {
 	 * @returns The response
 	 */
 	send(
-		content: string | Record<string, any>,
+		content: string | Record<string, any> | null,
 		{
 			status,
 			statusText,
