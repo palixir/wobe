@@ -65,3 +65,19 @@ const app = new Wobe()
 	)
 	.listen(3000)
 ```
+
+## Prelight requests
+
+You can enable prelight requests for cors like this :
+
+```ts
+const app = new Wobe().options(
+	'*',
+	(ctx) => ctx.res.send(null),
+	cors({
+		origin: 'http://localhost:3000',
+		allowHeaders: ['content-type'],
+		credentials: true,
+	}),
+)
+```

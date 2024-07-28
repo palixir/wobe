@@ -4,7 +4,23 @@ Wobe has a `beforeHandker` hook to manage CORS.
 
 ## Example
 
-You can only authorize some requests with the `origin` option.
+You can only authorize some requests with the `origin` option
+
+First of all you will need to enable prelight requests for cors like this :
+
+```ts
+const app = new Wobe().options(
+	'*',
+	(ctx) => ctx.res.send(null),
+	cors({
+		origin: 'http://localhost:3000',
+		allowHeaders: ['content-type'],
+		credentials: true,
+	}),
+)
+```
+
+than: 
 
 ```ts
 import { Wobe, cors } from 'wobe'
