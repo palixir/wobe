@@ -266,6 +266,34 @@ describe('Wobe', () => {
 		expect(mockOptions).toHaveBeenCalledTimes(1)
 	})
 
+	it('should not run hook on all routes (with not the same http method) when specified on specific route with * path', async () => {
+		const fakeRouteHook = mock(() => {})
+
+		const localWobe = new Wobe()
+		const localPort = await getPort()
+
+		localWobe.get('*', () => new Response(null), fakeRouteHook)
+		localWobe.get('/tata', () => new Response('tata'))
+		localWobe.post('/toto', (ctx) => {
+			return ctx.res.send('test')
+		})
+
+		localWobe.listen(localPort)
+
+		await fetch(`http://127.0.0.1:${localPort}/tata`)
+
+		expect(fakeRouteHook).toHaveBeenCalledTimes(1)
+
+		const res = await fetch(`http://127.0.0.1:${localPort}/toto`, {
+			method: 'POST',
+		})
+
+		expect(await res.text()).toEqual('test')
+		expect(fakeRouteHook).toHaveBeenCalledTimes(1)
+
+		localWobe.stop()
+	})
+
 	it('should create wobe app with custom context', async () => {
 		const wobeWithContext = new Wobe<{
 			customType: string
