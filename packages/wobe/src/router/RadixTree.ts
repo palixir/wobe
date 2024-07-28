@@ -98,7 +98,6 @@ export class RadixTree {
 				'Cannot add hooks after the tree has been optimized',
 			)
 
-		const pathParts = path.split('/').filter(Boolean)
 		let currentNode = node || this.root
 
 		// For hooks with no specific path
@@ -120,9 +119,20 @@ export class RadixTree {
 			for (let i = 0; i < currentNode.children.length; i++) {
 				const child = currentNode.children[i]
 
-				addHookToChildren(child)
+				if (
+					child.handler &&
+					(method === child.method || method === 'ALL')
+				) {
+					this._addHookToNode(child, hook, handler)
+				}
+
+				if (child.children.length > 0) addHookToChildren(child)
 			}
+
+			return
 		}
+
+		const pathParts = path.split('/').filter(Boolean)
 
 		for (let i = 0; i < pathParts.length; i++) {
 			const pathPart = pathParts[i]
@@ -218,7 +228,8 @@ export class RadixTree {
 				// If the child has no children and the node is a wildcard or parameter node
 				if (
 					isChildWildcardOrParameterNode &&
-					child.children.length === 0
+					child.children.length === 0 &&
+					child.method === method
 				)
 					return child
 
