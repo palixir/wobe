@@ -42,6 +42,7 @@ describe('Wobe', () => {
 	const mockOnError = mock(() => {})
 	const mockOnNotFound = mock(() => {})
 	const mockHookWithWildcardRoute = mock(() => {})
+	const mockOptions = mock(() => {})
 	const spyConsoleLog = spyOn(console, 'log').mockResolvedValue({} as never)
 
 	let port: number
@@ -153,6 +154,10 @@ describe('Wobe', () => {
 					},
 				)
 			})
+			.options('/options', async (ctx) => {
+				mockOptions()
+				return ctx.res.send('OK')
+			})
 			.usePlugin(mockUsePlugin())
 			.beforeHandler(
 				'/test/',
@@ -200,6 +205,7 @@ describe('Wobe', () => {
 		mockOnNotFound.mockClear()
 		mockHookWithWildcardRoute.mockClear()
 		spyConsoleLog.mockClear()
+		mockOptions.mockClear()
 	})
 
 	it.skipIf(process.env.NODE_TEST !== 'true')(
@@ -251,6 +257,14 @@ describe('Wobe', () => {
 			expect(res.status).toBe(200)
 		},
 	)
+
+	it('should run options route', async () => {
+		await fetch(`http://127.0.0.1:${port}/options`, {
+			method: 'OPTIONS',
+		})
+
+		expect(mockOptions).toHaveBeenCalledTimes(1)
+	})
 
 	it('should create wobe app with custom context', async () => {
 		const wobeWithContext = new Wobe<{

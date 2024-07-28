@@ -16,7 +16,7 @@ export interface WobeOptions {
 	}
 }
 
-export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL'
+export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL' | 'OPTIONS'
 
 export type WobeHandlerOutput =
 	| void
@@ -77,7 +77,7 @@ const factoryOfRuntime = (): RuntimeAdapter => {
  * Wobe is the main class of the framework
  */
 export class Wobe<T> {
-	private options?: WobeOptions
+	private wobeOptions?: WobeOptions
 	private server: Server | null
 	private hooks: Array<{
 		pathname: string
@@ -101,7 +101,7 @@ export class Wobe<T> {
 	 * @param options The options of the Wobe class
 	 */
 	constructor(options?: WobeOptions) {
-		this.options = options
+		this.wobeOptions = options
 		this.hooks = []
 		this.server = null
 		this.router = new RadixTree()
@@ -159,6 +159,20 @@ export class Wobe<T> {
 		if (hook) this._addHook('beforeHandler', 'DELETE')(path, hook)
 
 		this.router.addRoute('DELETE', path, handler)
+
+		return this
+	}
+
+	/**
+	 * options is the method to handle the OPTIONS requests (use for pre-flight)
+	 * @param path The path of the request
+	 * @param handler The handler of the request
+	 * @param hook The hook of the request (optional)
+	 */
+	options(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
+		if (hook) this._addHook('beforeHandler', 'OPTIONS')(path, hook)
+
+		this.router.addRoute('OPTIONS', path, handler)
 
 		return this
 	}
@@ -303,11 +317,14 @@ export class Wobe<T> {
 		this.server = this.runtimeAdapter.createServer(
 			port,
 			this.router,
-			this.options,
+			this.wobeOptions,
 			this.webSocket,
 		)
 
-		callback?.({ port, hostname: this.options?.hostname || 'localhost' })
+		callback?.({
+			port,
+			hostname: this.wobeOptions?.hostname || 'localhost',
+		})
 
 		return this
 	}
