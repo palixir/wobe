@@ -2,12 +2,8 @@ import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
 import type { WobeOptions, WobeWebSocket } from '../../Wobe'
-import { WobeResponse } from '../../WobeResponse'
 import type { RadixTree } from '../../router'
-import { WobeStore } from '../../tools'
 import { bunWebSocket } from './websocket'
-
-const _contextStore = new WobeStore<Context>({ interval: 10000 })
 
 export const BunAdapter = (): RuntimeAdapter => ({
 	createServer: (
@@ -26,18 +22,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
 				try {
-					const cacheKey = req.url + '$method:' + req.method
-
-					let context = _contextStore.get(cacheKey)
-
-					if (context) {
-						context.request = req
-						context.res = new WobeResponse(req)
-					} else {
-						context = new Context(req, router)
-
-						_contextStore.set(cacheKey, context)
-					}
+					const context = new Context(req, router)
 
 					context.getIpAdress = () =>
 						this.requestIP(req)?.address || ''
