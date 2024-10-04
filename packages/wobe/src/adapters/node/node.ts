@@ -2,11 +2,9 @@ import { createServer as createHttpServer } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
 import { HttpException } from '../../HttpException'
 import { Context } from '../../Context'
-import { WobeStore } from '../../tools'
 import type { RuntimeAdapter } from '..'
 import type { RadixTree } from '../../router'
 import type { WobeOptions } from '../../Wobe'
-import { WobeResponse } from '../../WobeResponse'
 
 const transformResponseInstanceToValidResponse = async (response: Response) => {
 	const headers: Record<string, string> = {}
@@ -20,8 +18,6 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 
 	return { headers, body: await response.text() }
 }
-
-const _contextStore = new WobeStore<Context>({ interval: 10000 })
 
 export const NodeAdapter = (): RuntimeAdapter => ({
 	createServer: (port: number, router: RadixTree, options?: WobeOptions) => {
@@ -41,10 +37,6 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 			req.on('end', async () => {
 				try {
-					const cacheKey = url + '$method:' + req.method
-
-					let context = _contextStore.get(cacheKey)
-
 					const request = new Request(url, {
 						method: req.method,
 						headers: req.headers as any,
@@ -54,14 +46,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 								: undefined,
 					})
 
-					if (!context) {
-						context = new Context(request, router)
-
-						_contextStore.set(cacheKey, context)
-					} else {
-						context.request = request
-						context.res = new WobeResponse(request)
-					}
+					const context = new Context(request, router)
 
 					if (!context.handler) {
 						options?.onNotFound?.(context.request)
