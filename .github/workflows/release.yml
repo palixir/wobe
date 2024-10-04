@@ -16,9 +16,12 @@ on:
                 description: 'New version to release'
                 required: true
                 type: string
+
 jobs:
-    run:
+    release:
         runs-on: ubuntu-latest
+        name: 'Release ${{inputs.package}}'
+
         permissions:
             contents: write
             pull-requests: read
@@ -33,7 +36,7 @@ jobs:
                   node-version: 22
                   registry-url: 'https://registry.npmjs.org'
 
-            - uses: oven-sh/setup-bun@v1
+            - uses: oven-sh/setup-bun@v2
               with:
                   bun-version: latest
                   registry-url: 'https://registry.npmjs.org'
@@ -44,10 +47,27 @@ jobs:
 
             - name: 'Get Previous tag'
               id: previousTag
-              uses: 'WyriHaximus/github-action-get-previous-tag@v1'
-              with:
-                  fallback: ''
-                  prefix: ${{inputs.package}}-v
+              run: |
+                echo "Fetching tags..."
+                previous_tag=$(git tag -l "${{inputs.package}}-[0-9]*" --sort=-v:refname | head -n 1)
+                echo "Found previous tag: $previous_tag"
+                echo "tag=$previous_tag" >> $GITHUB_ENV
+
+            - name: 'Get Next Version from package.json'
+              id: nextVersion
+              run: |
+                package_json_path="./packages/${{inputs.package}}/package.json"
+                if [ ! -f "$package_json_path" ]; then
+                  echo "Error: $package_json_path not found."
+                  exit 1
+                fi
+                next_version=$(jq -r .version < "$package_json_path")
+                if [ -z "$next_version" ]; then
+                  echo "Error: Version not found in $package_json_path."
+                  exit 1
+                fi
+                echo "Next version: $next_version"
+                echo "next_version=$next_version" >> $GITHUB_ENV
 
             # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
             - run: npm publish --access=public --workspace=${{inputs.package}}
@@ -61,59 +81,59 @@ jobs:
                       github.rest.git.createRef({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        ref: 'refs/tags/${{inputs.package}}-${{inputs.newVersion}}',
+                        ref: 'refs/tags/${{inputs.package}}-${{env.next_version}}',
                         sha: context.sha
                       })
 
             - name: Build Changelog
-              id: githubRelease
+              id: github_release
               uses: mikepenz/release-changelog-builder-action@v4.2.2
               with:
-                  # We consider the first version is create manually because fallback is ''
-                  fromTag: ${{steps.previousTag.outputs.tag}}
-                  toTag: ${{inputs.package}}-${{inputs.newVersion}}
+                  fromTag: ${{ env.tag }}
+                  toTag: ${{inputs.package}}-${{env.next_version}}
                   configurationJson: |
                       {
-                       	"categories": [
-                        		{
-                       			"title": "## 🚀 Features",
-                       			"labels": ["feat"]
-                        		},
-                        		{
-                       			"title": "## 🐛 Fixes",
-                       			"labels": ["fix", "bug"]
-                        		},
-                        		{
-                       			"key": "tests",
-                       			"title": "## 🧪 Tests",
-                       			"labels": ["test", "tests"]
-                        		},
-                         	{
-                       			"key": "doc",
-                       			"title": "## 📚 Documentation",
-                       			"labels": ["doc", "docs"]
-                        		},
+                        "categories": [
                             {
-                       			"key": "misc",
-                       			"title": "## 💬 Miscellaneous",
-                       			"labels": ["ci", "chore", "perf", "refactor"]
-                        		}
-                       	],
-                       	"template": "#{{CHANGELOG}}\n\n",
-                       	"pr_template": "- #{{TITLE}} (by @#{{AUTHOR}} in ##{{NUMBER}}) ",
-                       	"label_extractor": [
-                        		{
-                       			"pattern": "^(ci|chore|doc|docs|feat|fix|bug|perf|refactor|test|tests)\\(${{inputs.package}}\\):(.*)",
-                       			"target": "$1",
-                       			"on_property": "title"
-                        		}
-                       	]
+                              "title": "## 🚀 Features",
+                              "labels": ["feat"]
+                            },
+                            {
+                              "title": "## 🐛 Fixes",
+                              "labels": ["fix", "bug"]
+                            },
+                            {
+                              "key": "tests",
+                              "title": "## 🧪 Tests",
+                              "labels": ["test"]
+                            },
+                            {
+                              "key": "doc",
+                              "title": "## 📚 Documentation",
+                              "labels": ["docs", "doc"]
+                            },
+                            {
+                              "key": "misc",
+                              "title": "## 💬 Miscellaneous",
+                              "labels": ["ci", "chore", "perf", "refactor"]
+                            }
+                        ],
+                        "template": "#{{CHANGELOG}}\n\n",
+                        "pr_template": "- #{{TITLE}} (by @#{{AUTHOR}} in ##{{NUMBER}}) ",
+                        "label_extractor": [
+                            {
+                              "pattern": "^(ci|chore|doc|docs|feat|fix|bug|perf|refactor|test|tests)\\(${{inputs.package}}\\):(.*)",
+                              "target": "$1",
+                              "on_property": "title"
+                            }
+                        ]
                       }
+
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Create Release
               uses: softprops/action-gh-release@v2
               with:
-                  tag_name: ${{inputs.package}}-${{inputs.newVersion}}
-                  body: ${{steps.githubRelease.outputs.changelog}}
+                  tag_name: ${{inputs.package}}-${{env.next_version}}
+                  body: ${{steps.github_release.outputs.changelog}}
