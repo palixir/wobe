@@ -12,10 +12,6 @@ on:
                     - 'wobe-graphql-yoga'
                     - 'wobe-graphql-apollo'
                     - 'wobe-validator'
-            newVersion:
-                description: 'New version to release'
-                required: true
-                type: string
 
 jobs:
     release:
