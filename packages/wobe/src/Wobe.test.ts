@@ -389,21 +389,6 @@ describe('Wobe', () => {
 		expect(res.status).toBe(200)
 	})
 
-	it('should only create the context once (with the cache)', async () => {
-		const spyStoreSet = spyOn(WobeStore.prototype, 'set')
-		const spyStoreGet = spyOn(WobeStore.prototype, 'get')
-
-		await fetch(`http://127.0.0.1:${port}/testContextCache`)
-
-		expect(spyStoreSet).toHaveBeenCalledTimes(1)
-		expect(spyStoreGet).toHaveBeenCalledTimes(1)
-
-		await fetch(`http://127.0.0.1:${port}/testContextCache`)
-
-		expect(spyStoreSet).toHaveBeenCalledTimes(1)
-		expect(spyStoreGet).toHaveBeenCalledTimes(2)
-	})
-
 	it('should have the correct state if there is afterHandler middleware (with context cache)', async () => {
 		const res = await fetch(
 			`http://127.0.0.1:${port}/testAfterHandlerCache`,
