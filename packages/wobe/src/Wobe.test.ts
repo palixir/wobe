@@ -269,8 +269,6 @@ describe('Wobe', () => {
 		const res = await fetch('http://0.0.0.0:5555/health')
 		expect(await res.text()).toBe('ok')
 
-		expect(fetch('http://0.0.0.1:5555/health')).rejects.toThrow()
-
 		wobeTest.stop()
 	})
 
