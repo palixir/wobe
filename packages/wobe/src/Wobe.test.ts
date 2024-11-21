@@ -258,6 +258,22 @@ describe('Wobe', () => {
 		},
 	)
 
+	it('should listen on different hostname', async () => {
+		const wobeTest = new Wobe({ hostname: '0.0.0.0' }).get(
+			'/health',
+			(ctx) => ctx.res.send('ok'),
+		)
+
+		wobeTest.listen(5555)
+
+		const res = await fetch('http://0.0.0.0:5555/health')
+		expect(await res.text()).toBe('ok')
+
+		expect(fetch('http://0.0.0.1:5555/health')).rejects.toThrow()
+
+		wobeTest.stop()
+	})
+
 	it('should run options route', async () => {
 		await fetch(`http://127.0.0.1:${port}/options`, {
 			method: 'OPTIONS',
