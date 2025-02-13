@@ -19,7 +19,7 @@
 		"wobe": "*"
 	},
 	"dependencies": {
-		"@apollo/server": "4.10.1"
+		"@apollo/server": "4.11.3"
 	},
 	"scripts": {
 		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
