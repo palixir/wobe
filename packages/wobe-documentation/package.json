@@ -3,12 +3,12 @@
 	"module": "index.ts",
 	"type": "module",
 	"devDependencies": {
-		"vitepress": "1.1.0"
+		"vitepress": "1.6.3"
 	},
 	"scripts": {
-		"release": "bun docs:build && vercel .vitepress/dist --prod",
-		"docs:dev": "vitepress dev",
-		"docs:build": "vitepress build",
-		"docs:preview": "vitepress preview"
+		"release": "bun run build && vercel .vitepress/dist --prod",
+		"dev": "vitepress dev",
+		"build": "vitepress build",
+		"preview": "vitepress preview"
 	}
 }

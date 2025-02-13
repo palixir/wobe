@@ -82,6 +82,10 @@ export default defineConfig({
 								text: 'Validator',
 								link: '/doc/ecosystem/hooks/validator',
 							},
+							{
+								text: 'Upload directory',
+								link: '/doc/ecosystem/hooks/upload-directory',
+							},
 						],
 					},
 				],
