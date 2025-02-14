@@ -4,6 +4,8 @@ import * as nodeHttps from 'node:https'
 import { Wobe } from '../../Wobe'
 import getPort from 'get-port'
 import { HttpException } from '../../HttpException'
+import { join } from 'node:path'
+import { readFile } from 'node:fs/promises'
 
 describe.skipIf(process.env.NODE_TEST !== 'true')('Node server', () => {
 	const spyCreateHttpServer = spyOn(nodeHttp, 'createServer')
@@ -88,6 +90,36 @@ describe.skipIf(process.env.NODE_TEST !== 'true')('Node server', () => {
 			{ key, cert, passphrase: 'test' },
 			expect.any(Function),
 		)
+
+		wobe.stop()
+	})
+
+	it('should serve a binary file correctly', async () => {
+		const port = await getPort()
+		const wobe = new Wobe({ tls: undefined })
+
+		const uploadDirectory = join(__dirname, '../../../fixtures')
+		const fileName = 'avatar.jpg'
+		const filePath = join(uploadDirectory, fileName)
+
+		wobe.get('/binary-test', async (ctx) => {
+			const fileContent = await readFile(filePath)
+			ctx.res.headers.set('Content-Type', 'image/jpeg')
+			ctx.res.send(fileContent)
+		})
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/binary-test`)
+
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe('image/jpeg')
+
+		const fileContent = await readFile(filePath)
+		const responseArrayBuffer = await response.arrayBuffer()
+		expect(
+			Buffer.from(responseArrayBuffer).equals(Buffer.from(fileContent)),
+		).toBe(true)
 
 		wobe.stop()
 	})
