@@ -22,6 +22,7 @@ const request = new Request('http://localhost:3000/bucket/example.jpg');
 ## Options
 
 -   `directory` (string) : The directory path from which to serve files. This path should be relative to your project's root directory or an absolute path.
+-   `isAuthorized` (boolean) : A boolean value indicating whether the hook should check if the request is authorized. If set to `true`, the hook will be authorized to serve files, otherwise, it will be unauthorized. The default value is `true`. Usefull for example to allow access files only in development mode (with for example S3 storage on production).
 
 ## Usage
 

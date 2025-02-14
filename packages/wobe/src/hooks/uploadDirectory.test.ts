@@ -85,4 +85,23 @@ describe('UploadDirectory Hook', () => {
 
 		wobe.stop()
 	})
+
+	it('should return 401 if not authorized', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		wobe.get(
+			'/bucket/:filename',
+			uploadDirectory({ directory: testDirectory, isAuthorized: false }),
+		)
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/bucket/`)
+
+		expect(response.status).toBe(401)
+		expect(await response.text()).toBe('Unauthorized')
+
+		wobe.stop()
+	})
 })

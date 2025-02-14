@@ -5,17 +5,24 @@ import mimeTypes from '../utils'
 
 export interface UploadDirectoryOptions {
 	directory: string
+	isAuthorized?: boolean
 }
 
 /**
  * uploadDirectory is a hook that allow you to access to all files in a directory
  * You must provide the filename parameter in the route
- * Usage: wobe.get('/bucket/:filename', uploadDirectory({ directory: './bucket' }))
+ * Usage: wobe.get('/bucket/:filename', uploadDirectory({ directory: './bucket', isAuthorized: true }))
  */
 export const uploadDirectory = ({
 	directory,
+	isAuthorized = true,
 }: UploadDirectoryOptions): WobeHandler<any> => {
 	return async (ctx) => {
+		if (!isAuthorized) {
+			ctx.res.status = 401
+			return ctx.res.sendText('Unauthorized')
+		}
+
 		const fileName = ctx.params.filename
 
 		if (!fileName) {
