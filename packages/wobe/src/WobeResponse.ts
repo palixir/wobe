@@ -138,7 +138,7 @@ export class WobeResponse {
 	 * @returns The response
 	 */
 	send(
-		content: string | Record<string, any> | null,
+		content: string | Record<string, any> | ArrayBuffer | Buffer | null,
 		{
 			status,
 			statusText,
@@ -149,17 +149,21 @@ export class WobeResponse {
 			headers?: Record<string, any>
 		} = {},
 	) {
-		let body: string
+		let body: string | ArrayBuffer | Buffer | null = null
 
-		if (typeof content === 'object') {
+		if (content instanceof Buffer || content instanceof ArrayBuffer) {
+			body = content
+		} else if (typeof content === 'object') {
 			this.headers.set('content-type', 'application/json')
+			this.headers.set('charset', 'utf-8')
+
 			body = JSON.stringify(content)
 		} else {
 			this.headers.set('content-type', 'text/plain')
+			this.headers.set('charset', 'utf-8')
+
 			body = content
 		}
-
-		this.headers.set('charset', 'utf-8')
 
 		if (status) this.status = status
 		if (statusText) this.statusText = statusText

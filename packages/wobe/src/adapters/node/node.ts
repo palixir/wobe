@@ -13,10 +13,16 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 		headers[name] = value
 	})
 
-	if (response.headers.get('content-type') === 'appplication/json')
+	const contentType = response.headers.get('content-type')
+
+	if (contentType === 'appplication/json')
 		return { headers, body: await response.json() }
 
-	return { headers, body: await response.text() }
+	if (contentType === 'text/plain')
+		return { headers, body: await response.text() }
+
+	const arrayBuffer = await response.arrayBuffer()
+	return { headers, body: Buffer.from(arrayBuffer) }
 }
 
 export const NodeAdapter = (): RuntimeAdapter => ({

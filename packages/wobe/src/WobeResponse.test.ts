@@ -2,6 +2,34 @@ import { describe, expect, it } from 'bun:test'
 import { WobeResponse } from './WobeResponse'
 
 describe('Wobe Response', () => {
+	it('should send binary file content', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+
+		const fileContent = new Uint8Array([
+			71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192, 0,
+			0, 0, 33, 249, 4, 1, 0, 0, 0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2,
+			2, 68, 1, 0, 59,
+		]).buffer
+
+		const response = wobeResponse.send(fileContent, {
+			headers: {
+				'Content-Type': 'image/gif',
+			},
+		})
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe('image/gif')
+
+		const responseArrayBuffer = await response.arrayBuffer()
+		// @ts-expect-error
+		expect(responseArrayBuffer).toEqual(fileContent)
+	})
+
 	it('should clone a Response into a WobeResponse instance', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),
