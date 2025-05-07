@@ -29,7 +29,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
 	const mockOnDrain = mock(() => {})
 
 	let port: number
-	let wobe: Wobe
+	let wobe: Wobe<any>
 
 	beforeAll(async () => {
 		port = await getPort()
