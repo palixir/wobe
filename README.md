@@ -5,10 +5,7 @@
 
 <div align="center">
   <a href="https://wobe.dev">Documentation</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://discord.gg/GVuyYXNvGg">Discord</a>
-</div>
-
+  
 ## What is Wobe?
 
 **Wobe** is a simple, fast, and lightweight web framework. Inspired by some web frameworks like Express, Hono, Elysia. It works on Node and Bun runtime.
@@ -68,7 +65,7 @@ Of course, you can also use Wobe in your application; that is the better contrib
 
 If you like the project don't forget to share it.
 
-More informations on the [Contribution guide](https://github.com/palixir/wobe/blob/main/CONTRIBUTING)
+More informations on the [Contribution guide](https://github.com/palixir/wobe/blob/main/CONTRIBUTING.md)
 
 ## License
 
