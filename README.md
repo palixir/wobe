@@ -5,6 +5,7 @@
 
 <div align="center">
   <a href="https://wobe.dev">Documentation</a>
+</div>
   
 ## What is Wobe?
 
