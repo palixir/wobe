@@ -65,7 +65,7 @@ Of course, you can also use Wobe in your application; that is the better contrib
 
 If you like the project don't forget to share it.
 
-More informations on the [Contribution guide](https://github.com/palixir/wobe/blob/main/CONTRIBUTING)
+More informations on the [Contribution guide](https://github.com/palixir/wobe/blob/main/CONTRIBUTING.md)
 
 ## License
 
