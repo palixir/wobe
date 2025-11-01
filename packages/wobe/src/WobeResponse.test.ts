@@ -26,7 +26,6 @@ describe('Wobe Response', () => {
 		expect(response.headers.get('Content-Type')).toBe('image/gif')
 
 		const responseArrayBuffer = await response.arrayBuffer()
-		// @ts-expect-error
 		expect(responseArrayBuffer).toEqual(fileContent)
 	})
 

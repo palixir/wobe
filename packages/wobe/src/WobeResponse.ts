@@ -11,7 +11,7 @@ export interface SetCookieOptions {
 export class WobeResponse {
 	public request: Request
 	public response: Response | undefined = undefined
-	public headers = new Headers()
+	public headers: typeof Headers.prototype = new Headers()
 	public status = 200
 	public statusText = 'OK'
 
@@ -149,9 +149,9 @@ export class WobeResponse {
 			headers?: Record<string, any>
 		} = {},
 	) {
-		let body: string | ArrayBuffer | Buffer | null = null
+		let body: Bun.BodyInit | undefined = undefined
 
-		if (content instanceof Buffer || content instanceof ArrayBuffer) {
+		if (content instanceof ArrayBuffer) {
 			body = content
 		} else if (typeof content === 'object') {
 			this.headers.set('content-type', 'application/json')
