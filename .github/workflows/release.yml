@@ -62,7 +62,7 @@ jobs:
                 echo "next_version=$next_version" >> $GITHUB_ENV
 
             # We publish on NPM before releasing on GitHub to avoid releasing a version that is not published
-            - run: cd ${{inputs.package}} && bun publish --access=public
+            - run: cd packages/${{inputs.package}} && bun publish --access=public
               env:
                 NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
