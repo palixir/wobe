@@ -16,7 +16,7 @@
 	"main": "dist/index.js",
 	"devDependencies": {
 		"get-port": "7.0.0",
-		"wobe": "*"
+		"wobe": "workspace:*"
 	},
 	"dependencies": {
 		"@apollo/server": "5.1.0"
