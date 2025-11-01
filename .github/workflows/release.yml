@@ -39,6 +39,7 @@ jobs:
 
             - run: bun install
             - run: bun ci
+            - run: bun build:wobe
             - run: bun --filter ./packages/${{inputs.package}} build
 
             - name: 'Get Previous tag'
