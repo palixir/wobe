@@ -153,6 +153,14 @@ export class WobeResponse {
 
 		if (content instanceof ArrayBuffer) {
 			body = content
+		} else if (content instanceof SharedArrayBuffer) {
+			body = new Uint8Array(content)
+		} else if (content instanceof Buffer) {
+			body = new Uint8Array(
+				content.buffer,
+				content.byteOffset,
+				content.byteLength,
+			)
 		} else if (typeof content === 'object') {
 			this.headers.set('content-type', 'application/json')
 			this.headers.set('charset', 'utf-8')

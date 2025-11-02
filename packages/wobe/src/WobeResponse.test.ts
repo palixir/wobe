@@ -29,6 +29,168 @@ describe('Wobe Response', () => {
 		expect(responseArrayBuffer).toEqual(fileContent)
 	})
 
+	it('should send binary file content with Buffer', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+
+		const fileContent = Buffer.from('Hello World', 'utf-8')
+
+		const response = wobeResponse.send(fileContent, {
+			headers: {
+				'Content-Type': 'image/gif',
+			},
+		})
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe('image/gif')
+
+		const responseText = await response.text()
+
+		expect(responseText).toEqual('Hello World')
+	})
+
+	it('should send SharedArrayBuffer content', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const sharedBuffer = new SharedArrayBuffer(16)
+		const sharedArray = new Uint8Array(sharedBuffer)
+		sharedArray.set([
+			71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192,
+		])
+		const response = wobeResponse.send(sharedBuffer, {
+			headers: {
+				'Content-Type': 'image/gif',
+			},
+		})
+
+		expect(response.status).toBe(200)
+		expect(response.statusText).toBe('OK')
+		expect(response.headers.get('Content-Type')).toBe('image/gif')
+
+		const responseArrayBuffer = await response.arrayBuffer()
+
+		expect(new Uint8Array(responseArrayBuffer)).toEqual(
+			new Uint8Array([
+				71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192,
+			]),
+		)
+	})
+
+	it('should send ArrayBuffer content and compare with original', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const arrayBuffer = new Uint8Array([1, 2, 3, 4, 5]).buffer
+		const response = wobeResponse.send(arrayBuffer, {
+			headers: {
+				'Content-Type': 'application/octet-stream',
+			},
+		})
+
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe(
+			'application/octet-stream',
+		)
+
+		const responseArrayBuffer = await response.arrayBuffer()
+
+		expect(new Uint8Array(responseArrayBuffer)).toEqual(
+			new Uint8Array([1, 2, 3, 4, 5]),
+		)
+	})
+
+	it('should handle empty ArrayBuffer', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const emptyBuffer = new ArrayBuffer(0)
+		const response = wobeResponse.send(emptyBuffer, {
+			headers: {
+				'Content-Type': 'application/octet-stream',
+			},
+		})
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe(
+			'application/octet-stream',
+		)
+		const responseArrayBuffer = await response.arrayBuffer()
+		expect(responseArrayBuffer.byteLength).toBe(0)
+	})
+
+	it('should handle empty SharedArrayBuffer', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const emptySharedBuffer = new SharedArrayBuffer(0)
+		const response = wobeResponse.send(emptySharedBuffer, {
+			headers: {
+				'Content-Type': 'application/octet-stream',
+			},
+		})
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe(
+			'application/octet-stream',
+		)
+		const responseArrayBuffer = await response.arrayBuffer()
+		expect(responseArrayBuffer.byteLength).toBe(0)
+	})
+
+	it('should handle large SharedArrayBuffer', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const largeSharedBuffer = new SharedArrayBuffer(1024 * 1024) // 1MB
+		const largeArray = new Uint8Array(largeSharedBuffer)
+		largeArray.fill(42)
+		const response = wobeResponse.send(largeSharedBuffer, {
+			headers: {
+				'Content-Type': 'application/octet-stream',
+			},
+		})
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe(
+			'application/octet-stream',
+		)
+
+		const responseArrayBuffer = await response.arrayBuffer()
+
+		expect(
+			new Uint8Array(responseArrayBuffer).every((val) => val === 42),
+		).toBeTrue()
+	})
+
+	it('should send null content and handle gracefully', async () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test', {
+				method: 'GET',
+			}),
+		)
+		const response = wobeResponse.send(null, {
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+		})
+		expect(response.status).toBe(200)
+		expect(response.headers.get('Content-Type')).toBe('text/plain')
+		const responseText = await response.text()
+		expect(responseText).toBe('null')
+	})
+
 	it('should clone a Response into a WobeResponse instance', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),
