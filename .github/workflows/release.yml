@@ -33,7 +33,7 @@ jobs:
                   registry-url: 'https://registry.npmjs.org'
 
             - run: bun install
-            - run: bun ci
+            - run: bun run ci
             - run: bun build:wobe
             - run: bun --filter ./packages/${{inputs.package}} build
 

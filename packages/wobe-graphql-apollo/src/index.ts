@@ -15,6 +15,10 @@ import type {
 	Context,
 } from 'wobe'
 
+export type GraphQLApolloContext =
+	| MaybePromise<Record<string, unknown>>
+	| ((context: any) => MaybePromise<unknown>)
+
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
 
 export interface GraphQLApolloPluginOptions {
@@ -32,7 +36,7 @@ export const WobeGraphqlApolloPlugin = async ({
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
-	context?: (options: Context) => MaybePromise<BaseContext>
+	context?: GraphQLApolloContext
 } & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
@@ -66,7 +70,7 @@ export const WobeGraphqlApolloPlugin = async ({
 					},
 					context: async () => ({
 						...context,
-						...(apolloContext ? await apolloContext(context) : {}),
+						...apolloContext,
 					}),
 				})
 
