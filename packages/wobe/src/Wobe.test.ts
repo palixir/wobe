@@ -158,7 +158,6 @@ describe('Wobe', () => {
 				mockOptions()
 				return ctx.res.send('OK')
 			})
-			.usePlugin(mockUsePlugin())
 			.beforeHandler(
 				'/test/',
 				csrf({ origin: `http://127.0.0.1:${port}` }),
@@ -181,7 +180,10 @@ describe('Wobe', () => {
 			.afterHandler('/testAfterHandlerCache', (ctx) => {
 				return new Response(ctx.state)
 			})
-			.listen(port)
+
+		await wobe.usePlugin(mockUsePlugin())
+
+		wobe.listen(port)
 	})
 
 	afterAll(() => {

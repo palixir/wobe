@@ -84,8 +84,7 @@ export const WobeGraphqlApolloPlugin = async ({
 							return context
 						}
 
-						const apolloContextResult = await apolloContext
-						return { ...context, ...apolloContextResult }
+						return { ...context, ...apolloContext }
 					},
 				})
 

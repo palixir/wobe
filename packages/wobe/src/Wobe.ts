@@ -278,11 +278,9 @@ export class Wobe<T> {
 	 * @param plugin The plugin to use
 	 * You can find more informations about plugins in the documentation (https://www.wobe.dev/doc/ecosystem/plugins)
 	 */
-	usePlugin(plugin: MaybePromise<WobePlugin>) {
+	async usePlugin(plugin: MaybePromise<WobePlugin>) {
 		if (plugin instanceof Promise) {
-			plugin.then((p) => {
-				return p(this)
-			})
+			await plugin
 
 			return this
 		}
