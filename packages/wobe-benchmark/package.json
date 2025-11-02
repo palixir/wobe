@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "main": "index.ts",
   "dependencies": {
-    "hono": "4.1.4",
-    "koa-router": "12.0.1",
-    "radix3": "1.1.2",
     "wobe": "*"
   },
   "devDependencies": {
-    "elysia": "^1.0.16",
-    "get-port": "^7.1.0",
-    "mitata": "0.1.11"
+    "elysia": "1.0.16",
+    "get-port": "7.1.0",
+    "mitata": "0.1.11",
+    "hono": "4.10.4",
+    "koa-router": "12.0.1",
+    "radix3": "1.1.2",
+    "find-my-way": "9.3.0"
   },
   "scripts": {
     "bench:startup": "bun run startup/benchmark.ts",
