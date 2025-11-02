@@ -27,4 +27,4 @@ jobs:
               with:
                   bun-version: latest
             - run: bun install
-            - run: bun ci
+            - run: bun run ci
