@@ -68,10 +68,25 @@ export const WobeGraphqlApolloPlugin = async ({
 						headers: request.headers,
 						search: getQueryString(request.url),
 					},
-					context: async () => ({
-						...context,
-						...apolloContext,
-					}),
+					context: async () => {
+						if (!apolloContext) return context
+
+						if (typeof apolloContext === 'function') {
+							const apolloContextResult =
+								await apolloContext(context)
+
+							if (
+								apolloContextResult &&
+								typeof apolloContextResult === 'object'
+							)
+								return { ...context, ...apolloContextResult }
+
+							return context
+						}
+
+						const apolloContextResult = await apolloContext
+						return { ...context, ...apolloContextResult }
+					},
 				})
 
 				if (res.body.kind === 'complete') {
