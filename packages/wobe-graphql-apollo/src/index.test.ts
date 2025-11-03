@@ -11,7 +11,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 			ctx.customType = 'test'
 		})
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -71,7 +71,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 			ctx.customType = 'test'
 		})
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -129,7 +129,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -185,7 +185,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -246,7 +246,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -297,7 +297,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
 				options: {
 					typeDefs: `#graphql
@@ -343,8 +343,8 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
-			WobeGraphqlApolloPlugin({
+		await wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
 				graphqlEndpoint: '/graphql2',
 				options: {
 					typeDefs: `#graphql

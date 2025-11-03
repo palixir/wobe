@@ -33,16 +33,18 @@ export const WobeGraphqlApolloPlugin = async ({
 	graphqlEndpoint = '/graphql',
 	graphqlMiddleware,
 	context: apolloContext,
+	isProduction,
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
 	context?: GraphQLApolloContext
+	isProduction?: boolean
 } & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
 	const server = new ApolloServer({
 		...options,
 		plugins: [
 			...(options?.plugins || []),
-			process.env.NODE_ENV === 'production'
+			isProduction
 				? ApolloServerPluginLandingPageProductionDefault({
 						footer: false,
 					})
