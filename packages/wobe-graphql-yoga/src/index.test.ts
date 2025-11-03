@@ -11,7 +11,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			ctx.customType = 'test'
 		})
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				typeDefs: `
 					type Query {
@@ -65,7 +65,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 			ctx.customType = 'test'
 		})
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				typeDefs: `
 					type Query {
@@ -119,7 +119,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				typeDefs: `
 					type Query {
@@ -172,7 +172,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				graphqlMiddleware: async (resolve, res) => {
 					res.setCookie('before', 'before')
@@ -230,7 +230,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				typeDefs: `
             type Query {
@@ -276,7 +276,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				schema: createSchema({
 					typeDefs: `
@@ -321,7 +321,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				schema: createSchema({
 					typeDefs: `
@@ -378,7 +378,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.usePlugin(
+		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
 				graphqlEndpoint: '/graphql2',
 				schema: createSchema({
