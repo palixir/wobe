@@ -149,7 +149,7 @@ export class WobeResponse {
 			headers?: Record<string, any>
 		} = {},
 	) {
-		let body: Bun.BodyInit | undefined = undefined
+		let body: Bun.BodyInit | undefined
 
 		if (content instanceof ArrayBuffer) {
 			body = content

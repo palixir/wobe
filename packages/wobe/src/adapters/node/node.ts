@@ -31,7 +31,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 		const createServer: typeof createHttpsServer = options?.tls
 			? createHttpsServer
 			: createHttpServer
-		const certificateObject = { ...options?.tls } || {}
+		const certificateObject = options?.tls || {}
 
 		return createServer(certificateObject, async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`

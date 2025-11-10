@@ -78,7 +78,7 @@ const factoryOfRuntime = (): RuntimeAdapter => {
  */
 export class Wobe<T> {
 	private wobeOptions?: WobeOptions
-	private server: Server | null
+	private server: Server<any> | null
 	private hooks: Array<{
 		pathname: string
 		handler: WobeHandler<T>
@@ -205,7 +205,7 @@ export class Wobe<T> {
 				handlers.unshift(arg1)
 			}
 
-			handlers.map((handler) => {
+			handlers.forEach((handler) => {
 				if (typeof path === 'string')
 					this.hooks.push({
 						pathname: path,

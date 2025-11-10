@@ -14,9 +14,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 	) =>
 		Bun.serve({
 			port,
-			tls: {
-				...options?.tls,
-			},
+			tls: options?.tls,
 			hostname: options?.hostname,
 			development: process.env.NODE_ENV !== 'production',
 			websocket: bunWebSocket(webSocket),

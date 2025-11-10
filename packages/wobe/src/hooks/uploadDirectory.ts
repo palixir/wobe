@@ -48,7 +48,7 @@ export const uploadDirectory = ({
 			)
 
 			return ctx.res.send(fileContent)
-		} catch (error) {
+		} catch {
 			ctx.res.status = 404
 			return ctx.res.sendText('File not found')
 		}

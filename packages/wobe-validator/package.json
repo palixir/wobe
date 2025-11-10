@@ -7,7 +7,10 @@
 		"name": "coratgerl",
 		"url": "https://github.com/coratgerl"
 	},
-	"keywords": ["validator", "wobe"],
+	"keywords": [
+		"validator",
+		"wobe"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
@@ -24,7 +27,7 @@
 	"scripts": {
 		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
 		"generate:types": "bun tsc --project .",
-		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
+		"lint": "biome lint . --no-errors-on-unmatched ",
 		"ci": "bun lint $(pwd) && bun test src",
 		"dev": "bun run --watch dev/index.ts"
 	}

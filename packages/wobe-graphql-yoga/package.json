@@ -28,7 +28,7 @@
 		"build": "bun build  --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
 		"generate:types": "bun tsc --project .",
 		"format": "biome format --write .",
-		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
+		"lint": "biome lint . --no-errors-on-unmatched ",
 		"ci": "bun lint $(pwd) && bun test src"
 	}
 }

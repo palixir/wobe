@@ -52,10 +52,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 		expect(spyBunServer).toHaveBeenCalledTimes(1)
 		expect(spyBunServer).toHaveBeenCalledWith({
 			port: expect.any(Number),
-			tls: {
-				key: undefined,
-				cert: undefined,
-			},
+			tls: undefined,
 			development: true,
 			websocket: expect.anything(),
 			fetch: expect.any(Function),
@@ -131,6 +128,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 		const fileContent = await readFile(filePath)
 		const responseArrayBuffer = await response.arrayBuffer()
 		expect(
+			// @ts-expect-error
 			Buffer.from(responseArrayBuffer).equals(Buffer.from(fileContent)),
 		).toBe(true)
 
