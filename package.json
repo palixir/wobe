@@ -10,7 +10,7 @@
 		"@commitlint/config-conventional": "19.2.2",
 		"@types/bun": "1.3.2",
 		"lefthook": "1.6.10",
-		"typescript": "5.4.2"
+		"typescript": "5.9.3"
 	},
 	"scripts": {
 		"build:wobe": "bun --filter './packages/wobe' build",

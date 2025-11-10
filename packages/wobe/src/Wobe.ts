@@ -78,7 +78,7 @@ const factoryOfRuntime = (): RuntimeAdapter => {
  */
 export class Wobe<T> {
 	private wobeOptions?: WobeOptions
-	private server: Server | null
+	private server: Server<any> | null
 	private hooks: Array<{
 		pathname: string
 		handler: WobeHandler<T>

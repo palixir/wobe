@@ -1,7 +1,9 @@
 import type { WebSocketHandler } from 'bun'
 import type { WobeWebSocket } from '../../Wobe'
 
-export const bunWebSocket = (webSocket?: WobeWebSocket): WebSocketHandler => {
+export const bunWebSocket = (
+	webSocket?: WobeWebSocket,
+): WebSocketHandler<any> => {
 	return {
 		perMessageDeflate: webSocket?.compression,
 		maxPayloadLength: webSocket?.maxPayloadLength,
