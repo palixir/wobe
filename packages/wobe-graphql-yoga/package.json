@@ -1,6 +1,6 @@
 {
 	"name": "wobe-graphql-yoga",
-	"version": "1.2.7",
+	"version": "1.2.8",
 	"description": "GraphQL Yoga server for Wobe (official)",
 	"homepage": "https://wobe.dev",
 	"author": {
@@ -22,7 +22,7 @@
 		"get-port": "7.0.0"
 	},
 	"dependencies": {
-		"graphql-yoga": "5.16.0"
+		"graphql-yoga": "5.16.2"
 	},
 	"scripts": {
 		"build": "bun build  --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
