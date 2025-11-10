@@ -1,9 +1,11 @@
 {
 	"name": "main",
 	"version": "1.0.0",
-	"workspaces": ["packages/*"],
+	"workspaces": [
+		"packages/*"
+	],
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
+		"@biomejs/biome": "2.3.4",
 		"@commitlint/cli": "19.3.0",
 		"@commitlint/config-conventional": "19.2.2",
 		"@types/bun": "latest",

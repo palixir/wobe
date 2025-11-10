@@ -1,6 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { uploadDirectory } from './uploadDirectory'
-import { Context } from '../Context'
 import { join } from 'node:path'
 import { mkdir, writeFile, rm } from 'node:fs/promises'
 import getPort from 'get-port'

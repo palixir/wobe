@@ -1,4 +1,4 @@
-import type { HttpMethod, WobeHandler } from './Wobe'
+import type { HttpMethod, WobeHandler, WobeHandlerOutput } from './Wobe'
 import { WobeResponse } from './WobeResponse'
 import type { RadixTree } from './router'
 import { extractPathnameAndSearchParams } from './utils'
@@ -71,7 +71,7 @@ export class Context {
 		this.state = 'afterHandler'
 
 		// We need to run hook sequentially
-		let responseAfterHook = undefined
+		let responseAfterHook: WobeHandlerOutput | undefined
 		for (const hookAfterHandler of this.afterHandlerHook)
 			responseAfterHook = await hookAfterHandler(this)
 

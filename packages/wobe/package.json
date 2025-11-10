@@ -8,7 +8,11 @@
 		"url": "https://github.com/coratgerl"
 	},
 	"license": "MIT",
-	"keywords": ["server", "bun", "wobe"],
+	"keywords": [
+		"server",
+		"bun",
+		"wobe"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/palixir/wobe"
@@ -20,7 +24,7 @@
 	"scripts": {
 		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun && bun generate:types",
 		"generate:types": "bun tsc --project .",
-		"lint": "biome lint . --no-errors-on-unmatched --config-path=../../",
+		"lint": "biome lint . --no-errors-on-unmatched ",
 		"ci": "bun lint $(pwd) && bun run test:bun src && bun test:node src",
 		"format": "biome format --write .",
 		"test:bun": "NODE_TLS_REJECT_UNAUTHORIZED=0 bun test",

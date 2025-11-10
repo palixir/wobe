@@ -1,8 +1,4 @@
-import {
-	ApolloServer,
-	type ApolloServerOptions,
-	type BaseContext,
-} from '@apollo/server'
+import { ApolloServer, type ApolloServerOptions } from '@apollo/server'
 import {
 	ApolloServerPluginLandingPageLocalDefault,
 	ApolloServerPluginLandingPageProductionDefault,

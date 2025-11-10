@@ -2,8 +2,7 @@ import { describe, expect, it, mock } from 'bun:test'
 import { rateLimit } from './rateLimit'
 import { Context } from '../Context'
 
-// @ts-expect-error
-const mockHttpExceptionConstructor = mock((response: Response) => {})
+const mockHttpExceptionConstructor = mock((_response: Response) => {})
 
 mock.module('../HttpException', () => ({
 	HttpException: class HttpException {

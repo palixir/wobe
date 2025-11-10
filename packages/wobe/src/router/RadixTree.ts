@@ -176,7 +176,7 @@ export class RadixTree {
 		if (pathLength === 1 && localPath === '/') return this.root
 
 		let nextIndexToEnd = 0
-		let params: Record<string, string> | undefined = undefined
+		let params: Record<string, string> | undefined
 
 		const isNodeMatch = (
 			node: Node,

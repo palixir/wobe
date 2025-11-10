@@ -15,7 +15,6 @@ import type { Context } from './Context'
 import * as nodeAdapter from './adapters/node'
 import * as bunAdapter from './adapters/bun'
 import { bearerAuth, csrf, logger } from './hooks'
-import { WobeStore } from './tools'
 
 describe('Wobe', () => {
 	let wobe: Wobe<any>

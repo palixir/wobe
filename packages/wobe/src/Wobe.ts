@@ -205,7 +205,7 @@ export class Wobe<T> {
 				handlers.unshift(arg1)
 			}
 
-			handlers.map((handler) => {
+			handlers.forEach((handler) => {
 				if (typeof path === 'string')
 					this.hooks.push({
 						pathname: path,
