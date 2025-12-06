@@ -4,6 +4,181 @@ import getPort from 'get-port'
 import { WobeGraphqlApolloPlugin } from '.'
 
 describe('Wobe GraphQL Apollo plugin', () => {
+	it('should reject GET requests by default', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				options: {
+					typeDefs: `#graphql
+					type Query {
+						hello: String
+					}
+				  `,
+					resolvers: {
+						Query: {
+							hello: () => 'Hello from Apollo!',
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(
+			`http://127.0.0.1:${port}/graphql?query=${encodeURIComponent(`
+				query { hello }
+			`)}`,
+		)
+
+		expect(res.status).toBeGreaterThanOrEqual(400)
+
+		wobe.stop()
+	})
+
+	it('should allow GET requests when explicitly enabled', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				allowGetRequests: true,
+				options: {
+					typeDefs: `#graphql
+					type Query {
+						hello: String
+					}
+				  `,
+					resolvers: {
+						Query: {
+							hello: () => 'Hello from Apollo!',
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(
+			`http://127.0.0.1:${port}/graphql?query=${encodeURIComponent(`
+				query { hello }
+			`)}`,
+		)
+
+		expect(res.status).toBe(200)
+		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Apollo!' },
+		})
+
+		wobe.stop()
+	})
+
+	it('should disable introspection and landing page in production by default', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				isProduction: true,
+				allowGetRequests: true,
+				options: {
+					typeDefs: `#graphql
+					type Query {
+						hello: String
+					}
+				  `,
+					resolvers: {
+						Query: {
+							hello: () => 'Hello from Apollo!',
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const resLanding = await fetch(`http://127.0.0.1:${port}/graphql`)
+		expect(resLanding.status).toBeGreaterThanOrEqual(400)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+					query IntrospectionQuery {
+						__schema { queryType { name } }
+					}
+				`,
+			}),
+		})
+
+		const body = await res.json()
+
+		expect(res.status).toBe(400)
+		expect(body.errors?.[0]?.message?.toLowerCase()).toContain(
+			'introspection',
+		)
+
+		wobe.stop()
+	})
+
+	it('should allow introspection when explicitly enabled in production', async () => {
+		const port = await getPort()
+
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			await WobeGraphqlApolloPlugin({
+				isProduction: true,
+				allowIntrospection: true,
+				options: {
+					typeDefs: `#graphql
+					type Query {
+						hello: String
+					}
+				  `,
+					resolvers: {
+						Query: {
+							hello: () => 'Hello from Apollo!',
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				query: `
+					query IntrospectionQuery {
+						__schema { queryType { name } }
+					}
+				`,
+			}),
+		})
+
+		const body = await res.json()
+
+		expect(res.status).toBe(200)
+		expect(body.data?.__schema?.queryType?.name).toBeDefined()
+
+		wobe.stop()
+	})
+
 	it('should have custom wobe context in graphql context with record', async () => {
 		const port = await getPort()
 
