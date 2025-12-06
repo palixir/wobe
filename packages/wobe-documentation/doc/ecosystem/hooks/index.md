@@ -54,8 +54,12 @@ export const authorizationHook = (schema: TSchema): WobeHandler => {
 			throw new HttpException(
 				new Response('You are not authorized to access to this route', {
 					status: 403,
-				}),
+				})
 			)
 	}
 }
 ```
+
+## Available hooks
+
+-   [html](./html.md) — serve static files with SPA fallback, traversal/dotfile guards, GET/HEAD only.

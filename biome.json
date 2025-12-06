@@ -20,7 +20,8 @@
 				"noExplicitAny": "off"
 			},
 			"style": {
-				"useTemplate": "off"
+				"useTemplate": "off",
+				"useNodejsImportProtocol": "error"
 			}
 		}
 	},

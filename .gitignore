@@ -14,3 +14,4 @@ lib
 dist
 
 .DS_Store
+test_static_files/
