@@ -95,6 +95,9 @@ describe('Wobe', () => {
 			.get('/test', (ctx) => {
 				return ctx.res.send('Test')
 			})
+			.post('/test', (ctx) => {
+				return ctx.res.send('Test')
+			})
 			.post('/testRequestBodyCache', async (ctx) => {
 				return ctx.res.send(await ctx.request.text())
 			})
@@ -159,6 +162,10 @@ describe('Wobe', () => {
 			})
 			.beforeHandler(
 				'/test/',
+				csrf({ origin: `http://127.0.0.1:${port}` }),
+			)
+			.beforeHandler(
+				'/test',
 				csrf({ origin: `http://127.0.0.1:${port}` }),
 			)
 			.beforeAndAfterHandler(logger())
@@ -467,9 +474,11 @@ describe('Wobe', () => {
 
 	it('should not block requests with valid origin', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/test`, {
+			method: 'POST',
 			headers: {
 				origin: `http://127.0.0.1:${port}`,
 			},
+			body: 'payload',
 		})
 
 		expect(res.status).toBe(200)
@@ -477,9 +486,11 @@ describe('Wobe', () => {
 
 	it('should block requests with invalid origin', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/test`, {
+			method: 'POST',
 			headers: {
 				origin: 'invalid-origin',
 			},
+			body: 'payload',
 		})
 
 		expect(res.status).toBe(403)

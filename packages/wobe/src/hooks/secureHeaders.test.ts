@@ -271,4 +271,26 @@ describe('Secure headers', () => {
 			'random-value',
 		)
 	})
+
+	it('should set default X-Frame-Options', () => {
+		const request = new Request('http://localhost:3000/test', {})
+
+		const handler = secureHeaders({})
+		const context = new Context(request)
+
+		handler(context)
+
+		expect(context.res.headers.get('X-Frame-Options')).toEqual('SAMEORIGIN')
+	})
+
+	it('should disable X-Frame-Options when set to false', () => {
+		const request = new Request('http://localhost:3000/test', {})
+
+		const handler = secureHeaders({ xFrameOptions: false })
+		const context = new Context(request)
+
+		handler(context)
+
+		expect(context.res.headers.get('X-Frame-Options')).toBeNull()
+	})
 })

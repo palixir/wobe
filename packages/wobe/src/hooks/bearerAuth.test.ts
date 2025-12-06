@@ -96,4 +96,21 @@ describe('BearerAuth', () => {
 
 		expect(() => handler(context)).toThrow()
 	})
+
+	it('should reject tokens with different length using timing safe compare', () => {
+		const request = new Request('http://localhost:3000/test', {
+			headers: {
+				Authorization: 'Bearer longer-token',
+			},
+		})
+
+		const handler = bearerAuth({
+			token: 'short',
+			hashFunction: (token) => token, // disable hashing to create length diff
+		})
+
+		const context = new Context(request)
+
+		expect(() => handler(context)).toThrow()
+	})
 })

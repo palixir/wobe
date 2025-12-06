@@ -34,6 +34,7 @@ export interface SecureHeadersOptions {
 	strictTransportSecurity?: string[]
 	xContentTypeOptions?: string
 	xDownloadOptions?: string
+	xFrameOptions?: string | false
 }
 
 /**
@@ -48,6 +49,7 @@ export const secureHeaders = ({
 	strictTransportSecurity = ['max-age=31536000; includeSubDomains'],
 	xContentTypeOptions = 'nosniff',
 	xDownloadOptions = 'noopen',
+	xFrameOptions = 'SAMEORIGIN',
 }: SecureHeadersOptions): WobeHandler<any> => {
 	return (ctx) => {
 		if (contentSecurityPolicy) {
@@ -100,5 +102,7 @@ export const secureHeaders = ({
 
 		if (xDownloadOptions)
 			ctx.res.headers.set('X-Download-Options', xDownloadOptions)
+
+		if (xFrameOptions) ctx.res.headers.set('X-Frame-Options', xFrameOptions)
 	}
 }

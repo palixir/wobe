@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import { HttpException } from '../HttpException'
 import type { WobeHandler } from '../Wobe'
 
@@ -21,6 +21,9 @@ export const bearerAuth = ({
 	hashFunction = defaultHash,
 	realm = '',
 }: BearerAuthOptions): WobeHandler<any> => {
+	const toBytes = (value: string) => new Uint8Array(Buffer.from(value))
+	const hashedToken = toBytes(hashFunction(token))
+
 	return (ctx) => {
 		const requestAuthorization = ctx.request.headers.get('Authorization')
 
@@ -46,10 +49,12 @@ export const bearerAuth = ({
 
 		const requestToken = requestAuthorization.slice(prefix.length).trim()
 
-		const hashedRequestToken = hashFunction(requestToken)
-		const hashedToken = hashFunction(token)
+		const hashedRequestToken = toBytes(hashFunction(requestToken))
 
-		if (hashedToken !== hashedRequestToken)
+		if (
+			hashedRequestToken.length !== hashedToken.length ||
+			!timingSafeEqual(hashedToken, hashedRequestToken)
+		)
 			throw new HttpException(
 				new Response('Unauthorized', {
 					status: 401,
