@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'bun:test'
+import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { html } from './html'
 import { WobeResponse } from '../WobeResponse'
 import { join } from 'path'
@@ -37,6 +37,10 @@ describe('html', () => {
 			join(TEST_DIR, 'subdir', 'index.html'),
 			'<html>Subdir</html>',
 		)
+	})
+
+	afterEach(async () => {
+		await rm(rootPath, { recursive: true, force: true })
 	})
 
 	it('should serve HTML files with correct Content-Type', async () => {
@@ -127,7 +131,7 @@ describe('html', () => {
 		expect(await response?.text()).toBe('Not Found')
 	})
 
-	it.only('should handle URL-encoded paths', async () => {
+	it('should handle URL-encoded paths', async () => {
 		// Create a file with spaces in the name
 		await writeFile(
 			join(TEST_DIR, 'file with spaces.html'),

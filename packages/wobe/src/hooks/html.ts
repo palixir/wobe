@@ -8,11 +8,14 @@ import type { WobeHandler } from '../Wobe'
  */
 export const html = (
 	rootPath: string,
-	fallbackFile: string = 'index.html',
+	fallbackFile?: string,
 ): WobeHandler<any> => {
 	return async (ctx) => {
 		const { pathname } = new URL(ctx.request.url)
-		const filePath = join(rootPath, pathname)
+		const decodedPathname = decodeURI(pathname).endsWith('/')
+			? `${decodeURI(pathname)}index.html`
+			: decodeURI(pathname)
+		const filePath = join(rootPath, decodedPathname)
 
 		// Try to read the file
 		try {
@@ -33,9 +36,9 @@ export const html = (
 		if (fallbackFile) {
 			const fallbackPath = join(rootPath, fallbackFile)
 			try {
-				const fallbackFile = Bun.file(fallbackPath)
-				if (await fallbackFile.exists()) {
-					return ctx.res.send(fallbackFile.text(), {
+				const fallbackBunFile = Bun.file(fallbackPath)
+				if (await fallbackBunFile.exists()) {
+					return ctx.res.send(await fallbackBunFile.text(), {
 						headers: { 'Content-Type': 'text/html' },
 					})
 				}
