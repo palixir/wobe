@@ -22,7 +22,7 @@
 		"get-port": "7.0.0"
 	},
 	"dependencies": {
-		"graphql-yoga": "5.16.2"
+		"graphql-yoga": "5.17.1"
 	},
 	"scripts": {
 		"build": "bun build  --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
