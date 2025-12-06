@@ -4,6 +4,8 @@ import { createSchema } from 'graphql-yoga'
 import getPort from 'get-port'
 import { WobeGraphqlYogaPlugin } from '.'
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 describe('Wobe GraphQL Yoga plugin', () => {
 	it('should reject GET requests by default', async () => {
 		const port = await getPort()
@@ -160,6 +162,341 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		expect(res.status).toBe(200)
 		expect(body.data?.__schema?.queryType?.name).toBeDefined()
+
+		wobe.stop()
+	})
+
+	it('should block queries that exceed max depth', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				maxDepth: 2,
+				typeDefs: `
+					type Query {
+						hello: Hello
+					}
+
+					type Hello {
+						nested: Nested
+					}
+
+					type Nested {
+						value: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						hello: () => ({ nested: { value: 'ok' } }),
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query TooDeep {
+						hello { nested { value } }
+					}
+				`,
+			}),
+		})
+
+		const body = await res.json()
+		expect(body.data).toBeUndefined()
+		expect(body.errors?.[0]?.message).toContain('max depth')
+
+		wobe.stop()
+	})
+
+	it('should block queries that exceed max cost', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				maxCost: 2,
+				typeDefs: `
+					type Query {
+						a: String
+						b: String
+						c: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						a: () => 'a',
+						b: () => 'b',
+						c: () => 'c',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query TooExpensive {
+						a
+						b
+						c
+					}
+				`,
+			}),
+		})
+
+		const body = await res.json()
+		expect(body.data).toBeUndefined()
+		expect(body.errors?.[0]?.message).toContain('too expensive')
+
+		wobe.stop()
+	})
+
+	it('should reject multiple operations by default', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				typeDefs: `
+					type Query {
+						a: String
+						b: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						a: () => 'a',
+						b: () => 'b',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query One { a }
+					query Two { b }
+				`,
+			}),
+		})
+
+		const body = await res.json()
+		expect(body.data).toBeUndefined()
+		expect(body.errors?.[0]?.message).toMatch(
+			/Multiple operations|Could not determine/i,
+		)
+
+		wobe.stop()
+	})
+
+	it('should allow only whitelisted operation names when provided', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				allowedOperationNames: ['AllowedOp'],
+				allowMultipleOperations: false,
+				typeDefs: `
+					type Query {
+						a: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						a: () => 'a',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query NotAllowed { a }
+				`,
+			}),
+		})
+
+		const body = await res.json()
+		expect(body.data).toBeUndefined()
+		expect(body.errors?.[0]?.message).toContain('not allowed')
+
+		wobe.stop()
+	})
+
+	it('should reject requests that exceed maxRequestSizeBytes', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				maxRequestSizeBytes: 10,
+				typeDefs: `
+					type Query {
+						a: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						a: () => 'a',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query LargePayload { a }
+				`,
+			}),
+		})
+
+		expect(res.status).toBe(413)
+		wobe.stop()
+	})
+
+	it('should timeout when resolver exceeds timeoutMs', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				timeoutMs: 10,
+				typeDefs: `
+					type Query {
+						slow: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						slow: async () => {
+							await sleep(50)
+							return 'slow'
+						},
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query Slow { slow }
+				`,
+			}),
+		})
+
+		expect(res.status).toBe(504)
+		wobe.stop()
+	})
+
+	it('should allow rateLimiter to block requests', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				rateLimiter: async () =>
+					new Response('Too Many Requests', { status: 429 }),
+				typeDefs: `
+					type Query {
+						hello: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						hello: () => 'Hello',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query Test { hello }
+				`,
+			}),
+		})
+
+		expect(res.status).toBe(429)
+		wobe.stop()
+	})
+
+	it('should call onRequestResolved hook with timing info', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+		let called = false
+		let status: number | undefined
+
+		await wobe.usePlugin(
+			WobeGraphqlYogaPlugin({
+				onRequestResolved: (input) => {
+					called = true
+					status = input.status
+				},
+				typeDefs: `
+					type Query {
+						hello: String
+					}
+				`,
+				resolvers: {
+					Query: {
+						hello: () => 'Hello',
+					},
+				},
+			}),
+		)
+
+		wobe.listen(port)
+
+		const res = await fetch(`http://127.0.0.1:${port}/graphql`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				query: `
+					query Hook { hello }
+				`,
+			}),
+		})
+
+		expect(res.status).toBe(200)
+		expect(called).toBe(true)
+		expect(status).toBe(200)
 
 		wobe.stop()
 	})
