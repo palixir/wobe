@@ -1,4 +1,4 @@
-import { join, normalize, resolve, sep } from 'path'
+import { join, normalize, resolve, sep } from 'node:path'
 import { stat, realpath } from 'node:fs/promises'
 import type { WobeHandler } from '../Wobe'
 

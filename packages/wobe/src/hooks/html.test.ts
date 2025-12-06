@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { html } from './html'
 import { WobeResponse } from '../WobeResponse'
-import { join } from 'path'
+import { join } from 'node:path'
 import { rm, mkdir, writeFile, symlink } from 'node:fs/promises'
 
 // Mock context object
