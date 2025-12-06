@@ -15,6 +15,19 @@ export class WobeResponse {
 	public status = 200
 	public statusText = 'OK'
 
+	private static isCookieNameValid(name: string) {
+		return /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name)
+	}
+
+	private static sanitizeCookieValue(value: string) {
+		if (/[\r\n]/.test(value))
+			throw new Error('Invalid cookie value: contains CR/LF')
+
+		if (value.includes(';')) return encodeURIComponent(value) // avoid header injection
+
+		return value
+	}
+
 	constructor(request: Request) {
 		this.request = request
 	}
@@ -46,7 +59,12 @@ export class WobeResponse {
 	 * @param options The options of the cookie
 	 */
 	setCookie(name: string, value: string, options?: SetCookieOptions) {
-		let cookie = `${name}=${value};`
+		if (!WobeResponse.isCookieNameValid(name))
+			throw new Error('Invalid cookie name')
+
+		const safeValue = WobeResponse.sanitizeCookieValue(value)
+
+		let cookie = `${name}=${safeValue};`
 
 		if (options) {
 			const {

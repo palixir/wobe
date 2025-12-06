@@ -1,19 +1,23 @@
 import { describe, expect, it, beforeEach, afterEach } from 'bun:test'
 import { uploadDirectory } from './uploadDirectory'
 import { join } from 'node:path'
-import { mkdir, writeFile, rm } from 'node:fs/promises'
+import { mkdir, writeFile, rm, symlink } from 'node:fs/promises'
 import getPort from 'get-port'
 import { Wobe } from '../Wobe'
+import { Context } from '../Context'
 
 describe('UploadDirectory Hook', () => {
 	const testDirectory = join(__dirname, 'test-bucket')
 	const fileName = 'test-file.txt'
 	const filePath = join(testDirectory, fileName)
+	const dotFileName = '.env'
+	const dotFilePath = join(testDirectory, dotFileName)
 
 	beforeEach(async () => {
 		// Create a test directory and file before each test
 		await mkdir(testDirectory, { recursive: true })
 		await writeFile(filePath, 'This is a test file.')
+		await writeFile(dotFilePath, 'SECRET')
 	})
 
 	afterEach(async () => {
@@ -63,6 +67,57 @@ describe('UploadDirectory Hook', () => {
 		expect(response.status).toBe(404)
 		expect(await response.text()).toBe('File not found')
 
+		wobe.stop()
+	})
+
+	it('should forbid path traversal', async () => {
+		const handler = uploadDirectory({ directory: testDirectory })
+		const request = new Request('http://localhost/bucket/../test')
+		const context = new Context(request)
+
+		context.params = { filename: '../test-file' }
+
+		const response = await handler(context)
+
+		expect(response?.status).toBe(403)
+	})
+
+	it('should forbid dotfiles by default', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		wobe.get(
+			'/bucket/:filename',
+			uploadDirectory({ directory: testDirectory }),
+		)
+
+		wobe.listen(port)
+
+		const response = await fetch(
+			`http://127.0.0.1:${port}/bucket/${dotFileName}`,
+		)
+
+		expect(response.status).toBe(404)
+		wobe.stop()
+	})
+
+	it('should forbid symlinks when not allowed', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		const symlinkPath = join(testDirectory, 'link.txt')
+		await symlink(filePath, symlinkPath)
+
+		wobe.get(
+			'/bucket/:filename',
+			uploadDirectory({ directory: testDirectory }),
+		)
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/bucket/link.txt`)
+
+		expect(response.status).toBe(403)
 		wobe.stop()
 	})
 

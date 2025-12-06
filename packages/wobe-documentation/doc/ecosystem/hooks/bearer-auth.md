@@ -13,7 +13,7 @@ const app = new Wobe()
 	.beforeHandler(
 		bearerAuth({
 			token: 'token',
-		}),
+		})
 	)
 	.get('/protected', (req, res) => {
 		res.send('Protected')
@@ -38,7 +38,7 @@ const app = new Wobe()
 		bearerAuth({
 			token: 'token',
 			hashFunction: (token) => token,
-		}),
+		})
 	)
 	.get('/protected', (req, res) => {
 		res.send('Protected')
@@ -57,4 +57,4 @@ const request = new Request('http://localhost:3000/test', {
 
 -   `token` (string) : The token to compare with the Authorization header.
 -   `realm` (string) : The realm to send in the WWW-Authenticate header.
--   `hashFunction` ((token: string) => string) : A function to hash the token before comparing it.
+-   `hashFunction` ((token: string) => string) : A function to hash the token before comparing it. Tokens are compared in constant time; prefer a hash function that returns fixed-length output to avoid timing leaks on length.

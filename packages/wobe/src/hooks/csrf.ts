@@ -8,6 +8,7 @@ export interface CsrfOptions {
 }
 
 const isSameOrigin = (optsOrigin: Origin, requestOrigin: string) => {
+	if (!requestOrigin) return false
 	if (typeof optsOrigin === 'string') return optsOrigin === requestOrigin
 
 	if (typeof optsOrigin === 'function') return optsOrigin(requestOrigin)
@@ -24,11 +25,49 @@ const isSameOrigin = (optsOrigin: Origin, requestOrigin: string) => {
  */
 export const csrf = (options: CsrfOptions): WobeHandler<any> => {
 	return (ctx) => {
-		const requestOrigin = ctx.request.headers.get('origin') || ''
+		const method = ctx.request.method?.toUpperCase?.()
 
-		if (!isSameOrigin(options.origin, requestOrigin))
-			throw new HttpException(
-				new Response('CSRF: Invalid origin', { status: 403 }),
-			)
+		// Only enforce on non-idempotent methods
+		if (
+			!method ||
+			method === 'GET' ||
+			method === 'HEAD' ||
+			method === 'OPTIONS'
+		)
+			return
+
+		const requestOrigin = ctx.request.headers.get('origin')
+		const requestReferer = ctx.request.headers.get('referer')
+
+		// Prefer Origin when available
+		if (requestOrigin) {
+			if (!isSameOrigin(options.origin, requestOrigin))
+				throw new HttpException(
+					new Response('CSRF: Invalid origin', {
+						status: 403,
+						statusText: 'Forbidden',
+					}),
+				)
+
+			return
+		}
+
+		if (requestReferer) {
+			try {
+				const refererHost = new URL(requestReferer).host
+				const requestHost = new URL(ctx.request.url).host
+
+				if (refererHost === requestHost) return
+			} catch {
+				// fallthrough to rejection
+			}
+		}
+
+		throw new HttpException(
+			new Response('CSRF: Invalid origin', {
+				status: 403,
+				statusText: 'Forbidden',
+			}),
+		)
 	}
 }

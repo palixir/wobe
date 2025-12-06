@@ -4,6 +4,7 @@ import { Wobe } from '../../Wobe'
 import { HttpException } from '../../HttpException'
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
+import { gzipSync } from 'node:zlib'
 
 describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 	const spyBunServer = spyOn(global.Bun, 'serve')
@@ -127,10 +128,94 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 
 		const fileContent = await readFile(filePath)
 		const responseArrayBuffer = await response.arrayBuffer()
-		expect(
-			// @ts-expect-error
-			Buffer.from(responseArrayBuffer).equals(Buffer.from(fileContent)),
-		).toBe(true)
+		const respBuffer = Buffer.from(responseArrayBuffer)
+		// @ts-expect-error
+		expect(Buffer.compare(respBuffer, fileContent)).toBe(0)
+
+		wobe.stop()
+	})
+
+	it('should reject payloads above the configured maxBodySize', async () => {
+		const port = await getPort()
+		const wobe = new Wobe({ maxBodySize: 8 })
+
+		wobe.post('/echo', async (ctx) =>
+			ctx.res.sendText(await ctx.request.text()),
+		)
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/echo`, {
+			method: 'POST',
+			body: 'too-long-payload',
+		})
+
+		expect(response.status).toBe(413)
+
+		wobe.stop()
+	})
+
+	it('should reject unsupported content-encoding', async () => {
+		const port = await getPort()
+		const wobe = new Wobe()
+
+		wobe.post('/echo', (ctx) => ctx.res.sendText('ok'))
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/echo`, {
+			method: 'POST',
+			headers: {
+				'content-encoding': 'gzip',
+			},
+			body: 'hello',
+		} as any)
+
+		expect(response.status).toBe(415)
+
+		wobe.stop()
+	})
+
+	it('should enforce decompressed size limit for gzip payloads', async () => {
+		const port = await getPort()
+		const wobe = new Wobe({
+			maxBodySize: 16,
+			allowedContentEncodings: ['gzip'],
+		})
+
+		wobe.post('/echo', async (ctx) =>
+			ctx.res.sendText(await ctx.request.text()),
+		)
+
+		wobe.listen(port)
+
+		const largeBody = 'x'.repeat(64)
+		const gzipped = gzipSync(largeBody)
+
+		const response = await fetch(`http://127.0.0.1:${port}/echo`, {
+			method: 'POST',
+			headers: { 'content-encoding': 'gzip' },
+			body: gzipped,
+		} as any)
+
+		expect(response.status).toBe(413)
+
+		wobe.stop()
+	})
+
+	it('should use x-forwarded-for when trustProxy is enabled', async () => {
+		const port = await getPort()
+		const wobe = new Wobe({ trustProxy: true })
+
+		wobe.get('/ip', (ctx) => ctx.res.sendText(ctx.getIpAdress()))
+
+		wobe.listen(port)
+
+		const response = await fetch(`http://127.0.0.1:${port}/ip`, {
+			headers: { 'x-forwarded-for': '198.51.100.5' },
+		})
+
+		expect(await response.text()).toBe('198.51.100.5')
 
 		wobe.stop()
 	})

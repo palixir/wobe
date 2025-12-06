@@ -15,7 +15,7 @@ app.beforeHandler(
 			'default-src': ["'self'"],
 			'report-to': 'endpoint-5',
 		},
-	}),
+	})
 )
 
 app.get('/', (req, res) => {
@@ -35,3 +35,4 @@ app.listen(3000)
 -   `strictTransportSecurity` (string[]) : The Strict-Transport-Security header value. [For more informations](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
 -   `xContentTypeOptions` (string) : The X-Content-Type-Options header value. [For more informations](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options)
 -   `xDownloadOptions` (string) : The X-Download-Options header value.
+-   `xFrameOptions` (string | false) : The X-Frame-Options header value. Defaults to `SAMEORIGIN`; set to `false` to disable (e.g., if you intentionally allow framing).

@@ -5,6 +5,7 @@ import { Context } from '../Context'
 describe('Csrf hook', () => {
 	it('should not block requests with a valid origin (string)', () => {
 		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
 			headers: {
 				origin: 'http://localhost:3000',
 			},
@@ -20,6 +21,7 @@ describe('Csrf hook', () => {
 
 	it('should not block requests with a valid origin (array)', () => {
 		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
 			headers: {
 				origin: 'http://localhost:3000',
 			},
@@ -37,6 +39,7 @@ describe('Csrf hook', () => {
 
 	it('should not block requests with a valid origin (function)', () => {
 		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
 			headers: {
 				origin: 'http://localhost:3000',
 			},
@@ -53,7 +56,9 @@ describe('Csrf hook', () => {
 	})
 
 	it('should block requests with an invalid origin (string)', async () => {
-		const request = new Request('http://localhost:3000/test', {})
+		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
+		})
 
 		const handler = csrf({ origin: 'http://localhost:3000' })
 
@@ -65,6 +70,7 @@ describe('Csrf hook', () => {
 
 	it('should block requests with an invalid origin (array)', () => {
 		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
 			headers: {
 				origin: 'http://localhost:3001',
 			},
@@ -82,6 +88,7 @@ describe('Csrf hook', () => {
 
 	it('should block requests with an invalid origin (function)', () => {
 		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
 			headers: {
 				origin: 'http://localhost:3001',
 			},
@@ -95,5 +102,44 @@ describe('Csrf hook', () => {
 		})
 
 		expect(() => handler(context)).toThrow()
+	})
+
+	it('should allow requests with valid referer when origin is missing', () => {
+		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
+			headers: {
+				referer: 'http://localhost:3000/form',
+			},
+		})
+
+		const handler = csrf({ origin: 'http://localhost:3000' })
+		const context = new Context(request)
+
+		expect(() => handler(context)).not.toThrow()
+	})
+
+	it('should block requests with cross-site referer when origin is missing', () => {
+		const request = new Request('http://localhost:3000/test', {
+			method: 'POST',
+			headers: {
+				referer: 'http://evil.com/attack',
+			},
+		})
+
+		const handler = csrf({ origin: 'http://localhost:3000' })
+		const context = new Context(request)
+
+		expect(() => handler(context)).toThrow()
+	})
+
+	it('should ignore CSRF check for safe methods', () => {
+		const request = new Request('http://localhost:3000/test', {
+			method: 'GET',
+		})
+
+		const handler = csrf({ origin: 'http://localhost:3000' })
+		const context = new Context(request)
+
+		expect(() => handler(context)).not.toThrow()
 	})
 })

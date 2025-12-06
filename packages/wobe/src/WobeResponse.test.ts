@@ -256,6 +256,34 @@ describe('Wobe Response', () => {
 		)
 	})
 
+	it('should reject invalid cookie name', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+
+		expect(() => wobeResponse.setCookie('bad name', 'value')).toThrow()
+	})
+
+	it('should reject cookie value with CRLF', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+
+		expect(() => wobeResponse.setCookie('safe', 'val\r\nue')).toThrow()
+	})
+
+	it('should encode dangerous cookie value', () => {
+		const wobeResponse = new WobeResponse(
+			new Request('http://localhost:3000/test'),
+		)
+
+		wobeResponse.setCookie('safe', 'value;inject')
+
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
+			'safe=value%3Binject;',
+		)
+	})
+
 	it('should delete a cookie from a response', () => {
 		const wobeResponse = new WobeResponse(
 			new Request('http://localhost:3000/test'),

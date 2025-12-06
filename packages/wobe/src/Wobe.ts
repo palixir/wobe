@@ -9,6 +9,21 @@ export interface WobeOptions {
 	hostname?: string
 	onError?: (error: Error) => void
 	onNotFound?: (request: Request) => void
+	/**
+	 * Maximum accepted body size in bytes (default: 1 MiB).
+	 * Used by adapters to reject overly large requests early.
+	 */
+	maxBodySize?: number
+	/**
+	 * Allowed content-encodings. If undefined, only identity/empty is allowed.
+	 * Example: ['identity', 'gzip', 'deflate'].
+	 */
+	allowedContentEncodings?: string[]
+	/**
+	 * Trust proxy headers (X-Forwarded-For) for client IP detection.
+	 * Default false to avoid spoofing.
+	 */
+	trustProxy?: boolean
 	tls?: {
 		key: string
 		cert: string
@@ -268,7 +283,13 @@ export class Wobe<T> {
 	 * @param webSocketHandler The WebSocket handler
 	 */
 	useWebSocket(webSocketHandler: WobeWebSocket) {
-		this.webSocket = webSocketHandler
+		this.webSocket = {
+			maxPayloadLength: 1024 * 1024, // 1 MiB
+			idleTimeout: 60,
+			backpressureLimit: 1024 * 1024,
+			closeOnBackpressureLimit: true,
+			...webSocketHandler,
+		}
 
 		return this
 	}

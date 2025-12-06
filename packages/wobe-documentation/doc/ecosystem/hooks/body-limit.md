@@ -2,6 +2,8 @@
 
 Wobe has a `beforeHandler` hook to put a limit to the body size of each requests.
 
+Note: Wobe also enforces a global body size limit (default 1 MiB) at the adapter level via the `maxBodySize` option on `new Wobe({ ... })`. Use the hook if you need a tighter or route-specific limit.
+
 ## Example
 
 ```ts
