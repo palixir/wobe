@@ -1,8 +1,5 @@
 import { ApolloServer, type ApolloServerOptions } from '@apollo/server'
-import {
-	ApolloServerPluginLandingPageLocalDefault,
-	ApolloServerPluginLandingPageProductionDefault,
-} from '@apollo/server/plugin/landingPage/default'
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import type {
 	Wobe,
 	MaybePromise,
@@ -22,6 +19,9 @@ export interface GraphQLApolloPluginOptions {
 		resolve: () => Promise<Response>,
 		res: WobeResponse,
 	) => Promise<Response>
+	allowGetRequests?: boolean
+	isProduction?: boolean
+	allowIntrospection?: boolean
 }
 
 export const WobeGraphqlApolloPlugin = async ({
@@ -30,23 +30,30 @@ export const WobeGraphqlApolloPlugin = async ({
 	graphqlMiddleware,
 	context: apolloContext,
 	isProduction,
+	allowGetRequests = false,
+	allowIntrospection,
 }: {
 	options: ApolloServerOptions<any>
 	graphqlEndpoint?: string
 	context?: GraphQLApolloContext
 	isProduction?: boolean
 } & GraphQLApolloPluginOptions): Promise<WobePlugin> => {
+	const introspection =
+		options.introspection ??
+		(allowIntrospection === true ? true : isProduction ? false : true)
+
 	const server = new ApolloServer({
 		...options,
+		introspection,
 		plugins: [
 			...(options?.plugins || []),
-			isProduction
-				? ApolloServerPluginLandingPageProductionDefault({
-						footer: false,
-					})
-				: ApolloServerPluginLandingPageLocalDefault({
-						footer: false,
-					}),
+			...(isProduction
+				? []
+				: [
+						ApolloServerPluginLandingPageLocalDefault({
+							footer: false,
+						}),
+					]),
 		],
 	})
 
@@ -108,20 +115,22 @@ export const WobeGraphqlApolloPlugin = async ({
 			}, context.res)
 		}
 
-		wobe.get(graphqlEndpoint, async (context) => {
-			const response = await getResponse(context)
+		if (allowGetRequests) {
+			wobe.get(graphqlEndpoint, async (context) => {
+				const response = await getResponse(context)
 
-			for (const [key, value] of context.res.headers.entries()) {
-				if (key === 'set-cookie') {
-					response.headers.append('set-cookie', value)
-					continue
+				for (const [key, value] of context.res.headers.entries()) {
+					if (key === 'set-cookie') {
+						response.headers.append('set-cookie', value)
+						continue
+					}
+
+					response.headers.set(key, value)
 				}
 
-				response.headers.set(key, value)
-			}
-
-			return response
-		})
+				return response
+			})
+		}
 
 		wobe.post(graphqlEndpoint, async (context) => {
 			const response = await getResponse(context)

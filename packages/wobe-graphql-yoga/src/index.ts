@@ -2,8 +2,10 @@ import {
 	createSchema,
 	createYoga,
 	type GraphQLSchemaWithContext,
+	type Plugin,
 	type YogaServerOptions,
 } from 'graphql-yoga'
+import { NoSchemaIntrospectionCustomRule } from 'graphql'
 import type {
 	Context,
 	MaybePromise,
@@ -21,10 +23,16 @@ export interface GraphqlYogaPluginOptions {
 		resolve: () => Promise<Response>,
 		res: WobeResponse,
 	) => Promise<Response>
+	allowGetRequests?: boolean
+	isProduction?: boolean
+	allowIntrospection?: boolean
 }
 
 export const WobeGraphqlYogaPlugin = ({
 	graphqlMiddleware,
+	allowGetRequests = false,
+	isProduction = false,
+	allowIntrospection,
 	...options
 }: {
 	schema?: GraphQLSchemaWithContext<Record<string, any>>
@@ -33,11 +41,27 @@ export const WobeGraphqlYogaPlugin = ({
 	resolvers?: Record<string, any>
 } & Omit<YogaServerOptions<any, any>, 'context'> &
 	GraphqlYogaPluginOptions): WobePlugin => {
+	const graphqlEndpoint = options?.graphqlEndpoint || '/graphql'
+	const plugins: Plugin[] = [...(options.plugins || [])]
+
+	const shouldDisableIntrospection =
+		isProduction && allowIntrospection !== true
+
+	if (shouldDisableIntrospection) {
+		plugins.push({
+			onValidate({ addValidationRule }) {
+				addValidationRule(NoSchemaIntrospectionCustomRule)
+			},
+		})
+	}
+
 	const yoga = createYoga<{
 		request: Request
 		response: WobeResponse
 	}>({
 		...options,
+		plugins,
+		graphiql: options.graphiql ?? !isProduction,
 		schema:
 			options.schema ||
 			createSchema({
@@ -71,10 +95,13 @@ export const WobeGraphqlYogaPlugin = ({
 	}
 
 	return (wobe: Wobe<unknown>) => {
-		wobe.get(options?.graphqlEndpoint || '/graphql', async (context) =>
-			handleGraphQLRequest(context),
-		)
-		wobe.post(options?.graphqlEndpoint || '/graphql', async (context) =>
+		if (allowGetRequests) {
+			wobe.get(graphqlEndpoint, async (context) =>
+				handleGraphQLRequest(context),
+			)
+		}
+
+		wobe.post(graphqlEndpoint, async (context) =>
 			handleGraphQLRequest(context),
 		)
 	}
