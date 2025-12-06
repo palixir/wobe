@@ -213,8 +213,14 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 					if (err instanceof Error) options?.onError?.(err)
 
 					if (!(err instanceof HttpException)) {
-						res.writeHead(Number(err.code) || 500)
-						res.write('Internal Server Error')
+						const statusCode = Number(err.code) || 500
+						const message =
+							err instanceof Error
+								? err.message
+								: 'Internal Server Error'
+
+						res.writeHead(statusCode)
+						res.write(message)
 
 						res.end()
 						return
