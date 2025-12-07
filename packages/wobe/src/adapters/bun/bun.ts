@@ -2,7 +2,7 @@ import type { RuntimeAdapter } from '..'
 import { Context } from '../../Context'
 import { HttpException } from '../../HttpException'
 import type { WobeOptions, WobeWebSocket } from '../../Wobe'
-import type { RadixTree } from '../../router'
+import type { Router } from '../../router'
 import { bunWebSocket } from './websocket'
 import { brotliDecompressSync, gunzipSync, inflateSync } from 'node:zlib'
 
@@ -55,7 +55,7 @@ const decompressBody = (
 export const BunAdapter = (): RuntimeAdapter => ({
 	createServer: (
 		port: number,
-		router: RadixTree,
+		router: Router,
 		options?: WobeOptions,
 		webSocket?: WobeWebSocket,
 	) =>

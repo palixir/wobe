@@ -1,12 +1,74 @@
 import type { Node } from '.'
 import type { Hook, HttpMethod, WobeHandler } from '../Wobe'
 
-export class RadixTree {
+type URLPatternMatch = {
+	pathname?: { groups: Record<string, string> }
+}
+
+type URLPatternLike = {
+	exec(input: { pathname: string } | string): URLPatternMatch | null
+	test(input: { pathname: string } | string): boolean
+}
+
+type RouteEntry = {
+	node: Node
+	method: HttpMethod
+	pattern: URLPatternLike | null
+	normalizedPath: string
+}
+
+const createURLPattern = (pathname: string): URLPatternLike | null => {
+	const URLPatternConstructor = (globalThis as any).URLPattern as
+		| (new (init: {
+				pathname: string
+		  }) => URLPatternLike)
+		| undefined
+
+	if (!URLPatternConstructor) return null
+
+	return new URLPatternConstructor({ pathname })
+}
+
+export class UrlPatternRouter {
 	public root: Node = { name: '/', children: [] }
 	private isOptimized = false
+	private routePatterns = new Map<Node, URLPatternLike | null>()
+	private hasURLPattern =
+		typeof (globalThis as any).URLPattern === 'function' ||
+		typeof (globalThis as any).URLPattern === 'object'
+	private routes: Array<RouteEntry> = []
+
+	private addRouteEntry(
+		node: Node,
+		method: HttpMethod,
+		normalizedPath: string,
+	) {
+		const pattern = this.hasURLPattern
+			? createURLPattern(normalizedPath)
+			: null
+
+		this.routePatterns.set(node, pattern)
+
+		this.routes.push({
+			node,
+			method,
+			pattern,
+			normalizedPath,
+		})
+	}
+
+	private normalizePath(path: string) {
+		let normalized = path[0] === '/' ? path : '/' + path
+
+		if (normalized.length > 1 && normalized.endsWith('/'))
+			normalized = normalized.replace(/\/+$/, '')
+
+		return normalized === '' ? '/' : normalized
+	}
 
 	addRoute(method: HttpMethod, path: string, handler: WobeHandler<any>) {
-		const pathParts = path.split('/').filter(Boolean)
+		const normalizedPath = this.normalizePath(path)
+		const pathParts = normalizedPath.split('/').filter(Boolean)
 
 		let currentNode = this.root
 
@@ -44,6 +106,9 @@ export class RadixTree {
 
 		currentNode.handler = handler
 		currentNode.method = method
+		;(currentNode as any).fullPath = normalizedPath
+
+		this.addRouteEntry(currentNode, method, normalizedPath)
 	}
 
 	_addHookToNode(node: Node, hook: Hook, handler: WobeHandler<any>) {
@@ -91,31 +156,18 @@ export class RadixTree {
 
 		// For hooks with no specific path
 		if (path === '*') {
-			const addHookToChildren = (node: Node) => {
-				for (let i = 0; i < node.children.length; i++) {
-					const child = node.children[i]
+			const stack = [...currentNode.children]
 
-					if (
-						child.handler &&
-						(method === child.method || method === 'ALL')
-					)
-						this._addHookToNode(child, hook, handler)
-
-					addHookToChildren(child)
-				}
-			}
-
-			for (let i = 0; i < currentNode.children.length; i++) {
-				const child = currentNode.children[i]
+			while (stack.length > 0) {
+				const child = stack.pop() as Node
 
 				if (
 					child.handler &&
 					(method === child.method || method === 'ALL')
-				) {
+				)
 					this._addHookToNode(child, hook, handler)
-				}
 
-				if (child.children.length > 0) addHookToChildren(child)
+				if (child.children.length > 0) stack.push(...child.children)
 			}
 
 			return
@@ -157,13 +209,70 @@ export class RadixTree {
 	// The path in the node could be for example /a and in children /simple
 	// or it can also be /a/simple/route if there is only one children in each node
 	findRoute(method: HttpMethod, path: string) {
-		let localPath = path
-		if (path[0] !== '/') localPath = '/' + path
-
+		const hadTrailingSlash = path.endsWith('/')
+		const localPath = this.normalizePath(path)
 		const { length: pathLength } = localPath
 
 		if (pathLength === 1 && localPath === '/') return this.root
 
+		// Prefer URLPattern-only matching, pick the most specific (longest path) match
+		if (this.hasURLPattern) {
+			let bestMatch: RouteEntry | null = null
+			let bestLength = -1
+
+			for (const entry of this.routes) {
+				if (entry.method !== method && entry.method !== 'ALL') continue
+
+				const { pattern } = entry
+				let matched = false
+
+				if (pattern?.test({ pathname: localPath })) {
+					matched = true
+				} else if (entry.normalizedPath.endsWith('/*')) {
+					const prefix = entry.normalizedPath.split('/*')[0]
+					if (
+						localPath === prefix ||
+						localPath.startsWith(prefix + '/')
+					)
+						matched = true
+				} else {
+					const paramIndex = entry.normalizedPath.indexOf('/:')
+					if (paramIndex !== -1) {
+						const prefix = entry.normalizedPath.slice(0, paramIndex)
+						if (
+							localPath === prefix ||
+							(hadTrailingSlash && localPath === prefix)
+						)
+							matched = true
+					}
+				}
+
+				if (matched) {
+					const len = entry.normalizedPath.length
+					if (len > bestLength) {
+						bestMatch = entry
+						bestLength = len
+					}
+				}
+			}
+
+			if (!bestMatch) return null
+
+			const match = bestMatch.pattern?.exec({ pathname: localPath })
+
+			if (match?.pathname?.groups) {
+				const groups = match.pathname.groups
+				if (Object.keys(groups).length > 0)
+					bestMatch.node.params = groups as Record<string, string>
+				else bestMatch.node.params = undefined
+			} else {
+				bestMatch.node.params = undefined
+			}
+
+			return bestMatch.node
+		}
+
+		// Fallback to the legacy traversal when URLPattern is unavailable
 		let nextIndexToEnd = 0
 		let params: Record<string, string> | undefined
 
@@ -181,7 +290,6 @@ export class RadixTree {
 				const isChildWildcardOrParameterNode =
 					child.isWildcardNode || child.isParameterNode
 
-				// We get the next end index
 				nextIndexToEnd = localPath.indexOf(
 					'/',
 					isChildWildcardOrParameterNode
@@ -194,8 +302,6 @@ export class RadixTree {
 				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode)
 					continue
 
-				// If the child is not a wildcard or parameter node
-				// and the length of the child name is different from the length of the path
 				if (
 					!isChildWildcardOrParameterNode &&
 					nextIndexToEnd - nextIndexToBegin !== childName.length
@@ -214,7 +320,6 @@ export class RadixTree {
 						)
 				}
 
-				// If the child has no children and the node is a wildcard or parameter node
 				if (
 					isChildWildcardOrParameterNode &&
 					child.children.length === 0 &&
@@ -250,7 +355,7 @@ export class RadixTree {
 
 		const route = isNodeMatch(this.root, 0, this.root.name.length)
 
-		if (params && route) route.params = params
+		if (route && params) route.params = params
 
 		return route
 	}
@@ -276,6 +381,9 @@ export class RadixTree {
 				node.method = child.method
 				node.beforeHandlerHook = child.beforeHandlerHook
 				node.afterHandlerHook = child.afterHandlerHook
+				if ((child as any).fullPath) {
+					;(node as any).fullPath = (child as any).fullPath
+				}
 
 				optimizeNode(node)
 			}
@@ -284,6 +392,24 @@ export class RadixTree {
 		}
 
 		optimizeNode(this.root)
+
+		// Rebuild patterns and routes to reflect merged nodes
+		this.routes = []
+		this.routePatterns.clear()
+
+		const rebuild = (node: Node) => {
+			if (node.handler && (node as any).fullPath) {
+				this.addRouteEntry(
+					node,
+					node.method as HttpMethod,
+					(node as any).fullPath,
+				)
+			}
+
+			node.children.forEach(rebuild)
+		}
+
+		rebuild(this.root)
 
 		this.isOptimized = true
 	}

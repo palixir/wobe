@@ -1,23 +1,26 @@
 {
-  "name": "wobe-benchmark",
-  "version": "0.1.0",
-  "main": "index.ts",
-  "dependencies": {
-    "wobe": "*"
-  },
-  "devDependencies": {
-    "elysia": "1.0.16",
-    "get-port": "7.1.0",
-    "mitata": "0.1.11",
-    "hono": "4.10.4",
-    "koa-router": "12.0.1",
-    "radix3": "1.1.2",
-    "find-my-way": "9.3.0"
-  },
-  "scripts": {
-    "bench:startup": "bun run startup/benchmark.ts",
-    "bench:router": "bun run router/benchmark.ts",
-    "bench:extracter": "bun run pathExtract/benchmark.ts",
-    "bench:findHook": "bun run findHook/benchmark.ts"
-  }
+	"name": "wobe-benchmark",
+	"version": "0.1.0",
+	"main": "index.ts",
+	"dependencies": {
+		"wobe": "*"
+	},
+	"devDependencies": {
+		"@sinclair/typebox": "0.34.41",
+		"elysia": "1.4.18",
+		"get-port": "7.1.0",
+		"mitata": "1.0.34",
+		"hono": "4.10.7",
+		"@koa/router": "15.0.0",
+		"radix3": "1.1.2",
+		"find-my-way": "9.3.0"
+	},
+	"scripts": {
+		"bench:startup": "bun run startup/benchmark.ts",
+		"bench:router": "bun run router/benchmark.ts",
+		"bench:extracter": "bun run pathExtract/benchmark.ts",
+		"bench:findHook": "bun run findHook/benchmark.ts",
+		"lint": "biome lint . --no-errors-on-unmatched",
+		"format": "biome format --write ."
+	}
 }

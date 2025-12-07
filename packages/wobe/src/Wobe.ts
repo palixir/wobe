@@ -1,5 +1,5 @@
 import type { Server, ServerWebSocket } from 'bun'
-import { RadixTree } from './router'
+import { RadixTree, type Router } from './router'
 import { BunAdapter, NodeAdapter, type RuntimeAdapter } from './adapters'
 import type { Context } from './Context'
 
@@ -29,6 +29,11 @@ export interface WobeOptions {
 		cert: string
 		passphrase?: string
 	}
+	/**
+	 * Provide a custom router implementation (RadixTree, UrlPatternRouter, or compatible).
+	 * Defaults to UrlPatternRouter when not supplied.
+	 */
+	router?: Router
 }
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL' | 'OPTIONS'
@@ -100,7 +105,7 @@ export class Wobe<T> {
 		hook: Hook
 		method: HttpMethod
 	}>
-	private router: RadixTree
+	private router: Router
 	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
 	private httpMethods: Array<HttpMethod> = [
 		'GET',
@@ -119,7 +124,7 @@ export class Wobe<T> {
 		this.wobeOptions = options
 		this.hooks = []
 		this.server = null
-		this.router = new RadixTree()
+		this.router = options?.router || new RadixTree()
 	}
 
 	/**

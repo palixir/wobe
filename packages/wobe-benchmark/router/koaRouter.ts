@@ -1,4 +1,4 @@
-import KoaRouter from 'koa-router'
+import KoaRouter from '@koa/router'
 import type { RouterInterface } from './tools'
 import { routes, handler } from './tools'
 
@@ -7,7 +7,7 @@ const router = new KoaRouter()
 
 for (const route of routes) {
 	if (route.method === 'GET') {
-		router.get(route.pathToCompile.replace('*', '(.*)'), handler)
+		router.get(route.pathToCompile.replace('*', '/*path'), handler)
 	} else {
 		router.post(route.pathToCompile, handler)
 	}
