@@ -3,17 +3,17 @@ import getPort from 'get-port'
 
 export const elysiaApp = async () => {
 	const port = await getPort()
-	const elysia = new Elysia({ precompile: true })
+	const app = new Elysia()
 		.get('/', 'Hi')
-		.post('/json', (c) => c.body, {
-			type: 'json',
-		})
-		.get('/id/:id', ({ set, params: { id }, query: { name } }) => {
-			set.headers['x-powered-by'] = 'benchmark'
+		.get('/id/:id', (c) => {
+			c.set.headers['x-powered-by'] = 'benchmark'
 
-			return id + ' ' + name
+			return `${c.params.id} ${c.query.name}`
+		})
+		.post('/json', (c) => c.body, {
+			parse: 'json',
 		})
 		.listen(port)
 
-	elysia.stop()
+	app.stop()
 }

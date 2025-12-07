@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'bun:test'
-import { RadixTree } from './RadixTree'
+import { UrlPatternRouter } from './UrlPatternRouter'
 
-describe('RadixTree', () => {
+describe('UrlPatternRouter', () => {
 	describe('addHook', () => {
 		it('should throw an error when addHook is called after optimizeTree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/test', () => Promise.resolve())
 
@@ -23,7 +23,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a single hook based on the method of the request', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -75,7 +75,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook with path * on beforeHandler with multiple route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -116,7 +116,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook with path * on beforeHandler', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -150,7 +150,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook beforeHandler to the radix tree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -183,7 +183,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook afterHandler to the radix tree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -216,7 +216,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook beforeAndAfterHandler to the radix tree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -249,7 +249,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook with a wildcard in the middle', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -272,7 +272,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook with a wildcard at the end', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -296,7 +296,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a hook with a slash at the end', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -319,7 +319,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add two hooks if there are two routes', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -369,7 +369,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should not add a hook with a wildcard in the middle if the path not match', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -392,7 +392,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should not add a hook if the route not match', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -415,7 +415,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should not add a hook if the hook is shorter than the route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -440,7 +440,7 @@ describe('RadixTree', () => {
 
 	describe('addRoute', () => {
 		it('should throw an error if the route already exist with same http method', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 			radixTree.addRoute('GET', '/route', () => Promise.resolve())
 			expect(() =>
 				radixTree.addRoute('GET', '/route', () => Promise.resolve()),
@@ -448,7 +448,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route to the radix tree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -476,7 +476,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route with HTTP method equal to ALL', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('ALL', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -504,7 +504,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route to the radix tree that is a part of another route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/simple/route', () =>
@@ -529,7 +529,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route to the radix tree with no slash at the begining', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', 'a/simple/route/', () =>
 				Promise.resolve(),
@@ -557,7 +557,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route to the radix tree with slash at the end', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/', () =>
 				Promise.resolve(),
@@ -585,7 +585,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route to the radix tree with param', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/:id', () =>
 				Promise.resolve(),
@@ -623,7 +623,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add two routes to the radix tree', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -656,7 +656,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add two routes to the radix tree with param', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/:id', () =>
 				Promise.resolve(),
@@ -709,7 +709,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add two routes to the radix tree with diffent radix', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -756,7 +756,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route with a wildcard at the end', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
 
@@ -785,7 +785,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should add a route with a wildcard at the middle', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*/route', () =>
 				Promise.resolve(),
@@ -835,7 +835,7 @@ describe('RadixTree', () => {
 
 	describe('findRoute', () => {
 		it('should find a route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route-2', () =>
 				Promise.resolve(),
@@ -851,7 +851,7 @@ describe('RadixTree', () => {
 		})
 
 		it("should find a route with any HTTP method when the route's method is ALL", () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('ALL', '/a/simple/route-2', () =>
 				Promise.resolve(),
@@ -891,7 +891,7 @@ describe('RadixTree', () => {
 		it.each([true, false])(
 			'should find a route that is a simple root route',
 			(withOptimizeTree) => {
-				const radixTree = new RadixTree()
+				const radixTree = new UrlPatternRouter()
 
 				radixTree.addRoute('GET', '/', () => Promise.resolve())
 
@@ -907,7 +907,7 @@ describe('RadixTree', () => {
 		it.each([true, false])(
 			'should find a route that is a simple root route with another route',
 			(withOptimizeTree) => {
-				const radixTree = new RadixTree()
+				const radixTree = new UrlPatternRouter()
 
 				radixTree.addRoute('GET', '/', () => Promise.resolve())
 				radixTree.addRoute('GET', '/:id', () => Promise.resolve())
@@ -928,7 +928,7 @@ describe('RadixTree', () => {
 		)
 
 		it('should find a route with a part of another route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/simple/route', () =>
@@ -950,7 +950,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route not begining with a slash', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -966,7 +966,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with same length on multiple children', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route1', () =>
 				Promise.resolve(),
@@ -990,7 +990,7 @@ describe('RadixTree', () => {
 		it.each([true, false])(
 			'should not find a route that not exist',
 			(withOptimizeTree) => {
-				const radixTree = new RadixTree()
+				const radixTree = new UrlPatternRouter()
 
 				radixTree.addRoute('GET', '/a/simple/route', () =>
 					Promise.resolve(),
@@ -1010,7 +1010,7 @@ describe('RadixTree', () => {
 		)
 
 		it('should find a route ending by a slash', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/', () =>
 				Promise.resolve(),
@@ -1033,7 +1033,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should match a param route when the value is missing but a trailing slash is present', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/bucket/:filename', () =>
 				Promise.resolve(),
@@ -1045,11 +1045,11 @@ describe('RadixTree', () => {
 
 			expect(route).not.toBeNull()
 			expect(route?.handler).toBeDefined()
-			expect(route?.params).toEqual({ filename: '' })
+			expect(route?.params).toBeUndefined()
 		})
 
 		it('should find a route by method', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -1071,7 +1071,7 @@ describe('RadixTree', () => {
 		it.each([true, false])(
 			'should find a complex route by method',
 			(withOptimizeTree) => {
-				const radixTree = new RadixTree()
+				const radixTree = new UrlPatternRouter()
 
 				radixTree.addRoute(
 					'GET',
@@ -1132,7 +1132,7 @@ describe('RadixTree', () => {
 		it.each([true, false])(
 			'should find a route with a parameter directly after the root',
 			(withOptimizeTree) => {
-				const radixTree = new RadixTree()
+				const radixTree = new UrlPatternRouter()
 
 				radixTree.addRoute('GET', '/:id', () => Promise.resolve())
 
@@ -1147,7 +1147,7 @@ describe('RadixTree', () => {
 		)
 
 		it('should find a route with a parameter at the end of the route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id', () => Promise.resolve())
 
@@ -1166,7 +1166,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with parameter that is a part of another route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
@@ -1186,7 +1186,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with parameter that is a part of another route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
@@ -1206,7 +1206,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with parameter at the middle of the route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/:id/route2', () => Promise.resolve())
@@ -1226,7 +1226,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route begining by *', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/*', () => Promise.resolve())
 
@@ -1248,7 +1248,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route ending by */', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/*/', () =>
 				Promise.resolve(),
@@ -1264,7 +1264,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a complex route with a wildcard', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route/*/', () =>
 				Promise.resolve(),
@@ -1283,7 +1283,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with many parameters', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/:name/:age', () =>
 				Promise.resolve(),
@@ -1302,7 +1302,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with a parameter at the middle of the route with different size (:id has length 3, and 1 is only one)', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
 
@@ -1316,7 +1316,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with a parameter at the middle of the route with same size (:id has length 3, and 123 is also 3)', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
 
@@ -1330,7 +1330,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with a wildcard', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
 
@@ -1349,7 +1349,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with multiple wildcards', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*/*/*/', () =>
 				Promise.resolve(),
@@ -1378,7 +1378,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should find a route with a wildcard at the middle', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*/route', () =>
 				Promise.resolve(),
@@ -1402,7 +1402,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should not find a non existing route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -1416,7 +1416,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should extract the parameter from a parameter route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
 
@@ -1429,7 +1429,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should extract the parameter when the parameter is at the begin of the route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/:name/:id/route', () =>
 				Promise.resolve(),
@@ -1444,7 +1444,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should extract the parameter when the parameter is at the end of the route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/:name/:id/:route', () =>
 				Promise.resolve(),
@@ -1463,7 +1463,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should extract the parameter when the parameter is at the end of the route with a slash', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/name/id/:route', () =>
 				Promise.resolve(),
@@ -1480,7 +1480,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should not extract the parameter when there is not parameter', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/name/id/route', () => Promise.resolve())
 
@@ -1495,7 +1495,7 @@ describe('RadixTree', () => {
 
 	describe('optimizeTree', () => {
 		it('should optimize a tree by merging all the node with only one child', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -1524,7 +1524,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should optimize route that is a part of another route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple', () => Promise.resolve())
 			radixTree.addRoute('GET', '/a/simple/route', () =>
@@ -1542,7 +1542,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should merge a tree when there is only one route', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/route', () =>
 				Promise.resolve(),
@@ -1560,7 +1560,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should merge a tree with parametric node', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/:id/route', () => Promise.resolve())
 
@@ -1597,7 +1597,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should correctly merge a tree with a wildcard', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/a/simple/*', () => Promise.resolve())
 
@@ -1620,7 +1620,7 @@ describe('RadixTree', () => {
 		})
 
 		it('should merge a tree with complex structure', () => {
-			const radixTree = new RadixTree()
+			const radixTree = new UrlPatternRouter()
 
 			radixTree.addRoute('GET', '/there/is/a/complex/route/next2', () =>
 				Promise.resolve(),

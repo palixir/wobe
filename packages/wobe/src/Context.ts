@@ -1,6 +1,6 @@
 import type { HttpMethod, WobeHandler, WobeHandlerOutput } from './Wobe'
 import { WobeResponse } from './WobeResponse'
-import type { RadixTree } from './router'
+import type { Router } from './router'
 import { extractPathnameAndSearchParams } from './utils'
 
 export class Context {
@@ -18,14 +18,14 @@ export class Context {
 	public beforeHandlerHook: Array<WobeHandler<any>> = []
 	public afterHandlerHook: Array<WobeHandler<any>> = []
 
-	constructor(request: Request, router?: RadixTree) {
+	constructor(request: Request, router?: Router) {
 		this.request = request
 		this.res = new WobeResponse(request)
 
 		this._findRoute(router)
 	}
 
-	private _findRoute(router?: RadixTree) {
+	private _findRoute(router?: Router) {
 		const { pathName, searchParams } = extractPathnameAndSearchParams(
 			this.request.url,
 		)

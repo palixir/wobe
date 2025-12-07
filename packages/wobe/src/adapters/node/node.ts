@@ -4,7 +4,7 @@ import { brotliDecompressSync, gunzipSync, inflateSync } from 'node:zlib'
 import { HttpException } from '../../HttpException'
 import { Context } from '../../Context'
 import type { RuntimeAdapter } from '..'
-import type { RadixTree } from '../../router'
+import type { Router } from '../../router'
 import type { WobeOptions } from '../../Wobe'
 
 const DEFAULT_MAX_BODY_SIZE = 1024 * 1024 // 1 MiB
@@ -85,7 +85,7 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 }
 
 export const NodeAdapter = (): RuntimeAdapter => ({
-	createServer: (port: number, router: RadixTree, options?: WobeOptions) => {
+	createServer: (port: number, router: Router, options?: WobeOptions) => {
 		// @ts-expect-error
 		const createServer: typeof createHttpsServer = options?.tls
 			? createHttpsServer

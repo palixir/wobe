@@ -1,7 +1,7 @@
-import { RadixTree } from 'wobe/src/router'
 import { routes, type Route } from './tools'
+import { UrlPatternRouter, type Router } from 'wobe'
 
-const createWobeRouter = (name: string, radixTree: RadixTree) => {
+const createWobeRouter = (name: string, radixTree: Router) => {
 	for (const route of routes) {
 		radixTree.addRoute(route.method, route.pathToCompile, () =>
 			Promise.resolve(),
@@ -18,4 +18,7 @@ const createWobeRouter = (name: string, radixTree: RadixTree) => {
 	}
 }
 
-export const wobeRouter = createWobeRouter('Radix router', new RadixTree())
+export const wobeRouter = createWobeRouter(
+	'UrlPattern router',
+	new UrlPatternRouter(),
+)
