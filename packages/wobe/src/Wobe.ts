@@ -38,12 +38,7 @@ export interface WobeOptions {
 
 export type HttpMethod = 'POST' | 'GET' | 'DELETE' | 'PUT' | 'ALL' | 'OPTIONS'
 
-export type WobeHandlerOutput =
-	| void
-	| Promise<void>
-	| undefined
-	| Response
-	| Promise<Response>
+export type WobeHandlerOutput = void | Promise<void> | undefined | Response | Promise<Response>
 
 export type WobeHandler<T> = (ctx: Context & T) => WobeHandlerOutput
 
@@ -78,17 +73,12 @@ export interface WobeWebSocket {
 	beforeWebSocketUpgrade?: Array<WobeHandler<any>>
 	onOpen?(ws: ServerWebSocket<any>): void
 	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
-	onClose?(
-		ws: ServerWebSocket<any>,
-		code: number,
-		message: string | Buffer,
-	): void
+	onClose?(ws: ServerWebSocket<any>, code: number, message: string | Buffer): void
 	onDrain?(ws: ServerWebSocket<any>): void
 }
 
 const factoryOfRuntime = (): RuntimeAdapter => {
-	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST)
-		return BunAdapter()
+	if (typeof Bun !== 'undefined' && !process.env.NODE_TEST) return BunAdapter()
 
 	return NodeAdapter()
 }
@@ -107,12 +97,7 @@ export class Wobe<T> {
 	}>
 	private router: Router
 	private runtimeAdapter: RuntimeAdapter = factoryOfRuntime()
-	private httpMethods: Array<HttpMethod> = [
-		'GET',
-		'POST',
-		'PUT',
-		'DELETE',
-	] as const
+	private httpMethods: Array<HttpMethod> = ['GET', 'POST', 'PUT', 'DELETE'] as const
 
 	private webSocket: WobeWebSocket | undefined = undefined
 
@@ -205,9 +190,7 @@ export class Wobe<T> {
 	 */
 	all(path: string, handler: WobeHandler<T>, hook?: WobeHandler<T>) {
 		if (hook) {
-			this.httpMethods.map((method) =>
-				this._addHook('beforeHandler', method)(path, hook),
-			)
+			this.httpMethods.map((method) => this._addHook('beforeHandler', method)(path, hook))
 		}
 
 		this.router.addRoute('ALL', path, handler)
@@ -243,10 +226,7 @@ export class Wobe<T> {
 	 * @param arg1 The path of the request or the handler
 	 * @param handlers The handlers of the request
 	 */
-	beforeAndAfterHandler(
-		arg1: string | WobeHandler<T>,
-		...handlers: WobeHandler<T>[]
-	) {
+	beforeAndAfterHandler(arg1: string | WobeHandler<T>, ...handlers: WobeHandler<T>[]) {
 		this.httpMethods.map((method) =>
 			this._addHook('beforeAndAfterHandler', method)(arg1, ...handlers),
 		)
@@ -259,13 +239,8 @@ export class Wobe<T> {
 	 * @param arg1 The path of the request or the handler
 	 * @param handlers The handlers of the request
 	 */
-	beforeHandler(
-		arg1: string | WobeHandler<T>,
-		...handlers: WobeHandler<T>[]
-	) {
-		this.httpMethods.map((method) =>
-			this._addHook('beforeHandler', method)(arg1, ...handlers),
-		)
+	beforeHandler(arg1: string | WobeHandler<T>, ...handlers: WobeHandler<T>[]) {
+		this.httpMethods.map((method) => this._addHook('beforeHandler', method)(arg1, ...handlers))
 
 		return this
 	}
@@ -276,9 +251,7 @@ export class Wobe<T> {
 	 * @param handlers The handlers of the request
 	 */
 	afterHandler(arg1: string | WobeHandler<T>, ...handlers: WobeHandler<T>[]) {
-		this.httpMethods.map((method) =>
-			this._addHook('afterHandler', method)(arg1, ...handlers),
-		)
+		this.httpMethods.map((method) => this._addHook('afterHandler', method)(arg1, ...handlers))
 
 		return this
 	}
@@ -321,19 +294,11 @@ export class Wobe<T> {
 	 * @param port The port of the server
 	 * @param callback The callback to execute after the server is started
 	 */
-	listen(
-		port: number,
-		callback?: (options: { hostname: string; port: number }) => void,
-	) {
+	listen(port: number, callback?: (options: { hostname: string; port: number }) => void) {
 		// We need to add all hooks after the compilation
 		// because the tree need to be complete
 		for (const hook of this.hooks) {
-			this.router.addHook(
-				hook.hook,
-				hook.pathname,
-				hook.handler,
-				hook.method,
-			)
+			this.router.addHook(hook.hook, hook.pathname, hook.handler, hook.method)
 		}
 
 		this.router.optimizeTree()

@@ -27,20 +27,14 @@ const parseForwardedIp = (xff?: string | string[]) => {
 
 const getClientIp = (req: any, trustProxy?: boolean) => {
 	if (trustProxy) {
-		const forwarded = parseForwardedIp(
-			req.headers['x-forwarded-for'] as string,
-		)
+		const forwarded = parseForwardedIp(req.headers['x-forwarded-for'] as string)
 		if (forwarded) return forwarded
 	}
 
 	return req.socket.remoteAddress || ''
 }
 
-const decompressBody = (
-	encoding: string,
-	buffer: Uint8Array,
-	maxBodySize: number,
-): Uint8Array => {
+const decompressBody = (encoding: string, buffer: Uint8Array, maxBodySize: number): Uint8Array => {
 	const lower = encoding.toLowerCase()
 	if (lower === 'identity' || lower === '') return buffer
 
@@ -74,11 +68,9 @@ const transformResponseInstanceToValidResponse = async (response: Response) => {
 
 	const contentType = response.headers.get('content-type')
 
-	if (contentType === 'appplication/json')
-		return { headers, body: await response.json() }
+	if (contentType === 'appplication/json') return { headers, body: await response.json() }
 
-	if (contentType === 'text/plain')
-		return { headers, body: await response.text() }
+	if (contentType === 'text/plain') return { headers, body: await response.text() }
 
 	const arrayBuffer = await response.arrayBuffer()
 	return { headers, body: Buffer.from(arrayBuffer) }
@@ -92,9 +84,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 			: createHttpServer
 		const certificateObject = options?.tls || {}
 		const maxBodySize = options?.maxBodySize ?? DEFAULT_MAX_BODY_SIZE
-		const allowedContentEncodings = normalizeEncodings(
-			options?.allowedContentEncodings,
-		)
+		const allowedContentEncodings = normalizeEncodings(options?.allowedContentEncodings)
 
 		return createServer(certificateObject, async (req, res) => {
 			const url = `http://${req.headers.host}${req.url}`
@@ -113,9 +103,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 			}
 
 			const contentEncoding =
-				(
-					req.headers['content-encoding'] as string | undefined
-				)?.toLowerCase() || 'identity'
+				(req.headers['content-encoding'] as string | undefined)?.toLowerCase() || 'identity'
 
 			if (!allowedContentEncodings.includes(contentEncoding)) {
 				res.writeHead(415)
@@ -148,11 +136,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 						const rawBuffer = Buffer.concat(chunks)
 						const decompressed = decompressBody(
 							contentEncoding,
-							new Uint8Array(
-								rawBuffer.buffer,
-								rawBuffer.byteOffset,
-								rawBuffer.byteLength,
-							),
+							new Uint8Array(rawBuffer.buffer, rawBuffer.byteOffset, rawBuffer.byteLength),
 							maxBodySize,
 						)
 
@@ -175,19 +159,14 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 						return
 					}
 
-					context.getIpAdress = () =>
-						getClientIp(req, options?.trustProxy) || ''
+					context.getIpAdress = () => getClientIp(req, options?.trustProxy) || ''
 
 					const response = await context.executeHandler()
 
 					const { headers, body: responseBody } =
 						await transformResponseInstanceToValidResponse(response)
 
-					res.writeHead(
-						response.status || 404,
-						response.statusText,
-						headers,
-					)
+					res.writeHead(response.status || 404, response.statusText, headers)
 
 					res.write(responseBody)
 				} catch (err: any) {
@@ -214,10 +193,7 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 
 					if (!(err instanceof HttpException)) {
 						const statusCode = Number(err.code) || 500
-						const message =
-							err instanceof Error
-								? err.message
-								: 'Internal Server Error'
+						const message = err instanceof Error ? err.message : 'Internal Server Error'
 
 						res.writeHead(statusCode)
 						res.write(message)
@@ -226,16 +202,11 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 						return
 					}
 
-					const { headers, body: responseBody } =
-						await transformResponseInstanceToValidResponse(
-							err.response,
-						)
-
-					res.writeHead(
-						err.response.status || 500,
-						err.response.statusText,
-						headers,
+					const { headers, body: responseBody } = await transformResponseInstanceToValidResponse(
+						err.response,
 					)
+
+					res.writeHead(err.response.status || 500, err.response.statusText, headers)
 
 					res.write(responseBody)
 				}

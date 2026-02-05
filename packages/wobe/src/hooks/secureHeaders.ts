@@ -53,55 +53,30 @@ export const secureHeaders = ({
 }: SecureHeadersOptions): WobeHandler<any> => {
 	return (ctx) => {
 		if (contentSecurityPolicy) {
-			const formatContentSecurityPolicy = Object.entries(
-				contentSecurityPolicy,
-			)
-				.map(
-					([key, value]) =>
-						`${key} ${
-							Array.isArray(value) ? value.join(' ') : value
-						}`,
-				)
+			const formatContentSecurityPolicy = Object.entries(contentSecurityPolicy)
+				.map(([key, value]) => `${key} ${Array.isArray(value) ? value.join(' ') : value}`)
 				.join('; ')
 
-			ctx.res.headers.set(
-				'Content-Security-Policy',
-				formatContentSecurityPolicy,
-			)
+			ctx.res.headers.set('Content-Security-Policy', formatContentSecurityPolicy)
 		}
 
 		if (crossOriginEmbedderPolicy)
-			ctx.res.headers.set(
-				'Cross-Origin-Embedder-Policy',
-				crossOriginEmbedderPolicy,
-			)
+			ctx.res.headers.set('Cross-Origin-Embedder-Policy', crossOriginEmbedderPolicy)
 
 		if (crossOriginOpenerPolicy)
-			ctx.res.headers.set(
-				'Cross-Origin-Opener-Policy',
-				crossOriginOpenerPolicy,
-			)
+			ctx.res.headers.set('Cross-Origin-Opener-Policy', crossOriginOpenerPolicy)
 
 		if (crossOriginResourcePolicy)
-			ctx.res.headers.set(
-				'Cross-Origin-Resource-Policy',
-				crossOriginResourcePolicy,
-			)
+			ctx.res.headers.set('Cross-Origin-Resource-Policy', crossOriginResourcePolicy)
 
-		if (referrerPolicy)
-			ctx.res.headers.set('Referrer-Policy', referrerPolicy)
+		if (referrerPolicy) ctx.res.headers.set('Referrer-Policy', referrerPolicy)
 
 		if (strictTransportSecurity)
-			ctx.res.headers.set(
-				'Strict-Transport-Security',
-				strictTransportSecurity.join('; '),
-			)
+			ctx.res.headers.set('Strict-Transport-Security', strictTransportSecurity.join('; '))
 
-		if (xContentTypeOptions)
-			ctx.res.headers.set('X-Content-Type-Options', xContentTypeOptions)
+		if (xContentTypeOptions) ctx.res.headers.set('X-Content-Type-Options', xContentTypeOptions)
 
-		if (xDownloadOptions)
-			ctx.res.headers.set('X-Download-Options', xDownloadOptions)
+		if (xDownloadOptions) ctx.res.headers.set('X-Download-Options', xDownloadOptions)
 
 		if (xFrameOptions) ctx.res.headers.set('X-Frame-Options', xFrameOptions)
 	}

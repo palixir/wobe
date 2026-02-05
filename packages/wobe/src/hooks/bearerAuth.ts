@@ -10,8 +10,7 @@ export interface BearerAuthOptions {
 
 const prefix = 'Bearer'
 
-const defaultHash = (token: string) =>
-	createHash('sha256').update(token).digest('base64')
+const defaultHash = (token: string) => createHash('sha256').update(token).digest('base64')
 
 /**
  * bearerAuth is a hook that checks if the request has a valid Bearer token

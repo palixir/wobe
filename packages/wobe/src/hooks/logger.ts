@@ -23,9 +23,7 @@ const defaultLoggerFunction = ({
 		`[${
 			beforeHandler ? 'Before handler' : 'After handler'
 		}] [${method}] ${url}${status ? ' (status:' + status + ')' : ''}${
-			requestStartTimeInMs
-				? '[' + (Date.now() - requestStartTimeInMs) + 'ms]'
-				: ''
+			requestStartTimeInMs ? '[' + (Date.now() - requestStartTimeInMs) + 'ms]' : ''
 		}`,
 	)
 }

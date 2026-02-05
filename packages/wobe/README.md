@@ -30,18 +30,16 @@ import { Wobe } from 'wobe'
 
 const app = new Wobe()
 	.get('/hello', (context) => context.res.sendText('Hello world'))
-	.get('/hello/:name', (context) =>
-		context.res.sendText(`Hello ${context.params.name}`),
-	)
+	.get('/hello/:name', (context) => context.res.sendText(`Hello ${context.params.name}`))
 	.listen(3000)
 ```
 
 ## Features
 
--   **Simple & Easy to use**: Wobe respects the standard and provides a large ecosystem.
--   **Fast & Lightweight**: Wobe is one of the fastest web framework on Bun, and it has 0 dependencies (only 9,76 KB).
--   **Multi-runtime**: Wobe supports Node.js and Bun runtime.
--   **Easy to extend**: Wobe has an easy-to-use plugin system that allows extending for all your personal use cases.
+- **Simple & Easy to use**: Wobe respects the standard and provides a large ecosystem.
+- **Fast & Lightweight**: Wobe is one of the fastest web framework on Bun, and it has 0 dependencies (only 9,76 KB).
+- **Multi-runtime**: Wobe supports Node.js and Bun runtime.
+- **Easy to extend**: Wobe has an easy-to-use plugin system that allows extending for all your personal use cases.
 
 ## Benchmarks (on Bun runtime)
 

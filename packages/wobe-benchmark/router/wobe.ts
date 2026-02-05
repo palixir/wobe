@@ -3,9 +3,7 @@ import { UrlPatternRouter, type Router } from 'wobe'
 
 const createWobeRouter = (name: string, radixTree: Router) => {
 	for (const route of routes) {
-		radixTree.addRoute(route.method, route.pathToCompile, () =>
-			Promise.resolve(),
-		)
+		radixTree.addRoute(route.method, route.pathToCompile, () => Promise.resolve())
 	}
 
 	radixTree.optimizeTree()
@@ -18,7 +16,4 @@ const createWobeRouter = (name: string, radixTree: Router) => {
 	}
 }
 
-export const wobeRouter = createWobeRouter(
-	'UrlPattern router',
-	new UrlPatternRouter(),
-)
+export const wobeRouter = createWobeRouter('UrlPattern router', new UrlPatternRouter())

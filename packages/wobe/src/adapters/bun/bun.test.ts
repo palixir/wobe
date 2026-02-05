@@ -19,9 +19,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 
 		wobe.get('/hi', async (ctx) => {
 			if (ctx.res.status === 201) {
-				throw new HttpException(
-					new Response('Status should be equal to 200'),
-				)
+				throw new HttpException(new Response('Status should be equal to 200'))
 			}
 
 			ctx.res.sendText('Hi')
@@ -67,12 +65,8 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 
 		const port = await getPort()
 
-		const key = await Bun.file(
-			`${import.meta.dirname}/../../../fixtures/key.pem`,
-		).text()
-		const cert = await Bun.file(
-			`${import.meta.dirname}/../../../fixtures/cert.pem`,
-		).text()
+		const key = await Bun.file(`${import.meta.dirname}/../../../fixtures/key.pem`).text()
+		const cert = await Bun.file(`${import.meta.dirname}/../../../fixtures/cert.pem`).text()
 
 		const wobe = new Wobe({
 			tls: {
@@ -139,9 +133,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 		const port = await getPort()
 		const wobe = new Wobe({ maxBodySize: 8 })
 
-		wobe.post('/echo', async (ctx) =>
-			ctx.res.sendText(await ctx.request.text()),
-		)
+		wobe.post('/echo', async (ctx) => ctx.res.sendText(await ctx.request.text()))
 
 		wobe.listen(port)
 
@@ -183,9 +175,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun server', () => {
 			allowedContentEncodings: ['gzip'],
 		})
 
-		wobe.post('/echo', async (ctx) =>
-			ctx.res.sendText(await ctx.request.text()),
-		)
+		wobe.post('/echo', async (ctx) => ctx.res.sendText(await ctx.request.text()))
 
 		wobe.listen(port)
 

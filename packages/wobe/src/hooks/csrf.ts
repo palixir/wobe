@@ -28,13 +28,7 @@ export const csrf = (options: CsrfOptions): WobeHandler<any> => {
 		const method = ctx.request.method?.toUpperCase?.()
 
 		// Only enforce on non-idempotent methods
-		if (
-			!method ||
-			method === 'GET' ||
-			method === 'HEAD' ||
-			method === 'OPTIONS'
-		)
-			return
+		if (!method || method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return
 
 		const requestOrigin = ctx.request.headers.get('origin')
 		const requestReferer = ctx.request.headers.get('referer')

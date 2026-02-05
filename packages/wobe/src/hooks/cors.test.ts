@@ -15,9 +15,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'*',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe('*')
 		expect(context.res.headers?.get('Vary')).toBeNull()
 	})
 
@@ -52,9 +50,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'http://localhost:3000',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000')
 	})
 
 	it('should correctly allow origin with an array', async () => {
@@ -67,9 +63,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'http://localhost:3000',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000')
 
 		const context2 = new Context(
 			new Request('http://localhost:3000/test', {
@@ -82,16 +76,13 @@ describe('Cors hook', () => {
 		// With an origin header
 		handler(context2)
 
-		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'http://localhost:3001',
-		)
+		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe('http://localhost:3001')
 	})
 
 	it('should correctly allow origin with a function', async () => {
 		const handler = cors({
 			origin: (origin) => {
-				if (origin === 'http://localhost:3000')
-					return 'http://localhost:3000'
+				if (origin === 'http://localhost:3000') return 'http://localhost:3000'
 
 				return 'http://localhost:3001'
 			},
@@ -102,9 +93,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'http://localhost:3001',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Origin')).toBe('http://localhost:3001')
 
 		const context2 = new Context(
 			new Request('http://localhost:3000/test', {
@@ -117,9 +106,7 @@ describe('Cors hook', () => {
 		// With an origin header
 		handler(context2)
 
-		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe(
-			'http://localhost:3000',
-		)
+		expect(context2.res.headers?.get('Access-Control-Allow-Origin')).toBe('http://localhost:3000')
 	})
 
 	it('should allow credentials', async () => {
@@ -132,9 +119,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(
-			context.res.headers?.get('Access-Control-Allow-Credentials'),
-		).toBe('true')
+		expect(context.res.headers?.get('Access-Control-Allow-Credentials')).toBe('true')
 	})
 
 	it('should not allow credentials', async () => {
@@ -147,9 +132,7 @@ describe('Cors hook', () => {
 
 		handler(context)
 
-		expect(
-			context.res.headers?.get('Access-Control-Allow-Credentials'),
-		).toBeNull()
+		expect(context.res.headers?.get('Access-Control-Allow-Credentials')).toBeNull()
 	})
 
 	it('should control expose headers', async () => {
@@ -162,9 +145,7 @@ describe('Cors hook', () => {
 
 		handlerWithExposeHeaders(context)
 
-		expect(context.res.headers?.get('Access-Control-Expose-Headers')).toBe(
-			'X-Test',
-		)
+		expect(context.res.headers?.get('Access-Control-Expose-Headers')).toBe('X-Test')
 	})
 
 	it('should have expose headers to null when no expose headers is defined', async () => {
@@ -176,9 +157,7 @@ describe('Cors hook', () => {
 
 		handlerWithoutExposeHeaders(context)
 
-		expect(
-			context.res.headers?.get('Access-Control-Expose-Headers'),
-		).toBeNull()
+		expect(context.res.headers?.get('Access-Control-Expose-Headers')).toBeNull()
 	})
 
 	it('should not set max age for others request than OPTIONS', async () => {
@@ -217,9 +196,7 @@ describe('Cors hook', () => {
 
 		handlerWithAllowMethods(context)
 
-		expect(
-			context.res.headers?.get('Access-Control-Allow-Methods'),
-		).toBeNull()
+		expect(context.res.headers?.get('Access-Control-Allow-Methods')).toBeNull()
 	})
 
 	it('should set allow methods for OPTIONS requests', async () => {
@@ -232,9 +209,7 @@ describe('Cors hook', () => {
 
 		handlerWithAllowMethods(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Methods')).toBe(
-			'GET,POST',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Methods')).toBe('GET,POST')
 	})
 
 	it('should set allow headers with an allow headers on OPTIONS requests', async () => {
@@ -247,12 +222,8 @@ describe('Cors hook', () => {
 
 		handlerWithAllowMethods(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe(
-			'X-Test',
-		)
-		expect(context.res.headers?.get('Vary')).toBe(
-			'Origin, Access-Control-Request-Headers',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe('X-Test')
+		expect(context.res.headers?.get('Vary')).toBe('Origin, Access-Control-Request-Headers')
 	})
 
 	it('should set allow headers without an allow headers on OPTIONS request', async () => {
@@ -271,13 +242,9 @@ describe('Cors hook', () => {
 
 		handlerWithAllowMethods(context)
 
-		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe(
-			'X-Test',
-		)
+		expect(context.res.headers?.get('Access-Control-Allow-Headers')).toBe('X-Test')
 
-		expect(context.res.headers?.get('Vary')).toBe(
-			'Origin, Access-Control-Request-Headers',
-		)
+		expect(context.res.headers?.get('Vary')).toBe('Origin, Access-Control-Request-Headers')
 	})
 
 	it('should delete Content-Lenght and Content-type on OPTIONS request', async () => {

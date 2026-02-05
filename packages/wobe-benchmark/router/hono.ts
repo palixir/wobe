@@ -4,10 +4,7 @@ import { RegExpRouter } from 'hono/router/reg-exp-router'
 import { TrieRouter } from 'hono/router/trie-router'
 import { SmartRouter } from 'hono/router/smart-router'
 
-const createHonoRouter = (
-	name: string,
-	router: Router<unknown>,
-): RouterInterface => {
+const createHonoRouter = (name: string, router: Router<unknown>): RouterInterface => {
 	for (const route of routes) {
 		router.add(route.method, route.pathToCompile, handler)
 	}

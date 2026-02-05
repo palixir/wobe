@@ -20,8 +20,7 @@ export class WobeResponse {
 	}
 
 	private static sanitizeCookieValue(value: string) {
-		if (/[\r\n]/.test(value))
-			throw new Error('Invalid cookie value: contains CR/LF')
+		if (/[\r\n]/.test(value)) throw new Error('Invalid cookie value: contains CR/LF')
 
 		if (value.includes(';')) return encodeURIComponent(value) // avoid header injection
 
@@ -42,8 +41,7 @@ export class WobeResponse {
 
 		wobeResponse.headers = new Headers(response.headers)
 
-		for (const [key, value] of this.headers.entries())
-			wobeResponse.headers.set(key, value)
+		for (const [key, value] of this.headers.entries()) wobeResponse.headers.set(key, value)
 
 		wobeResponse.status = response.status
 		wobeResponse.statusText = response.statusText
@@ -59,23 +57,14 @@ export class WobeResponse {
 	 * @param options The options of the cookie
 	 */
 	setCookie(name: string, value: string, options?: SetCookieOptions) {
-		if (!WobeResponse.isCookieNameValid(name))
-			throw new Error('Invalid cookie name')
+		if (!WobeResponse.isCookieNameValid(name)) throw new Error('Invalid cookie name')
 
 		const safeValue = WobeResponse.sanitizeCookieValue(value)
 
 		let cookie = `${name}=${safeValue};`
 
 		if (options) {
-			const {
-				httpOnly,
-				path,
-				domain,
-				expires,
-				sameSite,
-				maxAge,
-				secure,
-			} = options
+			const { httpOnly, path, domain, expires, sameSite, maxAge, secure } = options
 
 			if (httpOnly) cookie = `${cookie} HttpOnly;`
 			if (path) cookie = `${cookie} Path=${path};`
@@ -174,11 +163,7 @@ export class WobeResponse {
 		} else if (content instanceof SharedArrayBuffer) {
 			body = new Uint8Array(content)
 		} else if (content instanceof Buffer) {
-			body = new Uint8Array(
-				content.buffer,
-				content.byteOffset,
-				content.byteLength,
-			)
+			body = new Uint8Array(content.buffer, content.byteOffset, content.byteLength)
 		} else if (typeof content === 'object') {
 			this.headers.set('content-type', 'application/json')
 			this.headers.set('charset', 'utf-8')

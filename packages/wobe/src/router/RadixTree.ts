@@ -17,15 +17,10 @@ export class RadixTree {
 
 			let foundNode = currentNode.children.find(
 				(node) =>
-					node.name === (i === 0 ? '' : '/') + pathPart &&
-					(node.method === method || !node.method),
+					node.name === (i === 0 ? '' : '/') + pathPart && (node.method === method || !node.method),
 			)
 
-			if (
-				foundNode &&
-				foundNode.method === method &&
-				i === pathParts.length - 1
-			)
+			if (foundNode && foundNode.method === method && i === pathParts.length - 1)
 				throw new Error(`Route ${method} ${path} already exists`)
 
 			if (!foundNode) {
@@ -75,17 +70,8 @@ export class RadixTree {
 		}
 	}
 
-	addHook(
-		hook: Hook,
-		path: string,
-		handler: WobeHandler<any>,
-		method: HttpMethod,
-		node?: Node,
-	) {
-		if (this.isOptimized)
-			throw new Error(
-				'Cannot add hooks after the tree has been optimized',
-			)
+	addHook(hook: Hook, path: string, handler: WobeHandler<any>, method: HttpMethod, node?: Node) {
+		if (this.isOptimized) throw new Error('Cannot add hooks after the tree has been optimized')
 
 		let currentNode = node || this.root
 
@@ -95,10 +81,7 @@ export class RadixTree {
 				for (let i = 0; i < node.children.length; i++) {
 					const child = node.children[i]
 
-					if (
-						child.handler &&
-						(method === child.method || method === 'ALL')
-					)
+					if (child.handler && (method === child.method || method === 'ALL'))
 						this._addHookToNode(child, hook, handler)
 
 					addHookToChildren(child)
@@ -108,10 +91,7 @@ export class RadixTree {
 			for (let i = 0; i < currentNode.children.length; i++) {
 				const child = currentNode.children[i]
 
-				if (
-					child.handler &&
-					(method === child.method || method === 'ALL')
-				) {
+				if (child.handler && (method === child.method || method === 'ALL')) {
 					this._addHookToNode(child, hook, handler)
 				}
 
@@ -140,8 +120,7 @@ export class RadixTree {
 
 			const foundNode = currentNode.children.find(
 				(node) =>
-					node.name ===
-						(currentNode.name === '/' ? '' : '/') + pathPart &&
+					node.name === (currentNode.name === '/' ? '' : '/') + pathPart &&
 					((node.method && node.method === method) || !node.method),
 			)
 
@@ -167,19 +146,14 @@ export class RadixTree {
 		let nextIndexToEnd = 0
 		let params: Record<string, string> | undefined
 
-		const isNodeMatch = (
-			node: Node,
-			indexToBegin: number,
-			indexToEnd: number,
-		): Node | null => {
+		const isNodeMatch = (node: Node, indexToBegin: number, indexToEnd: number): Node | null => {
 			const nextIndexToBegin = indexToBegin + (indexToEnd - indexToBegin)
 
 			for (let i = 0; i < node.children.length; i++) {
 				const child = node.children[i]
 				const childName = child.name
 
-				const isChildWildcardOrParameterNode =
-					child.isWildcardNode || child.isParameterNode
+				const isChildWildcardOrParameterNode = child.isWildcardNode || child.isParameterNode
 
 				// We get the next end index
 				nextIndexToEnd = localPath.indexOf(
@@ -191,8 +165,7 @@ export class RadixTree {
 
 				if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 
-				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode)
-					continue
+				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode) continue
 
 				// If the child is not a wildcard or parameter node
 				// and the length of the child name is different from the length of the path
@@ -207,11 +180,10 @@ export class RadixTree {
 
 					const indexToAddIfFirstNode = indexToBegin === 0 ? 0 : 1
 
-					params[childName.slice(1 + indexToAddIfFirstNode)] =
-						localPath.slice(
-							nextIndexToBegin + indexToAddIfFirstNode,
-							nextIndexToEnd,
-						)
+					params[childName.slice(1 + indexToAddIfFirstNode)] = localPath.slice(
+						nextIndexToBegin + indexToAddIfFirstNode,
+						nextIndexToEnd,
+					)
 				}
 
 				// If the child has no children and the node is a wildcard or parameter node
@@ -228,19 +200,12 @@ export class RadixTree {
 				) {
 					if (isChildWildcardOrParameterNode) return child
 
-					const pathToCompute = localPath.slice(
-						nextIndexToBegin,
-						nextIndexToEnd,
-					)
+					const pathToCompute = localPath.slice(nextIndexToBegin, nextIndexToEnd)
 
 					if (pathToCompute === childName) return child
 				}
 
-				const foundNode = isNodeMatch(
-					child,
-					nextIndexToBegin,
-					nextIndexToEnd,
-				)
+				const foundNode = isNodeMatch(child, nextIndexToBegin, nextIndexToEnd)
 
 				if (foundNode) return foundNode
 			}

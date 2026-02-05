@@ -62,9 +62,7 @@ describe('Context', () => {
 
 		context.redirect('https://example.com/test')
 
-		expect(context.res.headers.get('Location')).toEqual(
-			'https://example.com/test',
-		)
+		expect(context.res.headers.get('Location')).toEqual('https://example.com/test')
 		expect(context.res.status).toEqual(302)
 
 		expect(spyContextRes).toHaveBeenCalledTimes(1)
@@ -73,9 +71,7 @@ describe('Context', () => {
 		// Redirect permanently
 		context.redirect('https://example.com/test2', 301)
 
-		expect(context.res.headers.get('Location')).toEqual(
-			'https://example.com/test2',
-		)
+		expect(context.res.headers.get('Location')).toEqual('https://example.com/test2')
 		expect(context.res.status).toEqual(301)
 	})
 

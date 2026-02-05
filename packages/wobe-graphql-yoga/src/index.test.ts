@@ -114,9 +114,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		const body = await res.json()
 
 		expect(body.data).toBeUndefined()
-		expect(body.errors?.[0]?.message?.toLowerCase()).toContain(
-			'introspection',
-		)
+		expect(body.errors?.[0]?.message?.toLowerCase()).toContain('introspection')
 
 		wobe.stop()
 	})
@@ -298,9 +296,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		const body = await res.json()
 		expect(body.data).toBeUndefined()
-		expect(body.errors?.[0]?.message).toMatch(
-			/Multiple operations|Could not determine/i,
-		)
+		expect(body.errors?.[0]?.message).toMatch(/Multiple operations|Could not determine/i)
 
 		wobe.stop()
 	})
@@ -426,8 +422,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 
 		await wobe.usePlugin(
 			WobeGraphqlYogaPlugin({
-				rateLimiter: async () =>
-					new Response('Too Many Requests', { status: 429 }),
+				rateLimiter: async () => new Response('Too Many Requests', { status: 429 }),
 				typeDefs: `
 					type Query {
 						hello: String
@@ -712,9 +707,7 @@ describe('Wobe GraphQL Yoga plugin', () => {
 		})
 
 		expect(res.status).toBe(200)
-		expect(res.headers.get('set-cookie')).toBe(
-			'before=before;, after=after;',
-		)
+		expect(res.headers.get('set-cookie')).toBe('before=before;, after=after;')
 		expect(await res.json()).toEqual({
 			data: { hello: 'Hello from Yoga!' },
 		})

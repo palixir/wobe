@@ -34,10 +34,7 @@ describe('html', () => {
 
 		// Create a subdirectory with index.html
 		await mkdir(join(TEST_DIR, 'subdir'), { recursive: true })
-		await writeFile(
-			join(TEST_DIR, 'subdir', 'index.html'),
-			'<html>Subdir</html>',
-		)
+		await writeFile(join(TEST_DIR, 'subdir', 'index.html'), '<html>Subdir</html>')
 	})
 
 	afterEach(async () => {
@@ -74,9 +71,7 @@ describe('html', () => {
 
 		const response = await middleware(ctx)
 		expect(response?.status).toBe(200)
-		expect(response?.headers.get('Content-Type')).toBe(
-			'application/javascript',
-		)
+		expect(response?.headers.get('Content-Type')).toBe('application/javascript')
 		expect(await response?.text()).toContain('console.log("test")')
 	})
 
@@ -172,14 +167,9 @@ describe('html', () => {
 
 	it('should handle URL-encoded paths', async () => {
 		// Create a file with spaces in the name
-		await writeFile(
-			join(TEST_DIR, 'file with spaces.html'),
-			'<html>Spaces</html>',
-		)
+		await writeFile(join(TEST_DIR, 'file with spaces.html'), '<html>Spaces</html>')
 
-		const request = new Request(
-			'http://localhost:3000/file%20with%20spaces.html',
-		)
+		const request = new Request('http://localhost:3000/file%20with%20spaces.html')
 		const ctx = new MockContext(request)
 		const middleware = html({ rootPath })
 
@@ -198,16 +188,12 @@ describe('html', () => {
 
 		const response = await middleware(ctx)
 		expect(response?.status).toBe(200)
-		expect(response?.headers.get('Content-Type')).toBe(
-			'application/octet-stream',
-		)
+		expect(response?.headers.get('Content-Type')).toBe('application/octet-stream')
 		expect(await response?.text()).toContain('No extension content')
 	})
 
 	it('should handle query parameters in URL', async () => {
-		const request = new Request(
-			'http://localhost:3000/test.html?param=value',
-		)
+		const request = new Request('http://localhost:3000/test.html?param=value')
 		const ctx = new MockContext(request)
 		const middleware = html({ rootPath })
 

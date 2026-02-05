@@ -1,11 +1,11 @@
 commit-msg:
-    commands:
-        conventional:
-            run: bun commitlint --edit $1
+  commands:
+    conventional:
+      run: bun commitlint --edit $1
 
 pre-commit:
-    parallel: true
-    commands:
-        check:
-            glob: '*.{js,ts,jsx,tsx}'
-            run: bun biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+  parallel: true
+  commands:
+    check:
+      glob: '*.{js,ts,jsx,tsx}'
+      run: bun oxlint check {staged_files}

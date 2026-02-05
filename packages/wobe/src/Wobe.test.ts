@@ -1,13 +1,4 @@
-import {
-	describe,
-	expect,
-	it,
-	beforeAll,
-	afterAll,
-	mock,
-	spyOn,
-	afterEach,
-} from 'bun:test'
+import { describe, expect, it, beforeAll, afterAll, mock, spyOn, afterEach } from 'bun:test'
 import getPort from 'get-port'
 import { Wobe } from './Wobe'
 import { HttpException } from './HttpException'
@@ -129,9 +120,7 @@ describe('Wobe', () => {
 				throw new Error('Test error')
 			})
 			.get('/testHttpExceptionError', () => {
-				throw new HttpException(
-					new Response('Test error', { status: 400 }),
-				)
+				throw new HttpException(new Response('Test error', { status: 400 }))
 			})
 			.get('/1', (ctx) => {
 				ctx.res.headers.set('X-Test', 'Test')
@@ -147,27 +136,18 @@ describe('Wobe', () => {
 				return ctx.res.send('OK')
 			})
 			.get('/upload', async () => {
-				return new Response(
-					Bun.file(`${__dirname}/../fixtures/testFile.html`),
-					{
-						headers: {
-							'Content-Type': 'text/html',
-						},
+				return new Response(Bun.file(`${__dirname}/../fixtures/testFile.html`), {
+					headers: {
+						'Content-Type': 'text/html',
 					},
-				)
+				})
 			})
 			.options('/options', async (ctx) => {
 				mockOptions()
 				return ctx.res.send('OK')
 			})
-			.beforeHandler(
-				'/test/',
-				csrf({ origin: `http://127.0.0.1:${port}` }),
-			)
-			.beforeHandler(
-				'/test',
-				csrf({ origin: `http://127.0.0.1:${port}` }),
-			)
+			.beforeHandler('/test/', csrf({ origin: `http://127.0.0.1:${port}` }))
+			.beforeHandler('/test', csrf({ origin: `http://127.0.0.1:${port}` }))
 			.beforeAndAfterHandler(logger())
 			.beforeHandler('/testBearer', bearerAuth({ token: '123' }))
 			.beforeHandler('/test/*', mockHookWithWildcardRoute)
@@ -216,31 +196,25 @@ describe('Wobe', () => {
 		mockOptions.mockClear()
 	})
 
-	it.skipIf(process.env.NODE_TEST !== 'true')(
-		'should call Node runtime adapter',
-		async () => {
-			const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
+	it.skipIf(process.env.NODE_TEST !== 'true')('should call Node runtime adapter', async () => {
+		const spyNodeAdapter = spyOn(nodeAdapter, 'NodeAdapter')
 
-			const wobe = new Wobe().listen(5555)
+		const wobe = new Wobe().listen(5555)
 
-			expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
+		expect(spyNodeAdapter).toHaveBeenCalledTimes(1)
 
-			wobe.stop()
-		},
-	)
+		wobe.stop()
+	})
 
-	it.skipIf(process.env.NODE_TEST === 'true')(
-		'should call Bun runtime adapter',
-		async () => {
-			const spyBunAdapter = spyOn(bunAdapter, 'BunAdapter')
+	it.skipIf(process.env.NODE_TEST === 'true')('should call Bun runtime adapter', async () => {
+		const spyBunAdapter = spyOn(bunAdapter, 'BunAdapter')
 
-			const wobe = new Wobe().listen(5555)
+		const wobe = new Wobe().listen(5555)
 
-			expect(spyBunAdapter).toHaveBeenCalledTimes(1)
+		expect(spyBunAdapter).toHaveBeenCalledTimes(1)
 
-			wobe.stop()
-		},
-	)
+		wobe.stop()
+	})
 
 	// Waiting https://github.com/oven-sh/bun/pull/10266
 	it.skip('should return the good statusText of the response', async () => {
@@ -255,22 +229,16 @@ describe('Wobe', () => {
 		expect(res.statusText).toBe('Test')
 	})
 
-	it.skipIf(process.env.NODE_TEST === 'true')(
-		'should upload a file',
-		async () => {
-			const res = await fetch(`http://127.0.0.1:${port}/upload`)
+	it.skipIf(process.env.NODE_TEST === 'true')('should upload a file', async () => {
+		const res = await fetch(`http://127.0.0.1:${port}/upload`)
 
-			expect(await res.text()).toBe('<html>\ntestfile\n</html>\n')
-			expect(res.headers.get('Content-Type')).toBe('text/html')
-			expect(res.status).toBe(200)
-		},
-	)
+		expect(await res.text()).toBe('<html>\n\ttestfile\n</html>\n')
+		expect(res.headers.get('Content-Type')).toBe('text/html')
+		expect(res.status).toBe(200)
+	})
 
 	it('should listen on different hostname', async () => {
-		const wobeTest = new Wobe({ hostname: '0.0.0.0' }).get(
-			'/health',
-			(ctx) => ctx.res.send('ok'),
-		)
+		const wobeTest = new Wobe({ hostname: '0.0.0.0' }).get('/health', (ctx) => ctx.res.send('ok'))
 
 		wobeTest.listen(5555)
 
@@ -344,12 +312,9 @@ describe('Wobe', () => {
 			expect(listenPort).toBe(localPort)
 		})
 
-		const localWobe = new Wobe().listen(
-			localPort,
-			({ hostname, port: listenPort }) => {
-				mockCallback(hostname, listenPort)
-			},
-		)
+		const localWobe = new Wobe().listen(localPort, ({ hostname, port: listenPort }) => {
+			mockCallback(hostname, listenPort)
+		})
 
 		expect(mockCallback).toHaveBeenCalledTimes(1)
 
@@ -357,23 +322,17 @@ describe('Wobe', () => {
 	})
 
 	it('should works with request cache (same request but different body)', async () => {
-		const res = await fetch(
-			`http://127.0.0.1:${port}/testRequestBodyCache`,
-			{
-				method: 'POST',
-				body: '1',
-			},
-		)
+		const res = await fetch(`http://127.0.0.1:${port}/testRequestBodyCache`, {
+			method: 'POST',
+			body: '1',
+		})
 
 		expect(await res.text()).toBe('1')
 
-		const res2 = await fetch(
-			`http://127.0.0.1:${port}/testRequestBodyCache`,
-			{
-				method: 'POST',
-				body: '2',
-			},
-		)
+		const res2 = await fetch(`http://127.0.0.1:${port}/testRequestBodyCache`, {
+			method: 'POST',
+			body: '2',
+		})
 
 		expect(await res2.text()).toBe('2')
 	})
@@ -396,9 +355,7 @@ describe('Wobe', () => {
 		expect(await res.text()).toBe('Test error')
 		expect(res.status).toBe(500)
 
-		const res2 = await fetch(
-			`http://127.0.0.1:${port}/testHttpExceptionError`,
-		)
+		const res2 = await fetch(`http://127.0.0.1:${port}/testHttpExceptionError`)
 
 		expect(await res2.text()).toBe('Test error')
 		expect(res2.status).toBe(400)
@@ -412,9 +369,7 @@ describe('Wobe', () => {
 	})
 
 	it('should have the correct state if there is afterHandler middleware (with context cache)', async () => {
-		const res = await fetch(
-			`http://127.0.0.1:${port}/testAfterHandlerCache`,
-		)
+		const res = await fetch(`http://127.0.0.1:${port}/testAfterHandlerCache`)
 
 		expect(await res.text()).toBe('afterHandler')
 
@@ -467,9 +422,7 @@ describe('Wobe', () => {
 
 		expect(res.status).toBe(401)
 		expect(res.statusText).toBe('Unauthorized')
-		expect(res.headers.get('WWW-Authenticate')).toEqual(
-			'Bearer realm="", error="invalid_token"',
-		)
+		expect(res.headers.get('WWW-Authenticate')).toEqual('Bearer realm="", error="invalid_token"')
 	})
 
 	it('should not block requests with valid origin', async () => {
@@ -524,9 +477,7 @@ describe('Wobe', () => {
 
 		expect(await res.text()).toEqual('1')
 
-		const res2 = await fetch(
-			`http://127.0.0.1:${port}/route/1/name?test=bun`,
-		)
+		const res2 = await fetch(`http://127.0.0.1:${port}/route/1/name?test=bun`)
 
 		expect(await res2.text()).toEqual('bun')
 	})
@@ -660,17 +611,13 @@ describe('Wobe', () => {
 		// @ts-expect-error
 		expect(mockHook.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockHook.mock.calls[0][0].request.url).toBe(
-			`http://127.0.0.1:${port}/testGet`,
-		)
+		expect(mockHook.mock.calls[0][0].request.url).toBe(`http://127.0.0.1:${port}/testGet`)
 
 		expect(mockSecondHook).toHaveBeenCalledTimes(1)
 		// @ts-expect-error
 		expect(mockSecondHook.mock.calls[0][0].request.method).toBe('GET')
 		// @ts-expect-error
-		expect(mockSecondHook.mock.calls[0][0].request.url).toBe(
-			`http://127.0.0.1:${port}/testGet`,
-		)
+		expect(mockSecondHook.mock.calls[0][0].request.url).toBe(`http://127.0.0.1:${port}/testGet`)
 
 		expect(mockOnlyOnTestGet).toHaveBeenCalledTimes(1)
 	})
