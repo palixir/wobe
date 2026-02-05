@@ -215,5 +215,5 @@ export const NodeAdapter = (): RuntimeAdapter => ({
 			})
 		}).listen(port, options?.hostname)
 	},
-	stopServer: (server: any) => server.close(),
+	stopServer: (server) => server.close(),
 })
