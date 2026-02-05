@@ -232,7 +232,7 @@ describe('Wobe', () => {
 	it.skipIf(process.env.NODE_TEST === 'true')('should upload a file', async () => {
 		const res = await fetch(`http://127.0.0.1:${port}/upload`)
 
-		expect(await res.text()).toBe('<html>\ntestfile\n</html>\n')
+		expect(await res.text()).toBe('<html>\n\ttestfile\n</html>\n')
 		expect(res.headers.get('Content-Type')).toBe('text/html')
 		expect(res.status).toBe(200)
 	})
