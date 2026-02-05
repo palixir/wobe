@@ -146,5 +146,5 @@ export const BunAdapter = (): RuntimeAdapter => ({
 				}
 			},
 		}),
-	stopServer: async (server) => server.stop(),
+	stopServer: (server) => server.stop(),
 })

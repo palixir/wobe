@@ -321,7 +321,7 @@ export class Wobe<T> {
 	/**
 	 * stop is the method to stop the server
 	 */
-	stop() {
-		this.runtimeAdapter.stopServer(this.server)
+	async stop() {
+		await this.runtimeAdapter.stopServer(this.server)
 	}
 }

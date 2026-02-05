@@ -12,5 +12,5 @@ export interface RuntimeAdapter {
 		webSocket?: WobeWebSocket,
 	) => any
 
-	stopServer: (server: any) => void
+	stopServer: (server: any) => Promise<void>
 }
