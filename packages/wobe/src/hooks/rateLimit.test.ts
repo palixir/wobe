@@ -120,12 +120,9 @@ describe('rateLimit', () => {
 
 		expect(() => handler(context)).toThrow()
 
-		const responseFromHttpException = mockHttpExceptionConstructor.mock
-			.calls[0][0] as Response
+		const responseFromHttpException = mockHttpExceptionConstructor.mock.calls[0][0] as Response
 
 		expect(responseFromHttpException.status).toBe(429)
-		expect(await responseFromHttpException.text()).toBe(
-			'Rate limit exceeded',
-		)
+		expect(await responseFromHttpException.text()).toBe('Rate limit exceeded')
 	})
 })

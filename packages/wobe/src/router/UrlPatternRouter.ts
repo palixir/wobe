@@ -19,9 +19,7 @@ type RouteEntry = {
 
 const createURLPattern = (pathname: string): URLPatternLike | null => {
 	const URLPatternConstructor = (globalThis as any).URLPattern as
-		| (new (init: {
-				pathname: string
-		  }) => URLPatternLike)
+		| (new (init: { pathname: string }) => URLPatternLike)
 		| undefined
 
 	if (!URLPatternConstructor) return null
@@ -38,14 +36,8 @@ export class UrlPatternRouter {
 		typeof (globalThis as any).URLPattern === 'object'
 	private routes: Array<RouteEntry> = []
 
-	private addRouteEntry(
-		node: Node,
-		method: HttpMethod,
-		normalizedPath: string,
-	) {
-		const pattern = this.hasURLPattern
-			? createURLPattern(normalizedPath)
-			: null
+	private addRouteEntry(node: Node, method: HttpMethod, normalizedPath: string) {
+		const pattern = this.hasURLPattern ? createURLPattern(normalizedPath) : null
 
 		this.routePatterns.set(node, pattern)
 
@@ -79,15 +71,10 @@ export class UrlPatternRouter {
 
 			let foundNode = currentNode.children.find(
 				(node) =>
-					node.name === (i === 0 ? '' : '/') + pathPart &&
-					(node.method === method || !node.method),
+					node.name === (i === 0 ? '' : '/') + pathPart && (node.method === method || !node.method),
 			)
 
-			if (
-				foundNode &&
-				foundNode.method === method &&
-				i === pathParts.length - 1
-			)
+			if (foundNode && foundNode.method === method && i === pathParts.length - 1)
 				throw new Error(`Route ${method} ${path} already exists`)
 
 			if (!foundNode) {
@@ -140,17 +127,8 @@ export class UrlPatternRouter {
 		}
 	}
 
-	addHook(
-		hook: Hook,
-		path: string,
-		handler: WobeHandler<any>,
-		method: HttpMethod,
-		node?: Node,
-	) {
-		if (this.isOptimized)
-			throw new Error(
-				'Cannot add hooks after the tree has been optimized',
-			)
+	addHook(hook: Hook, path: string, handler: WobeHandler<any>, method: HttpMethod, node?: Node) {
+		if (this.isOptimized) throw new Error('Cannot add hooks after the tree has been optimized')
 
 		let currentNode = node || this.root
 
@@ -161,10 +139,7 @@ export class UrlPatternRouter {
 			while (stack.length > 0) {
 				const child = stack.pop() as Node
 
-				if (
-					child.handler &&
-					(method === child.method || method === 'ALL')
-				)
+				if (child.handler && (method === child.method || method === 'ALL'))
 					this._addHookToNode(child, hook, handler)
 
 				if (child.children.length > 0) stack.push(...child.children)
@@ -192,8 +167,7 @@ export class UrlPatternRouter {
 
 			const foundNode = currentNode.children.find(
 				(node) =>
-					node.name ===
-						(currentNode.name === '/' ? '' : '/') + pathPart &&
+					node.name === (currentNode.name === '/' ? '' : '/') + pathPart &&
 					((node.method && node.method === method) || !node.method),
 			)
 
@@ -230,20 +204,12 @@ export class UrlPatternRouter {
 					matched = true
 				} else if (entry.normalizedPath.endsWith('/*')) {
 					const prefix = entry.normalizedPath.split('/*')[0]
-					if (
-						localPath === prefix ||
-						localPath.startsWith(prefix + '/')
-					)
-						matched = true
+					if (localPath === prefix || localPath.startsWith(prefix + '/')) matched = true
 				} else {
 					const paramIndex = entry.normalizedPath.indexOf('/:')
 					if (paramIndex !== -1) {
 						const prefix = entry.normalizedPath.slice(0, paramIndex)
-						if (
-							localPath === prefix ||
-							(hadTrailingSlash && localPath === prefix)
-						)
-							matched = true
+						if (localPath === prefix || (hadTrailingSlash && localPath === prefix)) matched = true
 					}
 				}
 
@@ -262,8 +228,7 @@ export class UrlPatternRouter {
 
 			if (match?.pathname?.groups) {
 				const groups = match.pathname.groups
-				if (Object.keys(groups).length > 0)
-					bestMatch.node.params = groups as Record<string, string>
+				if (Object.keys(groups).length > 0) bestMatch.node.params = groups as Record<string, string>
 				else bestMatch.node.params = undefined
 			} else {
 				bestMatch.node.params = undefined
@@ -276,19 +241,14 @@ export class UrlPatternRouter {
 		let nextIndexToEnd = 0
 		let params: Record<string, string> | undefined
 
-		const isNodeMatch = (
-			node: Node,
-			indexToBegin: number,
-			indexToEnd: number,
-		): Node | null => {
+		const isNodeMatch = (node: Node, indexToBegin: number, indexToEnd: number): Node | null => {
 			const nextIndexToBegin = indexToBegin + (indexToEnd - indexToBegin)
 
 			for (let i = 0; i < node.children.length; i++) {
 				const child = node.children[i]
 				const childName = child.name
 
-				const isChildWildcardOrParameterNode =
-					child.isWildcardNode || child.isParameterNode
+				const isChildWildcardOrParameterNode = child.isWildcardNode || child.isParameterNode
 
 				nextIndexToEnd = localPath.indexOf(
 					'/',
@@ -299,8 +259,7 @@ export class UrlPatternRouter {
 
 				if (nextIndexToEnd === -1) nextIndexToEnd = pathLength
 
-				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode)
-					continue
+				if (indexToEnd === nextIndexToEnd && !child.isWildcardNode) continue
 
 				if (
 					!isChildWildcardOrParameterNode &&
@@ -313,11 +272,10 @@ export class UrlPatternRouter {
 
 					const indexToAddIfFirstNode = indexToBegin === 0 ? 0 : 1
 
-					params[childName.slice(1 + indexToAddIfFirstNode)] =
-						localPath.slice(
-							nextIndexToBegin + indexToAddIfFirstNode,
-							nextIndexToEnd,
-						)
+					params[childName.slice(1 + indexToAddIfFirstNode)] = localPath.slice(
+						nextIndexToBegin + indexToAddIfFirstNode,
+						nextIndexToEnd,
+					)
 				}
 
 				if (
@@ -333,19 +291,12 @@ export class UrlPatternRouter {
 				) {
 					if (isChildWildcardOrParameterNode) return child
 
-					const pathToCompute = localPath.slice(
-						nextIndexToBegin,
-						nextIndexToEnd,
-					)
+					const pathToCompute = localPath.slice(nextIndexToBegin, nextIndexToEnd)
 
 					if (pathToCompute === childName) return child
 				}
 
-				const foundNode = isNodeMatch(
-					child,
-					nextIndexToBegin,
-					nextIndexToEnd,
-				)
+				const foundNode = isNodeMatch(child, nextIndexToBegin, nextIndexToEnd)
 
 				if (foundNode) return foundNode
 			}
@@ -399,11 +350,7 @@ export class UrlPatternRouter {
 
 		const rebuild = (node: Node) => {
 			if (node.handler && (node as any).fullPath) {
-				this.addRouteEntry(
-					node,
-					node.method as HttpMethod,
-					(node as any).fullPath,
-				)
+				this.addRouteEntry(node, node.method as HttpMethod, (node as any).fullPath)
 			}
 
 			node.children.forEach(rebuild)

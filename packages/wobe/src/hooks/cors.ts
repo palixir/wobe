@@ -1,9 +1,6 @@
 import type { WobeHandler } from '../Wobe'
 
-type Origin =
-	| string
-	| string[]
-	| ((origin: string) => string | undefined | null)
+type Origin = string | string[] | ((origin: string) => string | undefined | null)
 
 export interface CorsOptions {
 	origin: Origin
@@ -43,49 +40,29 @@ export const cors = (options?: CorsOptions): WobeHandler<any> => {
 
 		const allowOrigin = getAllowOrigin(opts.origin)
 
-		if (allowOrigin)
-			ctx.res.headers.set('Access-Control-Allow-Origin', allowOrigin)
+		if (allowOrigin) ctx.res.headers.set('Access-Control-Allow-Origin', allowOrigin)
 
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
 		if (opts.origin !== '*') ctx.res.headers.set('Vary', 'Origin')
 
-		if (opts.credentials)
-			ctx.res.headers.set('Access-Control-Allow-Credentials', 'true')
+		if (opts.credentials) ctx.res.headers.set('Access-Control-Allow-Credentials', 'true')
 
 		if (opts.exposeHeaders?.length)
-			ctx.res.headers.set(
-				'Access-Control-Expose-Headers',
-				opts.exposeHeaders.join(','),
-			)
+			ctx.res.headers.set('Access-Control-Expose-Headers', opts.exposeHeaders.join(','))
 
 		if (ctx.request.method === 'OPTIONS') {
-			if (opts.maxAge)
-				ctx.res.headers.set(
-					'Access-Control-Max-Age',
-					opts.maxAge.toString(),
-				)
+			if (opts.maxAge) ctx.res.headers.set('Access-Control-Max-Age', opts.maxAge.toString())
 
 			if (opts.allowMethods?.length)
-				ctx.res.headers.set(
-					'Access-Control-Allow-Methods',
-					opts.allowMethods.join(','),
-				)
+				ctx.res.headers.set('Access-Control-Allow-Methods', opts.allowMethods.join(','))
 
 			const headers = opts.allowHeaders?.length
 				? opts.allowHeaders
-				: ctx.request.headers
-						.get('Access-Control-Request-Headers')
-						?.split(/\s*,\s*/)
+				: ctx.request.headers.get('Access-Control-Request-Headers')?.split(/\s*,\s*/)
 
 			if (headers?.length) {
-				ctx.res.headers.set(
-					'Access-Control-Allow-Headers',
-					headers.join(','),
-				)
-				ctx.res.headers?.append(
-					'Vary',
-					'Access-Control-Request-Headers',
-				)
+				ctx.res.headers.set('Access-Control-Allow-Headers', headers.join(','))
+				ctx.res.headers?.append('Vary', 'Access-Control-Request-Headers')
 			}
 
 			ctx.res.headers?.delete('Content-Length')

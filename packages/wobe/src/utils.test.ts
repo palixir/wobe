@@ -29,8 +29,7 @@ describe('Utils', () => {
 
 		it('should extract single search param from a route', () => {
 			const route = 'http://localhost:3000/test?name=John'
-			const { pathName, searchParams } =
-				extractPathnameAndSearchParams(route)
+			const { pathName, searchParams } = extractPathnameAndSearchParams(route)
 
 			expect(pathName).toBe('/test')
 			expect(searchParams).toEqual({ name: 'John' })
@@ -38,8 +37,7 @@ describe('Utils', () => {
 
 		it('should extract search params from a route', () => {
 			const route = 'http://localhost:3000/test?name=John&age=30'
-			const { pathName, searchParams } =
-				extractPathnameAndSearchParams(route)
+			const { pathName, searchParams } = extractPathnameAndSearchParams(route)
 
 			expect(pathName).toBe('/test')
 			expect(searchParams).toEqual({ name: 'John', age: '30' })
@@ -48,8 +46,7 @@ describe('Utils', () => {
 		it('should extract search params from a complex route', () => {
 			const route =
 				'http://localhost:3000/test?name=John&age=30&firstName=Pierre-Jacques&Country=Pays basque'
-			const { pathName, searchParams } =
-				extractPathnameAndSearchParams(route)
+			const { pathName, searchParams } = extractPathnameAndSearchParams(route)
 
 			expect(pathName).toBe('/test')
 			expect(searchParams).toEqual({

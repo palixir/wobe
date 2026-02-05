@@ -25,9 +25,7 @@ const routes: Array<RouteInterface> = [
 		hasParams: false,
 	},
 	{
-		request: new Request(
-			'https://localhost:3000/very/deeply/nested/route/hello/there',
-		),
+		request: new Request('https://localhost:3000/very/deeply/nested/route/hello/there'),
 		hasParams: false,
 	},
 	{

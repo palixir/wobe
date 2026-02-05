@@ -107,8 +107,7 @@ const trySendFile = async (
 
 		const real = await realpath(filePath)
 		if (!allowSymlinks) {
-			const insideRoot =
-				real === resolvedRoot || real.startsWith(resolvedRoot + sep)
+			const insideRoot = real === resolvedRoot || real.startsWith(resolvedRoot + sep)
 			if (!insideRoot) return ctx.res.send('Forbidden', { status: 403 })
 		}
 
@@ -121,9 +120,7 @@ const trySendFile = async (
 				headers: { 'Content-Type': contentType },
 			})
 
-		const body = isTextType(contentType)
-			? await file.text()
-			: await file.arrayBuffer()
+		const body = isTextType(contentType) ? await file.text() : await file.arrayBuffer()
 
 		return ctx.res.send(body, {
 			headers: { 'Content-Type': contentType },
@@ -156,9 +153,7 @@ export const html = (options: HtmlOptions): WobeHandler<any> => {
 		allowSymlinks = false,
 	} = options
 	const resolvedRoot = resolve(rootPath)
-	const normalizedPrefix = stripPrefix
-		? stripPrefix.replace(/\/+$/, '')
-		: undefined
+	const normalizedPrefix = stripPrefix ? stripPrefix.replace(/\/+$/, '') : undefined
 
 	return async (ctx) => {
 		const method = ctx.request.method?.toUpperCase?.() || 'GET'
@@ -184,19 +179,15 @@ export const html = (options: HtmlOptions): WobeHandler<any> => {
 				? decodedPathname.slice(normalizedPrefix.length) || '/'
 				: decodedPathname
 
-		const normalizedPathRaw = normalize(
-			withoutPrefix.replace(/^\/+/, '') || '',
-		)
-		const normalizedPath =
-			normalizedPathRaw === '.' ? '' : normalizedPathRaw
+		const normalizedPathRaw = normalize(withoutPrefix.replace(/^\/+/, '') || '')
+		const normalizedPath = normalizedPathRaw === '.' ? '' : normalizedPathRaw
 
 		if (!allowDotfiles && isDotPath(normalizedPath))
 			return ctx.res.send('Not Found', { status: 404 })
 
 		const requestedPath = resolve(resolvedRoot, normalizedPath)
 		const isInsideRoot =
-			requestedPath === resolvedRoot ||
-			requestedPath.startsWith(resolvedRoot + sep)
+			requestedPath === resolvedRoot || requestedPath.startsWith(resolvedRoot + sep)
 
 		if (!isInsideRoot) return ctx.res.send('Forbidden', { status: 403 })
 
@@ -212,8 +203,7 @@ export const html = (options: HtmlOptions): WobeHandler<any> => {
 		if (fallbackFile) {
 			const fallbackPath = resolve(resolvedRoot, fallbackFile)
 			const isFallbackInsideRoot =
-				fallbackPath === resolvedRoot ||
-				fallbackPath.startsWith(resolvedRoot + sep)
+				fallbackPath === resolvedRoot || fallbackPath.startsWith(resolvedRoot + sep)
 
 			if (isFallbackInsideRoot) {
 				const fallbackServed = await trySendFile(ctx, fallbackPath, {

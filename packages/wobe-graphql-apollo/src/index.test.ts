@@ -126,9 +126,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 		const body = await res.json()
 
 		expect(res.status).toBe(400)
-		expect(body.errors?.[0]?.message?.toLowerCase()).toContain(
-			'introspection',
-		)
+		expect(body.errors?.[0]?.message?.toLowerCase()).toContain('introspection')
 
 		wobe.stop()
 	})
@@ -298,9 +296,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		const body = await res.json()
 		expect(body.data).toBeUndefined()
-		expect(body.errors?.[0]?.message).toMatch(
-			/Multiple operations|Could not determine/i,
-		)
+		expect(body.errors?.[0]?.message).toMatch(/Multiple operations|Could not determine/i)
 
 		wobe.stop()
 	})
@@ -426,8 +422,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		await wobe.usePlugin(
 			await WobeGraphqlApolloPlugin({
-				rateLimiter: async () =>
-					new Response('Too Many Requests', { status: 429 }),
+				rateLimiter: async () => new Response('Too Many Requests', { status: 429 }),
 				options: {
 					typeDefs: `#graphql
 					type Query { hello: String }
@@ -728,9 +723,7 @@ describe('Wobe GraphQL Apollo plugin', () => {
 		})
 
 		expect(res.status).toBe(200)
-		expect(res.headers.get('set-cookie')).toBe(
-			'before=before;, after=after;',
-		)
+		expect(res.headers.get('set-cookie')).toBe('before=before;, after=after;')
 		expect(await res.json()).toEqual({
 			data: { hello: 'Hello from Apollo!' },
 		})

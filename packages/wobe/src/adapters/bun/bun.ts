@@ -23,11 +23,7 @@ const parseForwardedIp = (xff?: string | null) => {
 	return first && first.length <= 100 ? first : undefined
 }
 
-const decompressBody = (
-	encoding: string,
-	buffer: Uint8Array,
-	maxBodySize: number,
-) => {
+const decompressBody = (encoding: string, buffer: Uint8Array, maxBodySize: number) => {
 	const lower = encoding.toLowerCase()
 	if (lower === 'identity' || lower === '') return Buffer.from(buffer)
 
@@ -53,12 +49,7 @@ const decompressBody = (
 }
 
 export const BunAdapter = (): RuntimeAdapter => ({
-	createServer: (
-		port: number,
-		router: Router,
-		options?: WobeOptions,
-		webSocket?: WobeWebSocket,
-	) =>
+	createServer: (port: number, router: Router, options?: WobeOptions, webSocket?: WobeWebSocket) =>
 		Bun.serve({
 			port,
 			tls: options?.tls,
@@ -66,23 +57,17 @@ export const BunAdapter = (): RuntimeAdapter => ({
 			development: process.env.NODE_ENV !== 'production',
 			websocket: bunWebSocket(webSocket),
 			async fetch(req, server) {
-				const maxBodySize =
-					options?.maxBodySize ?? DEFAULT_MAX_BODY_SIZE
-				const allowedContentEncodings = normalizeEncodings(
-					options?.allowedContentEncodings,
-				)
+				const maxBodySize = options?.maxBodySize ?? DEFAULT_MAX_BODY_SIZE
+				const allowedContentEncodings = normalizeEncodings(options?.allowedContentEncodings)
 
 				const hostHeader = req.headers.get('host')
-				if (!isHostHeaderValid(hostHeader))
-					return new Response(null, { status: 400 })
+				if (!isHostHeaderValid(hostHeader)) return new Response(null, { status: 400 })
 
 				const expectHeader = req.headers.get('expect')
 				if (expectHeader) return new Response(null, { status: 417 })
 
 				try {
-					const contentEncoding =
-						req.headers.get('content-encoding')?.toLowerCase() ||
-						'identity'
+					const contentEncoding = req.headers.get('content-encoding')?.toLowerCase() || 'identity'
 
 					if (!allowedContentEncodings.includes(contentEncoding))
 						return new Response('Unsupported Content-Encoding', {
@@ -90,43 +75,26 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						})
 
 					// Validate declared content-length before reading
-					const contentLengthHeader =
-						req.headers.get('content-length') || '0'
+					const contentLengthHeader = req.headers.get('content-length') || '0'
 					const parsedLength = Number(contentLengthHeader)
 
-					if (
-						!Number.isNaN(parsedLength) &&
-						parsedLength > maxBodySize
-					)
+					if (!Number.isNaN(parsedLength) && parsedLength > maxBodySize)
 						return new Response(null, { status: 413 })
 
 					let requestForContext = req
 
-					if (
-						req.method !== 'GET' &&
-						req.method !== 'HEAD' &&
-						req.method !== 'OPTIONS'
-					) {
+					if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
 						const rawBody = new Uint8Array(await req.arrayBuffer())
 
-						if (rawBody.byteLength > maxBodySize)
-							return new Response(null, { status: 413 })
+						if (rawBody.byteLength > maxBodySize) return new Response(null, { status: 413 })
 
 						let decodedBody: Buffer
 						try {
-							decodedBody = decompressBody(
-								contentEncoding,
-								rawBody,
-								maxBodySize,
-							)
+							decodedBody = decompressBody(contentEncoding, rawBody, maxBodySize)
 						} catch (err: any) {
 							if (err?.message === 'UNSUPPORTED_ENCODING')
-								return new Response(
-									'Unsupported Content-Encoding',
-									{ status: 415 },
-								)
-							if (err?.message === 'PAYLOAD_TOO_LARGE')
-								return new Response(null, { status: 413 })
+								return new Response('Unsupported Content-Encoding', { status: 415 })
+							if (err?.message === 'PAYLOAD_TOO_LARGE') return new Response(null, { status: 413 })
 
 							return new Response('Invalid compressed body', {
 								status: 400,
@@ -144,9 +112,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 
 					context.getIpAdress = () => {
 						if (options?.trustProxy) {
-							const forwarded = parseForwardedIp(
-								req.headers.get('x-forwarded-for'),
-							)
+							const forwarded = parseForwardedIp(req.headers.get('x-forwarded-for'))
 							if (forwarded) return forwarded
 						}
 
@@ -155,8 +121,7 @@ export const BunAdapter = (): RuntimeAdapter => ({
 
 					if (webSocket && webSocket.path === context.pathname) {
 						// We need to run hook sequentially
-						for (const hookBeforeSocketUpgrade of webSocket.beforeWebSocketUpgrade ||
-							[])
+						for (const hookBeforeSocketUpgrade of webSocket.beforeWebSocketUpgrade || [])
 							await hookBeforeSocketUpgrade(context)
 
 						if (server.upgrade(req)) return

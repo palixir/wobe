@@ -1,12 +1,4 @@
-import {
-	describe,
-	expect,
-	it,
-	beforeAll,
-	afterAll,
-	mock,
-	beforeEach,
-} from 'bun:test'
+import { describe, expect, it, beforeAll, afterAll, mock, beforeEach } from 'bun:test'
 import { Wobe } from '../../Wobe'
 import getPort from 'get-port'
 import { bunWebSocket } from './websocket'
@@ -22,7 +14,6 @@ const waitWebsocketClosed = (ws: WebSocket) =>
 	})
 
 describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
-	4
 	const mockOnOpen = mock(() => {})
 	const mockOnMessage = mock(() => {})
 	const mockOnClose = mock(() => {})
@@ -135,10 +126,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
 		wobe2
 			.useWebSocket({
 				path: '/ws',
-				beforeWebSocketUpgrade: [
-					mockBeforeHandler1,
-					mockBeforeHandler2,
-				],
+				beforeWebSocketUpgrade: [mockBeforeHandler1, mockBeforeHandler2],
 			})
 			.listen(port2)
 
@@ -167,10 +155,7 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
 		wobe2
 			.useWebSocket({
 				path: '/ws',
-				beforeWebSocketUpgrade: [
-					mockBeforeHandler1,
-					mockBeforeHandler2,
-				],
+				beforeWebSocketUpgrade: [mockBeforeHandler1, mockBeforeHandler2],
 			})
 			.listen(port2)
 

@@ -60,8 +60,7 @@ export const uploadDirectory = ({
 
 		const filePath = resolve(resolvedRoot, fileName)
 
-		const isInsideRoot =
-			filePath === resolvedRoot || filePath.startsWith(resolvedRoot + sep)
+		const isInsideRoot = filePath === resolvedRoot || filePath.startsWith(resolvedRoot + sep)
 
 		if (!isInsideRoot) {
 			ctx.res.status = 403
@@ -86,10 +85,7 @@ export const uploadDirectory = ({
 			const contentType = mimeTypes[ext] || 'application/octet-stream'
 
 			ctx.res.headers.set('Content-Type', contentType)
-			ctx.res.headers.set(
-				'Content-Length',
-				fileContent.byteLength.toString(),
-			)
+			ctx.res.headers.set('Content-Length', fileContent.byteLength.toString())
 
 			return ctx.res.send(fileContent)
 		} catch {

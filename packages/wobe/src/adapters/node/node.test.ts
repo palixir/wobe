@@ -23,9 +23,7 @@ describe.skipIf(process.env.NODE_TEST !== 'true')('Node server', () => {
 
 		wobe.get('/hi', async (ctx) => {
 			if (ctx.res.status === 201) {
-				throw new HttpException(
-					new Response('Status should be equal to 200'),
-				)
+				throw new HttpException(new Response('Status should be equal to 200'))
 			}
 
 			ctx.res.sendText('Hi')
@@ -63,12 +61,8 @@ describe.skipIf(process.env.NODE_TEST !== 'true')('Node server', () => {
 	it('should call create server from node:https if https options is not undefined', async () => {
 		const port = await getPort()
 
-		const key = await Bun.file(
-			`${import.meta.dirname}/../../../fixtures/key.pem`,
-		).text()
-		const cert = await Bun.file(
-			`${import.meta.dirname}/../../../fixtures/cert.pem`,
-		).text()
+		const key = await Bun.file(`${import.meta.dirname}/../../../fixtures/key.pem`).text()
+		const cert = await Bun.file(`${import.meta.dirname}/../../../fixtures/cert.pem`).text()
 
 		const wobe = new Wobe({
 			tls: {

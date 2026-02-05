@@ -10,9 +10,8 @@ describe('Wobe Response', () => {
 		)
 
 		const fileContent = new Uint8Array([
-			71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192, 0,
-			0, 0, 33, 249, 4, 1, 0, 0, 0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2,
-			2, 68, 1, 0, 59,
+			71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192, 0, 0, 0, 33, 249, 4, 1, 0, 0,
+			0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 68, 1, 0, 59,
 		]).buffer
 
 		const response = wobeResponse.send(fileContent, {
@@ -61,9 +60,7 @@ describe('Wobe Response', () => {
 		)
 		const sharedBuffer = new SharedArrayBuffer(16)
 		const sharedArray = new Uint8Array(sharedBuffer)
-		sharedArray.set([
-			71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192,
-		])
+		sharedArray.set([71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192])
 		const response = wobeResponse.send(sharedBuffer, {
 			headers: {
 				'Content-Type': 'image/gif',
@@ -77,9 +74,7 @@ describe('Wobe Response', () => {
 		const responseArrayBuffer = await response.arrayBuffer()
 
 		expect(new Uint8Array(responseArrayBuffer)).toEqual(
-			new Uint8Array([
-				71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192,
-			]),
+			new Uint8Array([71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 255, 0, 192, 192, 192]),
 		)
 	})
 
@@ -97,15 +92,11 @@ describe('Wobe Response', () => {
 		})
 
 		expect(response.status).toBe(200)
-		expect(response.headers.get('Content-Type')).toBe(
-			'application/octet-stream',
-		)
+		expect(response.headers.get('Content-Type')).toBe('application/octet-stream')
 
 		const responseArrayBuffer = await response.arrayBuffer()
 
-		expect(new Uint8Array(responseArrayBuffer)).toEqual(
-			new Uint8Array([1, 2, 3, 4, 5]),
-		)
+		expect(new Uint8Array(responseArrayBuffer)).toEqual(new Uint8Array([1, 2, 3, 4, 5]))
 	})
 
 	it('should handle empty ArrayBuffer', async () => {
@@ -121,9 +112,7 @@ describe('Wobe Response', () => {
 			},
 		})
 		expect(response.status).toBe(200)
-		expect(response.headers.get('Content-Type')).toBe(
-			'application/octet-stream',
-		)
+		expect(response.headers.get('Content-Type')).toBe('application/octet-stream')
 		const responseArrayBuffer = await response.arrayBuffer()
 		expect(responseArrayBuffer.byteLength).toBe(0)
 	})
@@ -141,9 +130,7 @@ describe('Wobe Response', () => {
 			},
 		})
 		expect(response.status).toBe(200)
-		expect(response.headers.get('Content-Type')).toBe(
-			'application/octet-stream',
-		)
+		expect(response.headers.get('Content-Type')).toBe('application/octet-stream')
 		const responseArrayBuffer = await response.arrayBuffer()
 		expect(responseArrayBuffer.byteLength).toBe(0)
 	})
@@ -163,15 +150,11 @@ describe('Wobe Response', () => {
 			},
 		})
 		expect(response.status).toBe(200)
-		expect(response.headers.get('Content-Type')).toBe(
-			'application/octet-stream',
-		)
+		expect(response.headers.get('Content-Type')).toBe('application/octet-stream')
 
 		const responseArrayBuffer = await response.arrayBuffer()
 
-		expect(
-			new Uint8Array(responseArrayBuffer).every((val) => val === 42),
-		).toBeTrue()
+		expect(new Uint8Array(responseArrayBuffer).every((val) => val === 42)).toBeTrue()
 	})
 
 	it('should send null content and handle gracefully', async () => {
@@ -192,9 +175,7 @@ describe('Wobe Response', () => {
 	})
 
 	it('should clone a Response into a WobeResponse instance', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.headers.set('X-Tata', 'tata')
 		wobeResponse.setCookie('cookieName', 'cookieValue')
@@ -206,24 +187,18 @@ describe('Wobe Response', () => {
 
 		expect(clonedWobeResponse.headers.get('X-Test')).toBe('test')
 		expect(clonedWobeResponse.headers.get('X-Tata')).toBe('tata')
-		expect(clonedWobeResponse.headers.get('Set-Cookie')).toBe(
-			'cookieName=cookieValue;',
-		)
+		expect(clonedWobeResponse.headers.get('Set-Cookie')).toBe('cookieName=cookieValue;')
 		expect(clonedWobeResponse.response?.status).toBe(200)
 	})
 
 	it('should set an empty header value', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 		wobeResponse.headers.set('X-Test', '')
 		expect(wobeResponse.headers.get('X-Test')).toBe('')
 	})
 
 	it('should send text with correct headers and add another header', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.headers.set('X-Test', 'test')
 
@@ -235,9 +210,7 @@ describe('Wobe Response', () => {
 	})
 
 	it('should set a cookie in a response', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.setCookie('titi', 'test', {
 			httpOnly: true,
@@ -257,37 +230,27 @@ describe('Wobe Response', () => {
 	})
 
 	it('should reject invalid cookie name', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		expect(() => wobeResponse.setCookie('bad name', 'value')).toThrow()
 	})
 
 	it('should reject cookie value with CRLF', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		expect(() => wobeResponse.setCookie('safe', 'val\r\nue')).toThrow()
 	})
 
 	it('should encode dangerous cookie value', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.setCookie('safe', 'value;inject')
 
-		expect(wobeResponse.headers?.get('Set-Cookie')).toBe(
-			'safe=value%3Binject;',
-		)
+		expect(wobeResponse.headers?.get('Set-Cookie')).toBe('safe=value%3Binject;')
 	})
 
 	it('should delete a cookie from a response', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.setCookie('tata', 'tata')
 
@@ -299,9 +262,7 @@ describe('Wobe Response', () => {
 	})
 
 	it('should delete two cookies from response', () => {
-		const wobeResponse = new WobeResponse(
-			new Request('http://localhost:3000/test'),
-		)
+		const wobeResponse = new WobeResponse(new Request('http://localhost:3000/test'))
 
 		wobeResponse.setCookie('tata', 'tata')
 		wobeResponse.setCookie('titi', 'titi')
@@ -428,10 +389,7 @@ describe('Wobe Response', () => {
 			}),
 		)
 
-		const response = wobeResponse.send(
-			{ a: 1, b: 2 },
-			{ status: 201, statusText: 'Created' },
-		)
+		const response = wobeResponse.send({ a: 1, b: 2 }, { status: 201, statusText: 'Created' })
 
 		expect(response.status).toBe(201)
 		expect(response.statusText).toBe('Created')

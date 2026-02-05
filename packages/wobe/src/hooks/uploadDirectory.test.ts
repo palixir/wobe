@@ -29,16 +29,11 @@ describe('UploadDirectory Hook', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.get(
-			'/bucket/:filename',
-			uploadDirectory({ directory: testDirectory }),
-		)
+		wobe.get('/bucket/:filename', uploadDirectory({ directory: testDirectory }))
 
 		wobe.listen(port)
 
-		const response = await fetch(
-			`http://127.0.0.1:${port}/bucket/${fileName}`,
-		)
+		const response = await fetch(`http://127.0.0.1:${port}/bucket/${fileName}`)
 
 		expect(response.status).toBe(200)
 		expect(response.headers.get('Content-Type')).toBe('text/plain')
@@ -53,16 +48,11 @@ describe('UploadDirectory Hook', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.get(
-			'/bucket/:filename',
-			uploadDirectory({ directory: testDirectory }),
-		)
+		wobe.get('/bucket/:filename', uploadDirectory({ directory: testDirectory }))
 
 		wobe.listen(port)
 
-		const response = await fetch(
-			`http://127.0.0.1:${port}/bucket/non-existent-file.txt`,
-		)
+		const response = await fetch(`http://127.0.0.1:${port}/bucket/non-existent-file.txt`)
 
 		expect(response.status).toBe(404)
 		expect(await response.text()).toBe('File not found')
@@ -86,16 +76,11 @@ describe('UploadDirectory Hook', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.get(
-			'/bucket/:filename',
-			uploadDirectory({ directory: testDirectory }),
-		)
+		wobe.get('/bucket/:filename', uploadDirectory({ directory: testDirectory }))
 
 		wobe.listen(port)
 
-		const response = await fetch(
-			`http://127.0.0.1:${port}/bucket/${dotFileName}`,
-		)
+		const response = await fetch(`http://127.0.0.1:${port}/bucket/${dotFileName}`)
 
 		expect(response.status).toBe(404)
 		wobe.stop()
@@ -108,10 +93,7 @@ describe('UploadDirectory Hook', () => {
 		const symlinkPath = join(testDirectory, 'link.txt')
 		await symlink(filePath, symlinkPath)
 
-		wobe.get(
-			'/bucket/:filename',
-			uploadDirectory({ directory: testDirectory }),
-		)
+		wobe.get('/bucket/:filename', uploadDirectory({ directory: testDirectory }))
 
 		wobe.listen(port)
 
@@ -125,10 +107,7 @@ describe('UploadDirectory Hook', () => {
 		const port = await getPort()
 		const wobe = new Wobe()
 
-		wobe.get(
-			'/bucket/:filename',
-			uploadDirectory({ directory: testDirectory }),
-		)
+		wobe.get('/bucket/:filename', uploadDirectory({ directory: testDirectory }))
 
 		wobe.listen(port)
 

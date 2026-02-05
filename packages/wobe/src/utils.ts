@@ -5,10 +5,7 @@ export const extractPathnameAndSearchParams = (url: string) => {
 
 	const isQueryContainsSearchParams = queryIndex !== -1
 
-	const path = url.slice(
-		url.indexOf('/', 8),
-		!isQueryContainsSearchParams ? urlLength : queryIndex,
-	)
+	const path = url.slice(url.indexOf('/', 8), !isQueryContainsSearchParams ? urlLength : queryIndex)
 
 	if (isQueryContainsSearchParams) {
 		const searchParams: Record<string, string> = {}
@@ -24,11 +21,10 @@ export const extractPathnameAndSearchParams = (url: string) => {
 			}
 
 			if (char === '&' || i === urlLength - 1) {
-				searchParams[url.slice(indexOfLastParam, indexOfLastEqual)] =
-					url.slice(
-						indexOfLastEqual + 1,
-						i === urlLength - 1 ? i + 1 : i,
-					)
+				searchParams[url.slice(indexOfLastParam, indexOfLastEqual)] = url.slice(
+					indexOfLastEqual + 1,
+					i === urlLength - 1 ? i + 1 : i,
+				)
 				indexOfLastParam = i + 1
 			}
 		}
@@ -66,11 +62,9 @@ export const mimeTypes: MimeType = {
 	'.mpeg': 'video/mpeg',
 	'.zip': 'application/zip',
 	'.doc': 'application/msword',
-	'.docx':
-		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+	'.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 	'.xls': 'application/vnd.ms-excel',
-	'.xlsx':
-		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+	'.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 	'.bmp': 'image/bmp',
 	'.ico': 'image/x-icon',
 	'.tiff': 'image/tiff',
@@ -98,8 +92,7 @@ export const mimeTypes: MimeType = {
 	'.sh': 'application/x-sh',
 	'.php': 'application/x-httpd-php',
 	'.ppt': 'application/vnd.ms-powerpoint',
-	'.pptx':
-		'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+	'.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 	'.odt': 'application/vnd.oasis.opendocument.text',
 	'.ods': 'application/vnd.oasis.opendocument.spreadsheet',
 	'.odp': 'application/vnd.oasis.opendocument.presentation',

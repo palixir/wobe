@@ -41,9 +41,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Cross-Origin-Embedder-Policy')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('Cross-Origin-Embedder-Policy')).toEqual('random-value')
 	})
 
 	it('should have a default value for Cross-Origin-Opener-Policy', () => {
@@ -59,9 +57,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Cross-Origin-Opener-Policy')).toEqual(
-			'same-origin',
-		)
+		expect(context.res.headers.get('Cross-Origin-Opener-Policy')).toEqual('same-origin')
 	})
 
 	it('should set Cross-Origin-Opener-Policy', () => {
@@ -79,9 +75,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Cross-Origin-Opener-Policy')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('Cross-Origin-Opener-Policy')).toEqual('random-value')
 	})
 
 	it('should have default value for Cross-Origin-Resource-Policty', () => {
@@ -97,9 +91,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Cross-Origin-Resource-Policy')).toEqual(
-			'same-site',
-		)
+		expect(context.res.headers.get('Cross-Origin-Resource-Policy')).toEqual('same-site')
 	})
 
 	it('should set Cross-Origin-Resource-Policy', () => {
@@ -117,9 +109,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Cross-Origin-Resource-Policy')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('Cross-Origin-Resource-Policy')).toEqual('random-value')
 	})
 
 	it('should have default value for Referer-Policy', () => {
@@ -135,9 +125,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Referrer-Policy')).toEqual(
-			'no-referrer',
-		)
+		expect(context.res.headers.get('Referrer-Policy')).toEqual('no-referrer')
 	})
 
 	it('should set Referrer-Policy', () => {
@@ -155,9 +143,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('Referrer-Policy')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('Referrer-Policy')).toEqual('random-value')
 	})
 
 	it('should have default value for Strict-Transport-Security', () => {
@@ -211,9 +197,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('X-Content-Type-Options')).toEqual(
-			'nosniff',
-		)
+		expect(context.res.headers.get('X-Content-Type-Options')).toEqual('nosniff')
 	})
 
 	it('should set X-Content-Type-Options', () => {
@@ -231,9 +215,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('X-Content-Type-Options')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('X-Content-Type-Options')).toEqual('random-value')
 	})
 
 	it('should have default value for X-Download-Options', () => {
@@ -267,9 +249,7 @@ describe('Secure headers', () => {
 
 		handler(context)
 
-		expect(context.res.headers.get('X-Download-Options')).toEqual(
-			'random-value',
-		)
+		expect(context.res.headers.get('X-Download-Options')).toEqual('random-value')
 	})
 
 	it('should set default X-Frame-Options', () => {

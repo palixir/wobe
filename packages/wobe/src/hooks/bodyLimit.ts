@@ -12,14 +12,10 @@ export const bodyLimit = (options: BodyLimitOptions): WobeHandler<any> => {
 	return (ctx) => {
 		// The content-length header is not always present
 		if (ctx.request.headers.get('Content-Length')) {
-			const contentLength = Number(
-				ctx.request.headers.get('Content-Length') || 0,
-			)
+			const contentLength = Number(ctx.request.headers.get('Content-Length') || 0)
 
 			if (contentLength > options.maxSize)
-				throw new HttpException(
-					new Response('Payload too large', { status: 413 }),
-				)
+				throw new HttpException(new Response('Payload too large', { status: 413 }))
 		}
 	}
 }

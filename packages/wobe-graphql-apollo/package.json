@@ -2,33 +2,33 @@
 	"name": "wobe-graphql-apollo",
 	"version": "1.0.11",
 	"description": "Apollo GraphQL server for Wobe (official)",
-	"homepage": "https://wobe.dev",
-	"author": {
-		"name": "coratgerl",
-		"url": "https://github.com/coratgerl"
-	},
 	"keywords": [
 		"graphql-apollo",
 		"wobe"
 	],
+	"homepage": "https://wobe.dev",
+	"license": "MIT",
+	"author": {
+		"name": "coratgerl",
+		"url": "https://github.com/coratgerl"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
 	},
-	"license": "MIT",
 	"main": "dist/index.js",
-	"devDependencies": {
-		"get-port": "7.0.0",
-		"wobe": "workspace:*"
+	"scripts": {
+		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
+		"generate:types": "bun tsc --project .",
+		"format": "oxfmt --write .",
+		"lint": "oxlint .  ",
+		"ci": "bun lint  $(pwd) && bun test src"
 	},
 	"dependencies": {
 		"@apollo/server": "5.2.0"
 	},
-	"scripts": {
-		"build": "bun build --minify --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
-		"generate:types": "bun tsc --project .",
-		"format": "biome format --write .",
-		"lint": "biome lint . --no-errors-on-unmatched ",
-		"ci": "bun lint  $(pwd) && bun test src"
+	"devDependencies": {
+		"get-port": "7.0.0",
+		"wobe": "workspace:*"
 	}
 }

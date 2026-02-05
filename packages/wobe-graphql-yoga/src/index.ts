@@ -5,28 +5,15 @@ import {
 	type Plugin,
 	type YogaServerOptions,
 } from 'graphql-yoga'
-import {
-	GraphQLError,
-	NoSchemaIntrospectionCustomRule,
-	type ValidationRule,
-} from 'graphql'
-import type {
-	Context,
-	MaybePromise,
-	Wobe,
-	WobePlugin,
-	WobeResponse,
-} from 'wobe'
+import { GraphQLError, NoSchemaIntrospectionCustomRule, type ValidationRule } from 'graphql'
+import type { Context, MaybePromise, Wobe, WobePlugin, WobeResponse } from 'wobe'
 
 export type GraphqlYogaContext =
 	| MaybePromise<Record<string, unknown>>
 	| ((context: any) => MaybePromise<unknown>)
 
 export interface GraphqlYogaPluginOptions {
-	graphqlMiddleware?: (
-		resolve: () => Promise<Response>,
-		res: WobeResponse,
-	) => Promise<Response>
+	graphqlMiddleware?: (resolve: () => Promise<Response>, res: WobeResponse) => Promise<Response>
 	allowGetRequests?: boolean
 	isProduction?: boolean
 	allowIntrospection?: boolean
@@ -69,8 +56,7 @@ export const WobeGraphqlYogaPlugin = ({
 	const graphqlEndpoint = options?.graphqlEndpoint || '/graphql'
 	const plugins: Plugin[] = [...(options.plugins || [])]
 
-	const shouldDisableIntrospection =
-		isProduction && allowIntrospection !== true
+	const shouldDisableIntrospection = isProduction && allowIntrospection !== true
 
 	const validationPlugins: Plugin[] = []
 
@@ -145,10 +131,7 @@ export const WobeGraphqlYogaPlugin = ({
 		const getResponse = async () => {
 			if (!graphqlMiddleware) return yoga.handle(context.request, context)
 
-			return graphqlMiddleware(
-				async () => yoga.handle(context.request, context),
-				context.res,
-			)
+			return graphqlMiddleware(async () => yoga.handle(context.request, context), context.res)
 		}
 
 		const response = await resolveWithTimeout(getResponse, timeoutMs)
@@ -174,14 +157,10 @@ export const WobeGraphqlYogaPlugin = ({
 
 	return (wobe: Wobe<unknown>) => {
 		if (allowGetRequests) {
-			wobe.get(graphqlEndpoint, async (context) =>
-				handleGraphQLRequest(context),
-			)
+			wobe.get(graphqlEndpoint, async (context) => handleGraphQLRequest(context))
 		}
 
-		wobe.post(graphqlEndpoint, async (context) =>
-			handleGraphQLRequest(context),
-		)
+		wobe.post(graphqlEndpoint, async (context) => handleGraphQLRequest(context))
 	}
 }
 
@@ -189,28 +168,16 @@ const createDepthLimitRule = (maxDepth: number): ValidationRule => {
 	return (context) => {
 		const checkDepth = (depth: number) => {
 			if (depth > maxDepth) {
-				context.reportError(
-					new GraphQLError(
-						`Query is too deep: ${depth} > max depth ${maxDepth}`,
-					),
-				)
+				context.reportError(new GraphQLError(`Query is too deep: ${depth} > max depth ${maxDepth}`))
 			}
 		}
 
-		const traverse = (
-			selectionSet: any,
-			depth: number,
-			visitedFragments: Set<string>,
-		) => {
+		const traverse = (selectionSet: any, depth: number, visitedFragments: Set<string>) => {
 			checkDepth(depth)
 
 			for (const selection of selectionSet.selections || []) {
 				if (selection.selectionSet) {
-					traverse(
-						selection.selectionSet,
-						depth + 1,
-						visitedFragments,
-					)
+					traverse(selection.selectionSet, depth + 1, visitedFragments)
 					continue
 				}
 
@@ -220,11 +187,7 @@ const createDepthLimitRule = (maxDepth: number): ValidationRule => {
 					visitedFragments.add(name)
 					const fragment = context.getFragment(name)
 					if (fragment) {
-						traverse(
-							fragment.selectionSet,
-							depth + 1,
-							visitedFragments,
-						)
+						traverse(fragment.selectionSet, depth + 1, visitedFragments)
 					}
 				}
 			}
@@ -242,18 +205,12 @@ const createCostLimitRule = (maxCost: number): ValidationRule => {
 	return (context) => {
 		let totalCost = 0
 
-		const countSelections = (
-			selectionSet: any,
-			visitedFragments: Set<string>,
-		): number => {
+		const countSelections = (selectionSet: any, visitedFragments: Set<string>): number => {
 			let cost = 0
 			for (const selection of selectionSet.selections || []) {
 				cost += 1
 				if (selection.selectionSet) {
-					cost += countSelections(
-						selection.selectionSet,
-						visitedFragments,
-					)
+					cost += countSelections(selection.selectionSet, visitedFragments)
 					continue
 				}
 				if (selection.kind === 'FragmentSpread') {
@@ -262,10 +219,7 @@ const createCostLimitRule = (maxCost: number): ValidationRule => {
 					visitedFragments.add(name)
 					const fragment = context.getFragment(name)
 					if (fragment) {
-						cost += countSelections(
-							fragment.selectionSet,
-							visitedFragments,
-						)
+						cost += countSelections(fragment.selectionSet, visitedFragments)
 					}
 				}
 			}
@@ -275,18 +229,13 @@ const createCostLimitRule = (maxCost: number): ValidationRule => {
 		return {
 			OperationDefinition(node) {
 				const visitedFragments = new Set<string>()
-				totalCost += countSelections(
-					node.selectionSet,
-					visitedFragments,
-				)
+				totalCost += countSelections(node.selectionSet, visitedFragments)
 			},
 			Document: {
 				leave() {
 					if (totalCost > maxCost) {
 						context.reportError(
-							new GraphQLError(
-								`Query is too expensive: ${totalCost} > max cost ${maxCost}`,
-							),
+							new GraphQLError(`Query is too expensive: ${totalCost} > max cost ${maxCost}`),
 						)
 					}
 				},
@@ -316,9 +265,7 @@ const createOperationConstraintsRule = ({
 						!allowedOperationNames.includes(name)
 					) {
 						context.reportError(
-							new GraphQLError(
-								`Operation "${name}" is not allowed in this endpoint.`,
-							),
+							new GraphQLError(`Operation "${name}" is not allowed in this endpoint.`),
 						)
 					}
 				}
@@ -327,9 +274,7 @@ const createOperationConstraintsRule = ({
 				leave() {
 					if (!allowMultipleOperations && seenOperations.length > 1) {
 						context.reportError(
-							new GraphQLError(
-								'Multiple operations are not allowed in this endpoint.',
-							),
+							new GraphQLError('Multiple operations are not allowed in this endpoint.'),
 						)
 					}
 				},
@@ -348,10 +293,7 @@ const resolveWithTimeout = async (
 
 	const timeoutPromise = new Promise<Response>((resolveTimeout) => {
 		timeoutId = setTimeout(
-			() =>
-				resolveTimeout(
-					new Response('Request Timeout', { status: 504 }),
-				),
+			() => resolveTimeout(new Response('Request Timeout', { status: 504 })),
 			timeoutMs,
 		)
 	})

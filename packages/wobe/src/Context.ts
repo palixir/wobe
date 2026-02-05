@@ -26,14 +26,9 @@ export class Context {
 	}
 
 	private _findRoute(router?: Router) {
-		const { pathName, searchParams } = extractPathnameAndSearchParams(
-			this.request.url,
-		)
+		const { pathName, searchParams } = extractPathnameAndSearchParams(this.request.url)
 
-		const route = router?.findRoute(
-			this.request.method as HttpMethod,
-			pathName,
-		)
+		const route = router?.findRoute(this.request.method as HttpMethod, pathName)
 
 		this.query = searchParams || {}
 		this.pathname = pathName
@@ -61,8 +56,7 @@ export class Context {
 	async executeHandler() {
 		this.state = 'beforeHandler'
 		// We need to run hook sequentially
-		for (const hookBeforeHandler of this.beforeHandlerHook)
-			await hookBeforeHandler(this)
+		for (const hookBeforeHandler of this.beforeHandlerHook) await hookBeforeHandler(this)
 
 		const resultHandler = await this.handler?.(this)
 
@@ -85,13 +79,9 @@ export class Context {
 
 		if (!cookieHeader) return undefined
 
-		const split = cookieHeader
-			.split(';')
-			.map((cookie) => cookie.replaceAll(' ', ''))
+		const split = cookieHeader.split(';').map((cookie) => cookie.replaceAll(' ', ''))
 
-		const existingCookie = split.find(
-			(element) => element.split('=')[0] === name,
-		)
+		const existingCookie = split.find((element) => element.split('=')[0] === name)
 
 		if (!existingCookie) return undefined
 

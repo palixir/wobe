@@ -10,10 +10,7 @@ export interface RateLimitOptions {
 /**
  * rateLimit is a hook that limits the number of requests per interval
  */
-export const rateLimit = ({
-	interval,
-	numberOfRequests,
-}: RateLimitOptions): WobeHandler<any> => {
+export const rateLimit = ({ interval, numberOfRequests }: RateLimitOptions): WobeHandler<any> => {
 	const store = new WobeStore<number>({
 		interval,
 	})
@@ -24,9 +21,7 @@ export const rateLimit = ({
 		const userRequests = store.get(ipAdress) || 0
 
 		if (userRequests >= numberOfRequests)
-			throw new HttpException(
-				new Response('Rate limit exceeded', { status: 429 }),
-			)
+			throw new HttpException(new Response('Rate limit exceeded', { status: 429 }))
 
 		store.set(ipAdress, userRequests + 1)
 	}

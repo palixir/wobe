@@ -2,33 +2,33 @@
 	"name": "wobe-validator",
 	"version": "1.0.1",
 	"description": "Validator plugin for Wobe (official)",
-	"homepage": "https://wobe.dev",
-	"author": {
-		"name": "coratgerl",
-		"url": "https://github.com/coratgerl"
-	},
 	"keywords": [
 		"validator",
 		"wobe"
 	],
+	"homepage": "https://wobe.dev",
+	"license": "MIT",
+	"author": {
+		"name": "coratgerl",
+		"url": "https://github.com/coratgerl"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/palixir/wobe"
 	},
-	"license": "MIT",
 	"main": "dist/index.js",
+	"scripts": {
+		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
+		"generate:types": "bun tsc --project .",
+		"lint": "oxlint .  ",
+		"ci": "bun lint $(pwd) && bun test src",
+		"dev": "bun run --watch dev/index.ts"
+	},
 	"dependencies": {
 		"@sinclair/typebox": "0.32.27",
 		"wobe": "*"
 	},
 	"devDependencies": {
 		"get-port": "7.0.0"
-	},
-	"scripts": {
-		"build": "bun build --outdir dist $(pwd)/src/index.ts --target=bun --external=* && bun generate:types",
-		"generate:types": "bun tsc --project .",
-		"lint": "biome lint . --no-errors-on-unmatched ",
-		"ci": "bun lint $(pwd) && bun test src",
-		"dev": "bun run --watch dev/index.ts"
 	}
 }
