@@ -124,7 +124,11 @@ export const BunAdapter = (): RuntimeAdapter => ({
 						for (const hookBeforeSocketUpgrade of webSocket.beforeWebSocketUpgrade || [])
 							await hookBeforeSocketUpgrade(context)
 
-						if (server.upgrade(req)) return
+						const upgraded = server.upgrade(req, {
+							data: webSocket.getUpgradeData?.(context) as any,
+						})
+
+						if (upgraded) return
 					}
 
 					if (!context.handler) {
@@ -146,5 +150,5 @@ export const BunAdapter = (): RuntimeAdapter => ({
 				}
 			},
 		}),
-	stopServer: (server) => server.stop(),
+	stopServer: (server) => server.stop(true),
 })
