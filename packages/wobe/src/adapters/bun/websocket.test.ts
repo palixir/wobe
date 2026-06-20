@@ -1,3 +1,4 @@
+import type { ServerWebSocket } from 'bun'
 import { describe, expect, it, beforeAll, afterAll, mock, beforeEach } from 'bun:test'
 import { Wobe } from '../../Wobe'
 import getPort from 'get-port'
@@ -11,6 +12,15 @@ const waitWebsocketOpened = (ws: WebSocket) =>
 const waitWebsocketClosed = (ws: WebSocket) =>
 	new Promise((resolve) => {
 		ws.onclose = resolve
+	})
+
+const waitForMockCall = (mockFn: { mock: { calls: unknown[] } }) =>
+	new Promise<void>((resolve) => {
+		const check = () => {
+			if (mockFn.mock.calls.length > 0) resolve()
+			else setTimeout(check, 10)
+		}
+		check()
 	})
 
 describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
@@ -136,6 +146,47 @@ describe.skipIf(process.env.NODE_TEST === 'true')('Bun - websocket', () => {
 
 		expect(mockBeforeHandler1).toHaveBeenCalledTimes(1)
 		expect(mockBeforeHandler2).toHaveBeenCalledTimes(1)
+
+		ws.close()
+
+		wobe2.stop()
+	})
+
+	it('should pass getUpgradeData to ws.data on open and message', async () => {
+		const port2 = await getPort()
+
+		const upgradeData = { userId: 'user-123', role: 'admin' }
+		const mockOnOpenWithData = mock((_ws: ServerWebSocket<typeof upgradeData>) => {})
+		const mockOnMessageWithData = mock(
+			(_ws: ServerWebSocket<typeof upgradeData>, _message: string | Buffer) => {},
+		)
+
+		const wobe2 = new Wobe()
+
+		wobe2
+			.useWebSocket({
+				path: '/ws',
+				getUpgradeData: () => upgradeData,
+				onOpen: mockOnOpenWithData,
+				onMessage: mockOnMessageWithData,
+			})
+			.listen(port2)
+
+		const ws = new WebSocket(`ws://localhost:${port2}/ws`)
+
+		await waitWebsocketOpened(ws)
+
+		ws.send('Hello')
+
+		await waitForMockCall(mockOnMessageWithData)
+
+		expect(mockOnOpenWithData).toHaveBeenCalledTimes(1)
+		const [openWs] = mockOnOpenWithData.mock.calls[0]!
+		expect(openWs.data).toEqual(upgradeData)
+
+		expect(mockOnMessageWithData).toHaveBeenCalledTimes(1)
+		const [messageWs] = mockOnMessageWithData.mock.calls[0]!
+		expect(messageWs.data).toEqual(upgradeData)
 
 		ws.close()
 

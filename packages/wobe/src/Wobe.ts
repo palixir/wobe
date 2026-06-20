@@ -58,6 +58,7 @@ export type Hook = 'beforeHandler' | 'afterHandler' | 'beforeAndAfterHandler'
  * @param backpressureLimit The limit of the backpressure
  * @param closeOnBackpressureLimit Close the WebSocket server if the backpressure limit is reached
  * @param beforeWebSocketUpgrade Array of handlers before the WebSocket server is upgraded
+ * @param getUpgradeData Function to extract data passed to the WebSocket on upgrade
  * @param onOpen Handler when the WebSocket server is opened
  * @param onMessage Handler when the WebSocket server receives a message
  * @param onClose Handler when the WebSocket server is closed
@@ -71,6 +72,7 @@ export interface WobeWebSocket {
 	backpressureLimit?: number
 	closeOnBackpressureLimit?: boolean
 	beforeWebSocketUpgrade?: Array<WobeHandler<any>>
+	getUpgradeData?: (context: Context) => unknown
 	onOpen?(ws: ServerWebSocket<any>): void
 	onMessage?(ws: ServerWebSocket<any>, message: string | Buffer): void
 	onClose?(ws: ServerWebSocket<any>, code: number, message: string | Buffer): void
