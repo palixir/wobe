@@ -25,7 +25,7 @@
 		"ci": "bun lint  $(pwd) && bun test src"
 	},
 	"dependencies": {
-		"@apollo/server": "5.2.0"
+		"@apollo/server": "5.5.1"
 	},
 	"devDependencies": {
 		"get-port": "7.0.0",

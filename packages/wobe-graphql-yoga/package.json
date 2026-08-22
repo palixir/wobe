@@ -1,6 +1,6 @@
 {
 	"name": "wobe-graphql-yoga",
-	"version": "1.2.9",
+	"version": "1.2.10",
 	"description": "GraphQL Yoga server for Wobe (official)",
 	"keywords": [
 		"graphql-yoga",
@@ -25,7 +25,7 @@
 		"ci": "bun lint $(pwd) && bun test src"
 	},
 	"dependencies": {
-		"graphql-yoga": "5.17.1"
+		"graphql-yoga": "5.22.0"
 	},
 	"devDependencies": {
 		"get-port": "7.0.0",
