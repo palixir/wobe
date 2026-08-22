@@ -1,4 +1,4 @@
-import { ApolloServer, type ApolloServerOptions } from '@apollo/server'
+import { ApolloServer, HeaderMap, type ApolloServerOptions } from '@apollo/server'
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default'
 import { GraphQLError, type ValidationRule } from 'graphql'
 import type { Wobe, MaybePromise, WobePlugin, WobeResponse, Context } from 'wobe'
@@ -8,6 +8,26 @@ export type GraphQLApolloContext =
 	| ((context: any) => MaybePromise<unknown>)
 
 const getQueryString = (url: string) => url.slice(url.indexOf('?', 11) + 1)
+
+const toApolloHeaderMap = (request: Request) => {
+	const headers = new HeaderMap()
+
+	request.headers.forEach((value, key) => {
+		headers.set(key, value)
+	})
+
+	// Apollo Server 5.5+ rejects GET GraphQL requests whose Content-Type is not
+	// application/json (HTTP 415). Some runtimes (e.g. Bun on Linux) attach a
+	// default Content-Type such as text/plain to GET fetch() calls.
+	if (request.method === 'GET') {
+		const contentType = headers.get('content-type')
+		if (!contentType || !/^application\/json\b/i.test(contentType)) {
+			headers.set('content-type', 'application/json')
+		}
+	}
+
+	return headers
+}
 
 const createDepthLimitRule = (maxDepth: number): ValidationRule => {
 	return (context) => {
@@ -255,9 +275,8 @@ export const WobeGraphqlApolloPlugin = async ({
 				const res = await server.executeHTTPGraphQLRequest({
 					httpGraphQLRequest: {
 						method: request.method,
-						body: request.method === 'GET' ? request.body : requestBody,
-						// @ts-expect-error
-						headers: request.headers,
+						body: request.method === 'GET' ? undefined : requestBody,
+						headers: toApolloHeaderMap(request),
 						search: getQueryString(request.url),
 					},
 					context: async () => {

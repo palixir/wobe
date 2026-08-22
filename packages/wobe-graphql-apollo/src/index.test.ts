@@ -66,14 +66,20 @@ describe('Wobe GraphQL Apollo plugin', () => {
 
 		wobe.listen(port)
 
-		const res = await fetch(
-			`http://127.0.0.1:${port}/graphql?query=${encodeURIComponent(`
-				query { hello }
-			`)}`,
-		)
+		const query = encodeURIComponent(`query { hello }`)
+		const url = `http://127.0.0.1:${port}/graphql?query=${query}`
 
+		const res = await fetch(url)
 		expect(res.status).toBe(200)
 		expect(await res.json()).toEqual({
+			data: { hello: 'Hello from Apollo!' },
+		})
+
+		const resWithPlainContentType = await fetch(url, {
+			headers: { 'Content-Type': 'text/plain' },
+		})
+		expect(resWithPlainContentType.status).toBe(200)
+		expect(await resWithPlainContentType.json()).toEqual({
 			data: { hello: 'Hello from Apollo!' },
 		})
 
